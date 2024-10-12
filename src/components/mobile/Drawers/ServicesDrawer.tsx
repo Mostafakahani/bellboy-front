@@ -12,6 +12,7 @@ const ServicesDrawer: React.FC<ServicesDrawerProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       setIsRendered(true);
+      console.log(isRendered)
     } else {
       const timer = setTimeout(() => setIsRendered(false), 300);
       return () => clearTimeout(timer);
