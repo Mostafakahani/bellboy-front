@@ -1,4 +1,5 @@
 "use client";
+import MainHeader from "@/components/mobile/Header/MainHeader";
 import Button from "@/components/ui/Button/Button";
 import { Input } from "@/components/ui/Input/Input";
 import { Moon } from "lucide-react";
@@ -8,53 +9,56 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className="h-[150vh]">
-      <div className="space-y-4 p-5">
-        <div className="flex flex-col gap-3">
-          <Button variant="primary" size="sm" icon="plus">
-            جديد
-          </Button>
-          <Button variant="primary" isError size="sm" icon="trash" />
-          <section className="mb-6">
-            <h3 className="text-md font-medium mb-2">ظاهر</h3>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center">
-                <Moon size={20} className="ml-2" />
-                حالت تاریک
-              </span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={darkMode}
-                  onChange={() => setDarkMode(!darkMode)}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-400"></div>
-              </label>
-            </div>
-          </section>
-          <ThemeSelector darkMode={darkMode} setDarkMode={setDarkMode} />
-          <ThemeSelectorCheckBox darkMode={darkMode} setDarkMode={setDarkMode} />
-        </div>
-        <div className="space-y-4 p-4">
-          <Input label="عنوان فیلد" />
-          <Input
-            label="عنوان فیلد"
-            variant="dropdown"
-            placeholder="عنوان سردست"
-            options={["گزینه 1", "گزینه 2", "گزینه 3"]}
-          />
-          <Input label="تاچ / کلیک / انتخاب" variant="active" value="در حال تایپ" />
-          <Input
-            label="عنوان فیلد"
-            variant="error"
-            value="مقدار اشتباه"
-            errorMessage="این بخش اجباری است"
-          />
-          <Input variant="search" placeholder="جستجو" />
+    <>
+      <MainHeader />
+      <div className="h-[150vh]">
+        <div className="space-y-4 p-5">
+          <div className="flex flex-col gap-3">
+            <Button variant="primary" size="sm" icon="plus">
+              جديد
+            </Button>
+            <Button variant="primary" isError size="sm" icon="trash" />
+            <section className="mb-6">
+              <h3 className="text-md font-medium mb-2">ظاهر</h3>
+              <div className="flex items-center justify-between">
+                <span className="flex items-center">
+                  <Moon size={20} className="ml-2" />
+                  حالت تاریک
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={darkMode}
+                    onChange={() => setDarkMode(!darkMode)}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-400"></div>
+                </label>
+              </div>
+            </section>
+            <ThemeSelector darkMode={darkMode} setDarkMode={setDarkMode} />
+            <ThemeSelectorCheckBox darkMode={darkMode} setDarkMode={setDarkMode} />
+          </div>
+          <div className="space-y-4 p-4">
+            <Input label="عنوان فیلد" />
+            <Input
+              label="عنوان فیلد"
+              variant="dropdown"
+              placeholder="عنوان سردست"
+              options={["گزینه 1", "گزینه 2", "گزینه 3"]}
+            />
+            <Input label="تاچ / کلیک / انتخاب" variant="active" value="در حال تایپ" />
+            <Input
+              label="عنوان فیلد"
+              variant="error"
+              value="مقدار اشتباه"
+              errorMessage="این بخش اجباری است"
+            />
+            <Input variant="search" placeholder="جستجو" />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 const ThemeSelector = ({ darkMode, setDarkMode }: any) => {

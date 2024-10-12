@@ -29,7 +29,13 @@ const iconComponents = {
 const menuConfigs: MenuConfig = {
   main: [
     { icon: "Home", label: "خانه", href: "/", action: "link" },
-    { icon: "ShoppingBag", label: "سبد خرید", href: "/cart", action: "link" },
+    {
+      icon: "ShoppingBag",
+      label: "خدمات بِل‌بوی",
+      href: "/service",
+      action: "drawer",
+      drawerId: "bellService",
+    },
     {
       icon: "Clipboard",
       label: "خدمات",

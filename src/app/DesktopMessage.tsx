@@ -35,10 +35,7 @@ const DesktopMessage: React.FC<DesktopMessageProps> = ({ children, allowDesktop 
     <div className="fixed inset-0 bg-gray-800 text-white flex items-center justify-center z-50">
       <div className="text-center p-8">
         <h1 className="text-3xl font-bold mb-4">بزودی...</h1>
-        {/* <p className="text-md font-extralight">
-          این وب‌سایت فقط برای موبایل و تبلت طراحی شده است. لطفاً با یک دستگاه موبایل یا تبلت وارد
-          شوید.
-        </p> */}
+        <p className="text-md font-extralight">لطفاً با یک دستگاه موبایل یا تبلت وارد شوید.</p>
       </div>
     </div>
   );

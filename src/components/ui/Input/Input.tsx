@@ -96,7 +96,7 @@ export const Input: React.FC<InputProps> = ({
       {renderInput()}
       {variant === "active" && <p className="mt-1 text-sm text-green-600">در حال تایپ</p>}
       {variant === "error" && errorMessage && (
-        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+        <p className="mt-1 mr-2 text-xs text-red-600">{errorMessage}</p>
       )}
     </div>
   );
