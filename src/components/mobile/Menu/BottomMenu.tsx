@@ -159,6 +159,13 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
     }
   }, [pathname]);
 
+  const isActive = (itemHref: string) => {
+    if (itemHref === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(itemHref);
+  };
+
   const handleItemClick = (item: MenuItem) => {
     if (item.action === "drawer" && item.drawerId) {
       onOpenDrawer(item.drawerId);
@@ -184,7 +191,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
                 onClick={() => handleItemClick(item)}
                 className="w-full flex flex-col items-center justify-center h-full"
               >
-                {pathname === item.href ? (
+                {isActive(item.href) ? (
                   <div
                     className={`transition-all duration-300 ease-in-out text-blue-500 scale-110`}
                   >
