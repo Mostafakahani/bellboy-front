@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, ShoppingBag, Clipboard, User, Settings, BarChart, Users } from "lucide-react";
+import Image from "next/image";
 
 interface MenuItem {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  iconActive: string;
+  iconInactive: string;
   label: string;
   href: string;
   action?: "link" | "drawer";
@@ -28,34 +31,62 @@ const iconComponents = {
 
 const menuConfigs: MenuConfig = {
   main: [
-    { icon: "Home", label: "خانه", href: "/", action: "link" },
     {
-      icon: "ShoppingBag",
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
+      label: "خانه",
+      href: "/",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/services-active.svg",
+      iconInactive: "/images/icons/services.svg",
       label: "خدمات بِل‌بوی",
       href: "/service",
       action: "drawer",
       drawerId: "bellService",
     },
     {
-      icon: "Clipboard",
-      label: "خدمات",
+      iconActive: "/images/icons/shop-active.svg",
+      iconInactive: "/images/icons/shop.svg",
+      label: "سبدخرید",
       href: "/s",
       action: "link",
     },
-    { icon: "User", label: "حساب من", href: "/profile", action: "link" },
+    {
+      iconActive: "/images/icons/user-active.svg",
+      iconInactive: "/images/icons/user.svg",
+      label: "حساب من",
+      href: "/profile",
+      action: "link",
+    },
   ],
   userDashboard: [
-    { icon: "Home", label: "داشبورد", href: "/dashboard", action: "link" },
-    { icon: "Clipboard", label: "سفارش‌ها", href: "/dashboard/orders", action: "link" },
     {
-      icon: "Settings",
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
+      label: "داشبورد",
+      href: "/dashboard",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
+      label: "سفارش‌ها",
+      href: "/dashboard/orders",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
       label: "تنظیمات",
       href: "/dashboard/settings",
       action: "drawer",
       drawerId: "settings",
     },
     {
-      icon: "User",
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
       label: "پروفایل",
       href: "/dashboard/profile",
       action: "drawer",
@@ -63,17 +94,31 @@ const menuConfigs: MenuConfig = {
     },
   ],
   adminPanel: [
-    { icon: "BarChart", label: "آمار", href: "/admin", action: "link" },
-    { icon: "Users", label: "کاربران", href: "/admin/users", action: "link" },
     {
-      icon: "ShoppingBag",
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
+      label: "آمار",
+      href: "/admin",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
+      label: "کاربران",
+      href: "/admin/users",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
       label: "محصولات",
       href: "/admin/products",
       action: "drawer",
       drawerId: "products",
     },
     {
-      icon: "Settings",
+      iconActive: "/images/icons/home-active.svg",
+      iconInactive: "/images/icons/home.svg",
       label: "تنظیمات",
       href: "/admin/settings",
       action: "drawer",
@@ -145,8 +190,16 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
                   >
                     <div className="relative h-[80px]">
                       <div className="flex flex-col items-center justify-center w-[70px] absolute top-[-10px] px-3 py-5 -left-9 bg-white border-[5px] border-black rounded-t-full">
-                        <IconComponent size={20} />
-                        <span className="text-[11px] mt-1 text-nowrap">{item.label}</span>
+                        <Image
+                          src={item.iconActive}
+                          alt={item.label}
+                          width={24}
+                          height={24}
+                          priority
+                        />
+                        <span className="text-[11px] mt-1 text-nowrap text-black font-black">
+                          {item.label}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -154,7 +207,13 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
                   <div
                     className={`transition-all duration-300 ease-in-out flex flex-col items-center justify-center`}
                   >
-                    <IconComponent className="text-white" size={20} />
+                    <Image
+                      src={item.iconInactive}
+                      alt={item.label}
+                      width={24}
+                      height={24}
+                      priority
+                    />
                     <span className="text-xs mt-1 text-white">{item.label}</span>
                   </div>
                 )}
