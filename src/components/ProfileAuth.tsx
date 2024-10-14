@@ -172,7 +172,7 @@ const ProfileAuth: React.FC = () => {
         return (
           <form onSubmit={handlePhoneSubmit} className="space-y-7">
             <div className="mb-24">
-              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto">
                 <svg
                   className="w-8 h-8 text-emerald-500"
                   fill="none"

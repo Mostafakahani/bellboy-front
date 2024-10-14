@@ -32,7 +32,7 @@ export default function Home() {
                     checked={darkMode}
                     onChange={() => setDarkMode(!darkMode)}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-400"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-0 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-400"></div>
                 </label>
               </div>
             </section>
@@ -84,8 +84,8 @@ const ThemeSelector = ({ darkMode, setDarkMode }: any) => {
             />
             <div className="relative w-6 h-6 rounded-full border-2 border-black flex items-center justify-center">
               <div
-                className={`w-4 h-4 rounded-full peer-checked:bg-emerald-400 border-2 border-black ${
-                  darkMode === (theme === "dark") ? "bg-emerald-400" : "bg-white border-0"
+                className={`w-4 h-4 rounded-full peer-checked:bg-primary-400 border-2 border-black ${
+                  darkMode === (theme === "dark") ? "bg-primary-400" : "bg-white border-0"
                 }`}
               ></div>
             </div>
@@ -122,7 +122,7 @@ const CheckMark = ({ isChecked }: any) => {
   return (
     <div
       className={`w-6 h-6 rounded-md border-2 border-black flex items-center justify-center ${
-        isChecked ? "bg-emerald-400" : "bg-white"
+        isChecked ? "bg-primary-400" : "bg-white"
       }`}
     >
       {isChecked && (

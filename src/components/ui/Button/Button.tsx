@@ -4,17 +4,17 @@ import { PlusIcon, MinusIcon, TrashIcon } from "lucide-react";
 const variantStyles = {
   primary: {
     default:
-      "bg-emerald-400 py-6 text-black border-[2px] border-black hover:bg-emerald-300 active:bg-black active:text-white disabled:bg-emerald-100 disabled:text-slate-400 disabled:border-black/30",
+      "bg-primary-400 py-6 text-black border-[2px] border-black hover:bg-primary-300 active:bg-black active:text-white disabled:bg-primary-100 disabled:text-slate-400 disabled:border-black/30",
     error: "bg-white text-red-500 border border-red-500",
   },
   secondary: {
     default:
-      "bg-white text-black border-[2px] border-emerald-400 bg-emerald-300 hover:bg-emerald-50 active:bg-black active:text-white disabled:bg-white disabled:text-emerald-200 disabled:border-emerald-200",
+      "bg-white text-black border-[2px] border-emerald-400 bg-primary-300 hover:bg-primary-50 active:bg-black active:text-white disabled:bg-white disabled:text-emerald-200 disabled:border-emerald-200",
     error: "bg-white text-red-500 border border-red-500",
   },
   tertiary: {
     default:
-      "bg-transparent text-black hover:bg-emerald-50 active:bg-black active:text-white disabled:text-emerald-200",
+      "bg-transparent text-black hover:bg-primary-50 active:bg-black active:text-white disabled:text-emerald-200",
     error: "bg-transparent text-red-500",
   },
 };

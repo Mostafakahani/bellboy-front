@@ -20,7 +20,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ isDrawerOpen, toggleDrawer, lin
       </button>
       <div className="p-4 mx-4 flex flex-col gap-5">
         <div className="w-full mb-12">
-          <button className="bg-[#69ffc3] text-black border-[2px] py-3 font-bold w-full border-black hover:bg-emerald-300 active:bg-black rounded-full active:text-white disabled:bg-emerald-100 disabled:text-emerald-300 disabled:border-black/30">
+          <button className="bg-[#69ffc3] text-black border-[2px] py-3 font-bold w-full border-black hover:bg-primary-300 active:bg-black rounded-full active:text-white disabled:bg-primary-100 disabled:text-emerald-300 disabled:border-black/30">
             ورود به حساب / ثبت نام
           </button>
         </div>
