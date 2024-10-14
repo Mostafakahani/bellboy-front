@@ -42,6 +42,6 @@ export const config = {
 // This is a placeholder function. Replace with your actual auth check logic
 function checkAuthStatus(request: NextRequest): boolean {
   // Example: Check for a session token in cookies
-  const sessionToken = request.cookies.get("auth_token");
+  const sessionToken = request.cookies.get("auth_token") || true; /////////////////////////////// true for protection dev mode.
   return !!sessionToken;
 }

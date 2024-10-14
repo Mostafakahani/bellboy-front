@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import Link from "next/link";
 import { Phone } from "lucide-react";
@@ -18,7 +19,7 @@ const MainHeader: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+    <header className="fixed top-0 left-0 right-0 bg-white z-50">
       <div className="flex items-center justify-between px-4 py-2">
         {/* Drawer toggle button */}
         <button onClick={toggleDrawer} className="text-2xl">

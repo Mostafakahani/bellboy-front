@@ -19,7 +19,7 @@ export const Input: React.FC<InputProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const baseInputClasses =
-    "w-full px-3 py-2 border-2 border-black rounded-xl focus:outline-none focus:ring-0 focus:ring-blue-500 placeholder-black/90 placeholder:text-sm";
+    "w-full px-3 py-3 border-2 border-black rounded-xl focus:outline-none focus:ring-0 focus:ring-blue-500 placeholder-black/90 placeholder:text-sm";
   const labelClasses = "block mb-1 mr-2 text-sm font-bold text-right ";
 
   const getInputClasses = () => {
@@ -86,13 +86,17 @@ export const Input: React.FC<InputProps> = ({
           </div>
         );
       default:
-        return <input {...props} className={getInputClasses()} />;
+        return <input id={label} {...props} className={getInputClasses()} />;
     }
   };
 
   return (
     <div className={`mb-4 ${className}`}>
-      {label && <label className={labelClasses}>{label}</label>}
+      {label && (
+        <label htmlFor={label} className={labelClasses}>
+          {label}
+        </label>
+      )}
       {renderInput()}
       {variant === "active" && <p className="mt-1 text-sm text-green-600">در حال تایپ</p>}
       {variant === "error" && errorMessage && (

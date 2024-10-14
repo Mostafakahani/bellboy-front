@@ -4,7 +4,7 @@ import { PlusIcon, MinusIcon, TrashIcon } from "lucide-react";
 const variantStyles = {
   primary: {
     default:
-      "bg-emerald-400 text-black border-[2px] border-black hover:bg-emerald-300 active:bg-black active:text-white disabled:bg-emerald-100 disabled:text-emerald-300 disabled:border-black/30",
+      "bg-emerald-400 py-6 text-black border-[2px] border-black hover:bg-emerald-300 active:bg-black active:text-white disabled:bg-emerald-100 disabled:text-slate-400 disabled:border-black/30",
     error: "bg-white text-red-500 border border-red-500",
   },
   secondary: {
@@ -38,6 +38,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isError?: boolean;
   iconOnly?: boolean;
   children?: React.ReactNode;
+  onXsIsText?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -49,6 +50,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   className = "",
   disabled = false,
+  onXsIsText = false,
   ...props
 }) => {
   const variantClass = variantStyles[variant][isError ? "error" : "default"];
@@ -74,7 +76,13 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {!iconOnly && children && (
-        <span className={`hidden md:block ${icon ? "ml-2" : "text-xs"}`}>{children}</span>
+        <span
+          className={`${onXsIsText ? "block" : "hidden"}  md:block ${icon ? "ml-2" : "text-sm"} ${
+            disabled ? "!text-slate-600" : "text-black"
+          }!text-base`}
+        >
+          {children}
+        </span>
       )}
       {icon && getIcon()}
     </button>

@@ -42,7 +42,7 @@ const menuConfigs: MenuConfig = {
       href: "/s",
       action: "link",
     },
-    { icon: "User", label: "حساب من", href: "/z", action: "link" },
+    { icon: "User", label: "حساب من", href: "/profile", action: "link" },
   ],
   userDashboard: [
     { icon: "Home", label: "داشبورد", href: "/dashboard", action: "link" },
