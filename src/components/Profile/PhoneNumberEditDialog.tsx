@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import { PhoneNumberEditDialogProps, Step } from "./ProfileTypes";
 import Image from "next/image";
+import SuccessDialog from "./SuccessDialog";
 
 export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
   isOpen,
@@ -18,6 +19,7 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
   const [timeLeft, setTimeLeft] = useState(120);
   const [isFinished, setIsFinished] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -42,7 +44,7 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
       setIsFinished(false);
       console.log(`Sending OTP to ${currentPhoneNumber}`);
     }
-  }, [isOpen, currentPhoneNumber]);
+  }, [isOpen]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -73,6 +75,11 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
     e.preventDefault();
     console.log(`Updating phone number to ${newPhoneNumber}`);
     onSave(newPhoneNumber);
+    setShowSuccessDialog(true);
+  };
+
+  const handleSuccessDialogClose = () => {
+    setShowSuccessDialog(false);
     onClose();
     setOtp(["", "", "", ""]);
   };
@@ -173,32 +180,39 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
         );
       case Step.NEW_PHONE:
         return (
-          <form onSubmit={handleNewPhoneSubmit} className="space-y-7 mt-48">
-            <h2 className="text-xl font-bold text-center">شماره موبایل جدید را وارد کنید</h2>
-            <Input
-              name="newPhoneNumber"
-              value={newPhoneNumber}
-              onChange={(e) => handlePhoneChange(e)}
-              type="tel"
-              placeholder="09120000000"
-              maxLength={11}
-              minLength={11}
-              required
-              className="text-center placeholder:text-slate-400 w-full"
-              variant={errorMessage ? "error" : "default"}
-              style={{ textAlign: "center" }}
-              errorMessage={errorMessage}
+          <>
+            <form onSubmit={handleNewPhoneSubmit} className="space-y-7 mt-48">
+              <h2 className="text-xl font-bold text-center">شماره موبایل جدید را وارد کنید</h2>
+              <Input
+                name="newPhoneNumber"
+                value={newPhoneNumber}
+                onChange={(e) => handlePhoneChange(e)}
+                type="tel"
+                placeholder="09120000000"
+                maxLength={11}
+                minLength={11}
+                required
+                className="text-center placeholder:text-slate-400 w-full"
+                variant={errorMessage ? "error" : "default"}
+                style={{ textAlign: "center" }}
+                errorMessage={errorMessage}
+              />
+              <Button
+                disabled={!!errorMessage || newPhoneNumber.length !== 11}
+                className="w-full"
+                variant="primary"
+                onXsIsText
+                type="submit"
+              >
+                ذخیره شماره جدید
+              </Button>
+            </form>
+            <SuccessDialog
+              isOpen={showSuccessDialog}
+              onClose={handleSuccessDialogClose}
+              message="با موفقیت انجام شد"
             />
-            <Button
-              disabled={!!errorMessage || newPhoneNumber.length !== 11}
-              className="w-full"
-              variant="primary"
-              onXsIsText
-              type="submit"
-            >
-              ذخیره شماره جدید
-            </Button>
-          </form>
+          </>
         );
     }
   };
