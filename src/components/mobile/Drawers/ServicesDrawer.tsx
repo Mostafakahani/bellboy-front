@@ -57,7 +57,7 @@ const ServicesDrawer: React.FC<ServicesDrawerProps> = ({ isOpen, onClose }) => {
                   <service.icon size={24} className="ml-4" />
                   <span className="text-lg">{service.arabic}</span>
                 </div>
-                <span className="text-lg ml-3 text-slate-200/50">{service.name}</span>
+                <span className="text-lg ml-3 text-slate-200/50 font-lobester">{service.name}</span>
               </div>
             ))}
           </div>

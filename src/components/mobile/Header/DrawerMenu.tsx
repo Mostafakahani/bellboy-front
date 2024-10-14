@@ -11,7 +11,7 @@ interface DrawerMenuProps {
 const DrawerMenu: React.FC<DrawerMenuProps> = ({ isDrawerOpen, toggleDrawer, links }) => {
   return (
     <div
-      className={`fixed z-40 top-0 left-0 h-dvh overflow-y-hidden-hidden w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+      className={`fixed z-40 top-0 left-0 h-dvh overflow-y-hidden w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
         isDrawerOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >

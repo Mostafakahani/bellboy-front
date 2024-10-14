@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         yekanBakh: ["var(--font-yekanBakh-regular)", "serif"],
+        lobester: ["var(--font-lobester)", "serif"],
       },
       colors: {
         background: "var(--background)",
