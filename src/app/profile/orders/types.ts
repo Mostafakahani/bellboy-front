@@ -4,6 +4,7 @@ export interface OrderItem {
   name: string;
   price: number;
   quantity: number;
+  offer: number | undefined;
 }
 
 export interface Order {
@@ -15,4 +16,5 @@ export interface Order {
   tax: number;
   shippingCost: number;
   totalPayable: number;
+  offer?: number;
 }

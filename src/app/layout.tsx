@@ -24,7 +24,7 @@ const yekanBakhBold = localFont({
 const yekanBakhBlack = localFont({
   src: "./fonts/YekanBakhFaNum-Black.woff2",
   variable: "--font-yekanBakh-black",
-  weight: "800",
+  weight: "800 900",
 });
 const lobesterFont = localFont({
   src: "./fonts/Lobster-Regular.woff2",
