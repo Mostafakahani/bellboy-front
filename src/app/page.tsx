@@ -61,37 +61,32 @@ export default function Home() {
     </>
   );
 }
-const ThemeSelector = ({ darkMode, setDarkMode }: any) => {
+export const ThemeSelector = ({ darkMode, setDarkMode, className }: any) => {
   return (
-    <section className="mb-6">
-      <h3 className="text-md font-medium mb-2">انتخاب تم</h3>
-      <div className="flex flex-col space-y-2">
-        {/* Combined Radio Buttons */}
-        {["light", "dark"].map((theme) => (
-          <label
-            key={theme}
-            className={`inline-flex items-center cursor-pointer ${
-              darkMode === (theme === "dark") ? "opacity-100" : "opacity-90"
-            }`}
-          >
-            <input
-              type="radio"
-              name="theme"
-              value={theme}
-              className="sr-only peer"
-              checked={darkMode === (theme === "dark")}
-              onChange={() => setDarkMode(theme === "dark")}
-            />
-            <div className="relative w-6 h-6 rounded-full border-2 border-black flex items-center justify-center">
-              <div
-                className={`w-4 h-4 rounded-full peer-checked:bg-primary-400 border-2 border-black ${
-                  darkMode === (theme === "dark") ? "bg-primary-400" : "bg-white border-0"
-                }`}
-              ></div>
-            </div>
-            <span className="ml-2">{theme === "dark" ? "حالت تاریک" : "حالت روشن"}</span>
-          </label>
-        ))}
+    <section className={className}>
+      <div className="flex flex-col">
+        <label
+          key={darkMode}
+          className={`inline-flex items-center cursor-pointer ${
+            darkMode === darkMode ? "opacity-100" : "opacity-90"
+          }`}
+        >
+          <input
+            type="radio"
+            name="theme"
+            value={darkMode}
+            className="sr-only peer"
+            checked={darkMode}
+            onChange={() => setDarkMode(!darkMode)}
+          />
+          <div className="relative w-6 h-6 rounded-full border-2 border-black flex items-center justify-center">
+            <div
+              className={`w-4 h-4 rounded-full peer-checked:bg-primary-400 border-black ${
+                darkMode ? "bg-primary-400 border-2" : "bg-white border-0 "
+              }`}
+            ></div>
+          </div>
+        </label>
       </div>
     </section>
   );

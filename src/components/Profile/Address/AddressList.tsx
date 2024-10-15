@@ -1,9 +1,13 @@
+import { ThemeSelector } from "@/app/page";
 import { Address } from "@/app/profile/address/types";
+import Button from "@/components/ui/Button/Button";
+import Image from "next/image";
 import React from "react";
 
 interface AddressListProps {
   addresses: Address[];
   selectedAddressId: string | null;
+  clickEditButton: boolean | null;
   onEdit: (address: Address) => void;
   onDelete: (addressId: string) => void;
   onSelect: (addressId: string) => void;
@@ -12,53 +16,86 @@ interface AddressListProps {
 const AddressList: React.FC<AddressListProps> = ({
   addresses,
   selectedAddressId,
+  clickEditButton,
   onEdit,
   onDelete,
   onSelect,
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {addresses.map((address) => (
-        <div
-          key={address.id}
-          className={`border rounded-lg p-4 flex justify-between items-center cursor-pointer ${
-            selectedAddressId === address.id ? "bg-blue-100 border-blue-500" : ""
-          }`}
-          onClick={() => onSelect(address.id!)}
-        >
-          <div className="flex items-center">
-            <input
-              type="radio"
-              checked={selectedAddressId === address.id}
-              onChange={() => onSelect(address.id!)}
-              className="mr-3"
-            />
-            <div>
-              <h3 className="font-semibold">{address.title}</h3>
-              <p className="text-sm text-gray-600">{`${address.province}، ${address.city}، ${address.street}`}</p>
-              <p className="text-sm text-gray-600">{`کد پستی: ${address.postalCode}`}</p>
+        <div key={address.id}>
+          {clickEditButton ? (
+            <div className="flex space-x-2">
+              <div
+                className={`flex-col border-2 border-black rounded-xl p-7 flex justify-between items-center cursor-pointer`}
+              >
+                <div className="flex items-center">
+                  <div className="flex flex-col gap-3">
+                    <div className="w-full flex flex-row gap-3">
+                      <h3 className="font-semibold">{address.title}</h3>
+                      <p className="py-1 px-1.5 bg-gray-100 rounded-full text-[11px] font-bold line max-w-full">
+                        شناسه {address.postalCode}
+                      </p>
+                    </div>
+                    <div className="flex flex-row items-start">
+                      <Image width={30} height={30} src={"/images/icons/gps.svg"} alt="gps icon" />
+                      <p className="text-sm text-gray-600 line-clamp-2">{`${address.province}، ${address.city}، ${address.street}`}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="border-b-2 border-black w-full my-4"></div>
+                <div className="w-full flex flex-row justify-between ">
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(address);
+                    }}
+                    onXsIsText
+                    variant="secondary"
+                  >
+                    ویرایش
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(address.id!);
+                    }}
+                    icon="trash"
+                    variant="tertiary"
+                    isError
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(address);
-              }}
-              className="text-blue-500 hover:text-blue-700 mr-2"
+          ) : (
+            <div
+              className={`border-2 border-black rounded-xl p-7 flex justify-between items-center cursor-pointer ${
+                selectedAddressId === address.id ? "bg-primary-400/10" : ""
+              }`}
+              onClick={() => onSelect(address.id!)}
             >
-              ویرایش
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(address.id!);
-              }}
-              className="text-red-500 hover:text-red-700"
-            >
-              حذف
-            </button>
-          </div>
+              <div className="flex items-center">
+                <ThemeSelector
+                  darkMode={selectedAddressId === address.id}
+                  setDarkMode={() => onSelect(address.id!)}
+                  className="ml-3"
+                />
+                <div className="flex flex-col gap-3">
+                  <div className="w-full flex flex-row gap-3">
+                    <h3 className="font-semibold">{address.title}</h3>
+                    <p className="py-1 px-1.5 bg-gray-100 rounded-full text-[11px] font-bold line-clamp-1">
+                      شناسه {address.postalCode}
+                    </p>
+                  </div>
+                  <div className="flex flex-row items-start">
+                    <Image width={30} height={30} src={"/images/icons/gps.svg"} alt="gps icon" />
+                    <p className="text-sm text-gray-600 line-clamp-2">{`${address.province}، ${address.city}، ${address.street}`}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>

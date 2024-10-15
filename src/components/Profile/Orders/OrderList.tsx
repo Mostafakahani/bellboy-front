@@ -66,7 +66,7 @@ export default function OrderList({ orders }: OrderListProps) {
         onClick={closeOrderDetails}
       >
         <div
-          className={`bg-white w-full max-w-md transform transition-all duration-300 ease-in-out h-screen overflow-y-auto ${
+          className={`bg-white w-full max-w-md transform transition-all duration-300 ease-in-out h-[93vh] overflow-y-auto ${
             isModalOpen ? "translate-x-0" : "translate-x-full"
           }`}
           onClick={(e) => e.stopPropagation()}

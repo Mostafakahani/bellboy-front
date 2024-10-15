@@ -1,5 +1,6 @@
-// components/AddressModal.tsx
 import { Address, Province } from "@/app/profile/address/types";
+import Button from "@/components/ui/Button/Button";
+import { Input } from "@/components/ui/Input/Input";
 import React, { useState, useEffect } from "react";
 
 interface AddressModalProps {
@@ -26,7 +27,18 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "province") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+        city: "", // Reset city when province changes
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,104 +51,73 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
     : [];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div
+      className={`fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50 transition-opacity duration-300 ease-in-out ${
+        address ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+    >
+      <div className="fixed bottom-0 left-0 right-0 h-[86vh] bg-white p-6 w-full overflow-y-auto max-w-md">
         <h2 className="text-xl font-semibold mb-4">
-          {address ? "ویرایش آدرس" : "افزودن آدرس جدید"}
+          {address ? "ویرایش موقعیت" : "افزودن موقعیت جدید"}
         </h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="title" className="block mb-1">
-              عنوان
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className="w-full border rounded px-2 py-1"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="province" className="block mb-1">
-              استان
-            </label>
-            <select
-              id="province"
-              name="province"
-              value={formData.province}
-              onChange={handleChange}
-              className="w-full border rounded px-2 py-1"
-              required
-            >
-              <option value="">انتخاب کنید</option>
-              {provinces.map((province) => (
-                <option key={province["province-en"]} value={province["province-fa"]}>
-                  {province["province-fa"]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label htmlFor="city" className="block mb-1">
-              شهر
-            </label>
-            <select
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full border rounded px-2 py-1"
-              required
-            >
-              <option value="">انتخاب کنید</option>
-              {cities.map((city) => (
-                <option key={city["city-en"]} value={city["city-fa"]}>
-                  {city["city-fa"]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label htmlFor="street" className="block mb-1">
-              آدرس دقیق
-            </label>
-            <input
-              type="text"
-              id="street"
-              name="street"
-              value={formData.street}
-              onChange={handleChange}
-              className="w-full border rounded px-2 py-1"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="postalCode" className="block mb-1">
-              کد پستی
-            </label>
-            <input
-              type="text"
-              id="postalCode"
-              name="postalCode"
-              value={formData.postalCode}
-              onChange={handleChange}
-              className="w-full border rounded px-2 py-1"
-              required
-            />
-          </div>
-          <div className="flex justify-end">
-            <button type="button" onClick={onClose} className="mr-2 px-4 py-2 border rounded">
-              انصراف
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              ذخیره
-            </button>
+          <div className="flex flex-col justify-between h-full">
+            <div className="mb-4">
+              <Input
+                variant="dropdown"
+                label="استان"
+                name="province"
+                value={formData.province}
+                onChange={handleChange}
+                options={provinces.map((province) => province["province-fa"])}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <Input
+                variant="dropdown"
+                label="شهر"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                options={cities.map((city) => city["city-fa"])}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <Input
+                type="text"
+                label="آدرس دقیق"
+                name="street"
+                value={formData.street}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <Input
+                type="text"
+                label="پلاک"
+                value={formData.postalCode}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <Input
+                type="text"
+                label="عنوان موقعیت"
+                value={formData.title}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="w-full flex justify-center">
+              <Button className="w-full" onXsIsText type="submit">
+                ثبت موقعیت
+              </Button>
+            </div>
           </div>
         </form>
       </div>

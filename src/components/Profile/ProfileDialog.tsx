@@ -45,7 +45,7 @@ export const ProfileDialog: React.FC<DialogProps> = ({ isOpen, onClose }) => {
         <div
           className={`bg-white w-full p-6 transform transition-all duration-300 ease-out ${
             isOpen
-              ? "translate-y-0 scale-100 opacity-100 h-vh"
+              ? "translate-y-0 scale-100 opacity-100 h-[93vh]"
               : "translate-y-full scale-95 opacity-0 h-0"
           }`}
         >
@@ -55,7 +55,7 @@ export const ProfileDialog: React.FC<DialogProps> = ({ isOpen, onClose }) => {
               <Image width={24} height={24} src="/images/icons/close.svg" alt="close" />
             </button>
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[85vh] mt-12">
+          <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[78vh] mt-12">
             <div className="flex flex-col gap-4">
               <Input
                 name="firstName"

@@ -6,10 +6,12 @@ import AddressList from "@/components/Profile/Address/AddressList";
 import AddressModal from "@/components/Profile/Address/AddressModal";
 import { useRouter } from "next/navigation";
 import demoAddresses from "./demo-addresses.json";
+import Image from "next/image";
 
 export default function ProfileAddressPage() {
   const [addresses, setAddresses] = useState<Address[]>(demoAddresses);
   const [isLoading, setIsLoading] = useState(true);
+  const [clickEditButton, setClickEditButton] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -92,11 +94,21 @@ export default function ProfileAddressPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">آدرس‌های من</h1>
+    <div className="container mx-auto px-4 py-8 mt-20">
+      <div className="w-full flex flex-row justify-between items-center">
+        <h1 className="text-2xl font-bold mb-4">آدرس‌ها</h1>
+
+        <button
+          onClick={() => setClickEditButton(!clickEditButton)}
+          className="text-gray-400 hover:text-gray-600 focus:outline-none ml-2"
+        >
+          <Image width={22} height={22} src="/images/icons/edit.svg" alt="edit" />
+        </button>
+      </div>
       {mode === "list" ? (
         <>
           <AddressList
+            clickEditButton={clickEditButton}
             addresses={addresses}
             selectedAddressId={selectedAddressId}
             onEdit={handleEditAddress}
