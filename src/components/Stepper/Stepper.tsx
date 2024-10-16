@@ -1,98 +1,115 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { CheckIcon } from "lucide-react";
+import React, { useState } from "react";
+import { Check } from "lucide-react";
 
 interface Step {
+  id: number;
   label: string;
-  isCompleted: boolean;
+  content: React.ReactNode;
 }
 
-interface StepperProps {
+interface MultiStepFormProps {
   steps: Step[];
-  currentStep: number;
-  onStepChange: (step: number) => void;
+  formData: Record<string, string>;
+  onFormChange: (newData: Record<string, string>) => void;
 }
 
-const Stepper: React.FC<StepperProps> = ({ steps, currentStep, onStepChange }) => {
-  const [mounted, setMounted] = useState(false);
+const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, currentStep }) => {
+  return (
+    <div className="flex items-center justify-between w-full mb-8">
+      {steps.map((step, index) => {
+        const isCompleted = index < currentStep - 1;
+        const isCurrent = index === currentStep - 1;
+        const isUpcoming = index > currentStep - 1;
 
-  const loadProgress = useCallback(() => {
-    const savedProgress = localStorage.getItem("stepperProgress");
-    if (savedProgress) {
-      const { currentStep: savedStep, completedSteps } = JSON.parse(savedProgress);
-      onStepChange(savedStep);
-      return steps.map((step, index) => ({
-        ...step,
-        isCompleted: completedSteps.includes(index),
-      }));
-    }
-    return steps;
-  }, [steps, onStepChange]);
+        return (
+          <div key={step.id} className="flex items-center flex-1 last:flex-none relative">
+            <div className={`flex items-center z-10 ${index >= currentStep && "flex-row-reverse"}`}>
+              <div
+                className={`ml-1 w-[34px] h-6 flex items-center justify-center rounded-full text-xs
+    ${
+      isCompleted
+        ? "bg-primary-600 border-2 border-black transition-all duration-300 ease-in-out"
+        : isCurrent
+        ? "bg-black text-white transition-all duration-300 ease-in-out shadow-[-15px_0_0_4px_white]"
+        : "bg-white border-2 border-black transition-all duration-300 ease-in-out"
+    }`}
+              >
+                {isCompleted ? (
+                  <Check size={12} className="text-black" />
+                ) : (
+                  <span className={isUpcoming ? "text-black font-bold" : ""}>{step.id}</span>
+                )}
+              </div>
 
-  const [stepsState, setStepsState] = useState<Step[]>(steps);
+              <div
+                className={`ml-2 bg-black text-white px-3 py-1 rounded-full font-bold text-xs
+                ${isCurrent ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"}
+                transition-all duration-300 ease-in-out`}
+              >
+                {step.label}
+              </div>
+            </div>
+            {index < steps.length - 1 && (
+              <div
+                className={`absolute top-3 -left-14 right-0 h-0.5 transition-all duration-300 ease-in-out
+                  ${isCompleted ? "bg-black" : "bg-black"}`}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
-  useEffect(() => {
-    setMounted(true);
-    setStepsState(loadProgress());
-  }, [loadProgress]);
+const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, formData, onFormChange }) => {
+  const [currentStep, setCurrentStep] = useState(1);
 
-  useEffect(() => {
-    if (mounted) {
-      const completedSteps = stepsState
-        .map((step, index) => (step.isCompleted ? index : null))
-        .filter((index): index is number => index !== null);
-      localStorage.setItem("stepperProgress", JSON.stringify({ currentStep, completedSteps }));
-    }
-  }, [currentStep, stepsState, mounted]);
-
-  const handleStepClick = (index: number) => {
-    if (index < currentStep) {
-      onStepChange(index);
+  const handleNextStep = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  if (!mounted) return null;
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFormChange({ ...formData, [e.target.name]: e.target.value });
+  };
 
   return (
-    <div className="w-full px-4 py-2">
-      <div className="flex items-center justify-between">
-        {stepsState.map((step, index) => (
-          <React.Fragment key={index}>
-            <div className="flex flex-col items-center">
-              <button
-                onClick={() => handleStepClick(index)}
-                className={`w-10 h-10 flex items-center justify-center rounded-full ${
-                  step.isCompleted
-                    ? "bg-green-500 hover:bg-green-600"
-                    : index === currentStep
-                    ? "bg-blue-500 text-white"
-                    : index < currentStep
-                    ? "bg-gray-300 hover:bg-gray-400"
-                    : "bg-gray-300"
-                } transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                disabled={index > currentStep}
-              >
-                {step.isCompleted ? (
-                  <CheckIcon className="w-6 h-6 text-white" />
-                ) : (
-                  <span className="text-sm font-medium">{index + 1}</span>
-                )}
-              </button>
-              <span className="mt-2 text-xs font-medium text-center text-gray-600">
-                {step.label}
-              </span>
-            </div>
-            {index < stepsState.length - 1 && (
-              <div
-                className={`flex-1 h-1 ${
-                  step.isCompleted ? "bg-green-500" : "bg-gray-300"
-                } transition-colors duration-300`}
-              ></div>
-            )}
-          </React.Fragment>
-        ))}
+    <div className="max-w-2xl mx-auto">
+      <div className="w-full overflow-y-auto">
+        <Stepper steps={steps} currentStep={currentStep} />
+      </div>
+      <div className="mt-8">
+        {React.cloneElement(steps[currentStep - 1].content as React.ReactElement, {
+          formData,
+          handleInputChange,
+        })}
+      </div>
+      <div className="mt-8 flex justify-between">
+        <button
+          onClick={handlePrevStep}
+          disabled={currentStep === 1}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
+        >
+          قبلی
+        </button>
+        <button
+          onClick={handleNextStep}
+          disabled={currentStep === steps.length}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+        >
+          بعدی
+        </button>
       </div>
     </div>
   );
 };
 
-export default Stepper;
+export default MultiStepForm;

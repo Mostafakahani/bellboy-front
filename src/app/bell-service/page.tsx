@@ -1,31 +1,47 @@
 "use client";
-import Stepper from "@/components/Stepper/Stepper";
+
+import MultiStepForm from "@/components/Stepper/Stepper";
 import React, { useState } from "react";
 
+const ServiceForm: React.FC = () => (
+  <div className="p-4">
+    <h1>انتخاب سرویس</h1>
+    <input name="service" placeholder="نام سرویس" className="border p-2 rounded" />
+  </div>
+);
+
+const DetailsForm: React.FC = () => (
+  <div className="p-4">
+    <h1>مشخصات</h1>
+    <input name="name" placeholder="نام" className="border p-2 rounded mb-2" />
+    <input name="email" placeholder="ایمیل" className="border p-2 rounded" />
+  </div>
+);
+
+const ConfirmationForm: React.FC = () => (
+  <div className="p-4">
+    <h1>تایید</h1>
+    <p>لطفاً اطلاعات وارد شده را تایید کنید.</p>
+  </div>
+);
+
 const steps = [
-  { label: "زمان", isCompleted: false },
-  { label: "موقعیت", isCompleted: false },
-  { label: "سرویس", isCompleted: false },
-  // Voeg meer stappen toe indien nodig
+  { id: 1, label: "موقعیت", content: <DetailsForm /> },
+  { id: 2, label: "سرویس", content: <ServiceForm /> },
+  { id: 3, label: "زمان", content: <ConfirmationForm /> },
+  { id: 4, label: "زمان", content: <ConfirmationForm /> },
 ];
 
-const YourComponent: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(0);
+export default function Page() {
+  const [formData, setFormData] = useState({});
 
-  const handleStepChange = (step: number) => {
-    setCurrentStep(step);
-    // Hier kun je de logica toevoegen voor het controleren of de velden zijn ingevuld
-    // en de stap als voltooid markeren
+  const handleFormChange = (newData: any) => {
+    setFormData({ ...formData, ...newData });
   };
 
   return (
-    <div>
-      <Stepper steps={steps} currentStep={currentStep} onStepChange={handleStepChange} />
-      <button onClick={() => setCurrentStep(currentStep - 1)}>-setCurrentStep</button>
-      <button onClick={() => setCurrentStep(currentStep + 1)}>setCurrentStep</button>
-      {/* Voeg hier de inhoud van je stappen toe */}
+    <div className="p-4">
+      <MultiStepForm formData={formData} onFormChange={handleFormChange} steps={steps} />
     </div>
   );
-};
-
-export default YourComponent;
+}
