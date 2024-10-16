@@ -1,24 +1,24 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Address, Province } from "./types";
 import AddressList from "@/components/Profile/Address/AddressList";
 import AddressModal from "@/components/Profile/Address/AddressModal";
-import { useRouter } from "next/navigation";
 import demoAddresses from "./demo-addresses.json";
 import Image from "next/image";
+import ErrorDialog from "@/components/Profile/ErrorDialog";
+import Button from "@/components/ui/Button/Button";
 
 export default function ProfileAddressPage() {
   const [addresses, setAddresses] = useState<Address[]>(demoAddresses);
   const [isLoading, setIsLoading] = useState(true);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
   const [clickEditButton, setClickEditButton] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [mode, setMode] = useState<"list" | "edit">("list");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const router = useRouter();
 
   useEffect(() => {
     fetchAddresses();
@@ -51,16 +51,15 @@ export default function ProfileAddressPage() {
 
   const handleAddAddress = () => {
     setSelectedAddress(null);
-    setMode("edit");
+    setIsModalOpen(true);
   };
 
   const handleEditAddress = (address: Address) => {
     setSelectedAddress(address);
-    setMode("edit");
+    setIsModalOpen(true);
   };
 
   const handleSaveAddress = async (address: Address) => {
-    // Simulated API call to save address
     if (address.id) {
       // Update existing address
       setAddresses(addresses.map((a) => (a.id === address.id ? address : a)));
@@ -68,20 +67,25 @@ export default function ProfileAddressPage() {
       // Add new address
       setAddresses([...addresses, { ...address, id: Date.now().toString() }]);
     }
-    setMode("list");
+    setIsModalOpen(false);
   };
 
-  const handleDeleteAddress = async (addressId: string) => {
-    // Simulated API call to delete address
-    setAddresses(addresses.filter((a) => a.id !== addressId));
+  const handleDeleteAddressDialog = (addressId: string) => {
+    setOpenDeleteDialog(true);
+    setSelectedForDeleteAddressId(addressId);
+  };
+
+  const handleDeleteAddress = async () => {
+    setAddresses(addresses.filter((a) => a.id !== selectedForDeleteAddressId));
+    setOpenDeleteDialog(false);
   };
 
   const handleSelectAddress = (addressId: string) => {
     setSelectedAddressId(addressId);
   };
 
-  const handleBackToList = () => {
-    setMode("list");
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
     setSelectedAddress(null);
   };
 
@@ -97,7 +101,6 @@ export default function ProfileAddressPage() {
     <div className="container mx-auto px-4 py-8 mt-20">
       <div className="w-full flex flex-row justify-between items-center">
         <h1 className="text-2xl font-bold mb-4">آدرس‌ها</h1>
-
         <button
           onClick={() => setClickEditButton(!clickEditButton)}
           className="text-gray-400 hover:text-gray-600 focus:outline-none ml-2"
@@ -105,31 +108,39 @@ export default function ProfileAddressPage() {
           <Image width={22} height={22} src="/images/icons/edit.svg" alt="edit" />
         </button>
       </div>
-      {mode === "list" ? (
-        <>
-          <AddressList
-            clickEditButton={clickEditButton}
-            addresses={addresses}
-            selectedAddressId={selectedAddressId}
-            onEdit={handleEditAddress}
-            onDelete={handleDeleteAddress}
-            onSelect={handleSelectAddress}
-          />
-          <button
-            onClick={handleAddAddress}
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-          >
-            افزودن موقعیت جدید
-          </button>
-        </>
-      ) : (
-        <AddressModal
-          address={selectedAddress}
-          provinces={provinces}
-          onSave={handleSaveAddress}
-          onClose={handleBackToList}
+      <div className="w-full flex justify-center flex-col gap-3">
+        <AddressList
+          clickEditButton={clickEditButton}
+          addresses={addresses}
+          selectedAddressId={selectedAddressId}
+          onEdit={handleEditAddress}
+          onDelete={handleDeleteAddressDialog}
+          onSelect={handleSelectAddress}
         />
-      )}
+        <Button
+          onClick={handleAddAddress}
+          onXsIsText
+          className="flex-row-reverse gap-2"
+          variant="tertiary"
+          icon="plus"
+        >
+          افزودن موقعیت جدید
+        </Button>
+      </div>
+      <AddressModal
+        isOpen={isModalOpen}
+        address={selectedAddress}
+        provinces={provinces}
+        onSave={handleSaveAddress}
+        onClose={handleCloseModal}
+      />
+      <ErrorDialog
+        isOpen={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        onDelete={() => handleDeleteAddress()}
+        message="آیا مطمئن هستید؟"
+        buttonMessage="بله، حذف کن"
+      />
     </div>
   );
 }

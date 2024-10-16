@@ -4,10 +4,14 @@ import Image from "next/image";
 import { User } from "lucide-react";
 import { ProfileDialog } from "@/components/Profile/ProfileDialog";
 import { ProfileLink } from "@/components/Profile/ProfileLink";
+import ErrorDialog from "@/components/Profile/ErrorDialog";
 
 const ProfileMainPage: React.FC = () => {
   const [showDialog, setShowDialog] = useState(false);
-
+  const [showDialogLogout, setShowDialogLogout] = useState(false);
+  const handleLogout = async () => {
+    setShowDialogLogout(false);
+  };
   return (
     <div className="mt-20 flex flex-col items-center justify-center gap-3">
       <div className="w-20 h-20 bg-gray-100 rounded-full flex justify-center items-center">
@@ -28,11 +32,17 @@ const ProfileMainPage: React.FC = () => {
         <ProfileLink href="/profile/orders" text="سفارش ها" />
         <ProfileLink href="/profile/address" text="آدرس ها" />
         <div className="w-full flex flex-row justify-between border-b border-black my-2 pb-4">
-          <a href="#">خروج از حساب کاربری</a>
+          <button onClick={() => setShowDialogLogout(true)}>خروج از حساب کاربری</button>
         </div>
       </div>
-
       <ProfileDialog isOpen={showDialog} onClose={() => setShowDialog(false)} />
+      <ErrorDialog
+        isOpen={showDialogLogout}
+        onDelete={() => handleLogout()}
+        onClose={() => setShowDialogLogout(false)}
+        message="آیا مطمئن هستید؟"
+        buttonMessage="بله از حساب خارج شو"
+      />
     </div>
   );
 };

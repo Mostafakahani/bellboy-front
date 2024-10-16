@@ -1,16 +1,26 @@
+"use client ";
+
 import { Address, Province } from "@/app/profile/address/types";
 import Button from "@/components/ui/Button/Button";
 import { Input } from "@/components/ui/Input/Input";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface AddressModalProps {
+  isOpen: boolean;
   address: Address | null;
   provinces: Province[];
   onSave: (address: Address) => void;
   onClose: () => void;
 }
 
-const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave, onClose }) => {
+const AddressModal: React.FC<AddressModalProps> = ({
+  isOpen,
+  address,
+  provinces,
+  onSave,
+  onClose,
+}) => {
   const [formData, setFormData] = useState<Address>({
     title: "",
     province: "",
@@ -19,11 +29,26 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
     postalCode: "",
   });
 
+  const [isFormValid, setIsFormValid] = useState(false);
+
   useEffect(() => {
     if (address) {
       setFormData(address);
+    } else {
+      setFormData({
+        title: "",
+        province: "",
+        city: "",
+        street: "",
+        postalCode: "",
+      });
     }
-  }, [address]);
+  }, [address, isOpen]);
+
+  useEffect(() => {
+    const isValid = Object.values(formData).every((value) => value.trim() !== "");
+    setIsFormValid(isValid);
+  }, [formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -31,7 +56,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
-        city: "", // Reset city when province changes
+        city: "",
       }));
     } else {
       setFormData((prevData) => ({
@@ -43,23 +68,28 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    if (isFormValid) {
+      onSave(formData);
+    }
   };
 
   const cities = formData.province
     ? provinces.find((p) => p["province-fa"] === formData.province)?.cities || []
     : [];
 
+  if (!isOpen) return null;
+
   return (
-    <div
-      className={`fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50 transition-opacity duration-300 ease-in-out ${
-        address ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-    >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
       <div className="fixed bottom-0 left-0 right-0 h-[86vh] bg-white p-6 w-full overflow-y-auto max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
-          {address ? "ویرایش موقعیت" : "افزودن موقعیت جدید"}
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">
+            {address ? "ویرایش موقعیت" : "افزودن موقعیت جدید"}
+          </h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col justify-between h-full">
             <div className="mb-4">
@@ -98,6 +128,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
               <Input
                 type="text"
                 label="پلاک"
+                name="postalCode"
                 value={formData.postalCode}
                 onChange={handleChange}
                 required
@@ -107,6 +138,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
               <Input
                 type="text"
                 label="عنوان موقعیت"
+                name="title"
                 value={formData.title}
                 onChange={handleChange}
                 required
@@ -114,7 +146,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, provinces, onSave,
             </div>
 
             <div className="w-full flex justify-center">
-              <Button className="w-full" onXsIsText type="submit">
+              <Button className="w-full" onXsIsText type="submit" disabled={!isFormValid}>
                 ثبت موقعیت
               </Button>
             </div>

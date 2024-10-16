@@ -6,12 +6,12 @@ const variantStyles = {
   primary: {
     default:
       "bg-primary-400 py-6 text-black border-[2px] border-black hover:bg-primary-300 active:bg-black active:text-white disabled:bg-primary-100 disabled:text-slate-400 disabled:border-black/30",
-    error: "bg-white text-red-500 border border-red-500",
+    error: "bg-white text-red-500 border-2 border-red-500  py-6",
   },
   secondary: {
     default:
       "bg-primary-400/10 text-black border-[2px] border-black font-bold bg-primary-300 hover:bg-primary-50 active:bg-black active:text-white disabled:bg-white disabled:text-primary-200 disabled:border-black",
-    error: "bg-white text-red-500 border border-red-500",
+    error: "bg-white text-red-500 border-2 border-red-500",
   },
   tertiary: {
     default:
