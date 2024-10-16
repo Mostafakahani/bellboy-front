@@ -45,7 +45,7 @@ export const Input: React.FC<InputProps> = ({
       case "dropdown":
         return `${baseInputClasses} pl-10 cursor-pointer`;
       case "active":
-        return `${baseInputClasses} border-green-500 bg-green-50`;
+        return `${baseInputClasses} border-primary-500 bg-primary-50`;
       case "error":
         return `${baseInputClasses} border-red-500`;
       case "search":

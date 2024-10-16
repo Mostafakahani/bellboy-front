@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button/Button";
 import Image from "next/image";
 import React from "react";
 import { Address } from "./types";
+import { InputRadio } from "@/components/ui/Input/Radio";
 
 interface AddressListProps {
   addresses: Address[];
@@ -76,7 +77,7 @@ const AddressList: React.FC<AddressListProps> = ({
               onClick={() => onSelect(address.id!)}
             >
               <div className="flex items-center">
-                <ThemeSelector
+                <InputRadio
                   darkMode={selectedAddressId === address.id}
                   setDarkMode={() => onSelect(address.id!)}
                   className="ml-3"

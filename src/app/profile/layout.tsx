@@ -1,3 +1,4 @@
+import Layout from "@/components/mobile/Drawers/Layout";
 import MainHeader from "@/components/mobile/Header/MainHeader";
 
 export default function AuthLayout({
@@ -8,7 +9,7 @@ export default function AuthLayout({
   return (
     <>
       <MainHeader />
-      {children}
+      <Layout>{children}</Layout>
     </>
   );
 }

@@ -6,6 +6,7 @@ import { Address } from "@/components/Profile/Address/types";
 import AddressManagement from "@/components/Profile/Address/AddressManagement";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input/Input";
+import DateTimeSelector from "@/components/DateTimeSelector";
 
 const DetailsForm: React.FC<{
   addresses: Address[];
@@ -27,13 +28,6 @@ const ServiceForm: React.FC = () => (
     <Input variant="dropdown" placeholder="انتخاب کنید" label="موضوع" />
     <Input variant="dropdown" placeholder="انتخاب کنید" label="نوع سرویس" />
     <Input variant="textarea" label="توضیحات" />
-  </div>
-);
-
-const ConfirmationForm: React.FC = () => (
-  <div className="p-4">
-    <h1>تایید</h1>
-    <p>لطفاً اطلاعات وارد شده را تایید کنید.</p>
   </div>
 );
 
@@ -59,10 +53,42 @@ const Modal: React.FC<{ isOpen: boolean; onClose: () => void; children: React.Re
   );
 };
 
+type TimeSlot = {
+  start: string;
+  end: string;
+};
+
+type DaySchedule = {
+  date: string;
+  dayName: string;
+  timeSlots: TimeSlot[];
+};
+
 export default function Page() {
   const [formData, setFormData] = useState<{ addresses: Address[] }>({ addresses: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // نمونه داده برای یک هفته
+  const demoWeekSchedule: DaySchedule[] = [
+    {
+      date: "۱۲ مهر",
+      dayName: "شنبه",
+      timeSlots: [
+        { start: "۸", end: "۱۲" },
+        { start: "۱۳", end: "۱۷" },
+        { start: "۱۸", end: "۲۲" },
+      ],
+    },
+    {
+      date: "۱۳ مهر",
+      dayName: "یکشنبه",
+      timeSlots: [
+        { start: "۸", end: "۱۲" },
+        { start: "۱۳", end: "۱۷" },
+        { start: "۱۸", end: "۲۲" },
+      ],
+    },
+  ];
   const handleFormChange = (newData: any) => {
     setFormData({ ...formData, ...newData });
   };
@@ -70,7 +96,9 @@ export default function Page() {
   const handleAddressChange = (updatedAddresses: Address[]) => {
     setFormData((prevData) => ({ ...prevData, addresses: updatedAddresses }));
   };
-
+  const handleDateTimeSelect = (date: string, time: TimeSlot) => {
+    console.log(`Selected: ${date}, ${time.start}-${time.end}`);
+  };
   const steps = [
     {
       id: 1,
@@ -78,7 +106,11 @@ export default function Page() {
       content: <DetailsForm addresses={formData.addresses} onAddressChange={handleAddressChange} />,
     },
     { id: 2, label: "سرویس", content: <ServiceForm /> },
-    { id: 3, label: "زمان", content: <ConfirmationForm /> },
+    {
+      id: 3,
+      label: "زمان",
+      content: <DateTimeSelector weekSchedule={demoWeekSchedule} onSelect={handleDateTimeSelect} />,
+    },
   ];
 
   const openModal = () => setIsModalOpen(true);

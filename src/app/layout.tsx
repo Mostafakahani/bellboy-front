@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import DesktopMessage from "./DesktopMessage";
-import Layout from "@/components/mobile/Drawers/Layout";
 
 const yekanBakhLight = localFont({
   src: "./fonts/YekanBakhFaNum-Light.woff2",
@@ -56,10 +55,7 @@ export default function RootLayout({
             },
           }}
         />
-        <DesktopMessage>
-          <Layout>{children}</Layout>
-        </DesktopMessage>
-        {/* <ClientBottomMenu excludedPaths={excludedPaths} /> */}
+        <DesktopMessage>{children}</DesktopMessage>
       </body>
     </html>
   );
