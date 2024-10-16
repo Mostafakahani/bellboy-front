@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDownIcon, SearchIcon } from "lucide-react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   label?: string;
-  variant?: "default" | "dropdown" | "active" | "error" | "search";
+  variant?: "default" | "dropdown" | "active" | "error" | "search" | "textarea";
   options?: string[];
   errorMessage?: string;
+  rows?: number;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -15,6 +16,7 @@ export const Input: React.FC<InputProps> = ({
   errorMessage,
   className = "",
   onChange,
+  rows = 3,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,6 +50,8 @@ export const Input: React.FC<InputProps> = ({
         return `${baseInputClasses} border-red-500`;
       case "search":
         return `${baseInputClasses} pl-10`;
+      case "textarea":
+        return `${baseInputClasses} resize-none`;
       default:
         return baseInputClasses;
     }
@@ -118,15 +122,19 @@ export const Input: React.FC<InputProps> = ({
             <input {...props} className={getInputClasses()} onChange={onChange} />
           </div>
         );
+      case "textarea":
+        return (
+          <textarea {...props} rows={rows} className={getInputClasses()} onChange={onChange} />
+        );
       default:
-        return <input id={label} {...props} className={getInputClasses()} onChange={onChange} />;
+        return <input {...props} className={getInputClasses()} onChange={onChange} />;
     }
   };
 
   return (
     <div className={`mb-4 ${className}`}>
       {label && (
-        <label htmlFor={label} className={labelClasses}>
+        <label htmlFor={props.id || label} className={labelClasses}>
           {label}
         </label>
       )}

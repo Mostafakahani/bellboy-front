@@ -1,8 +1,8 @@
 import { ThemeSelector } from "@/app/page";
-import { Address } from "@/app/profile/address/types";
 import Button from "@/components/ui/Button/Button";
 import Image from "next/image";
 import React from "react";
+import { Address } from "./types";
 
 interface AddressListProps {
   addresses: Address[];
@@ -28,7 +28,7 @@ const AddressList: React.FC<AddressListProps> = ({
           {clickEditButton ? (
             <div className="flex space-x-2">
               <div
-                className={`flex-col border-2 border-black rounded-xl p-7 flex justify-between items-center cursor-pointer`}
+                className={`flex-col min-w-full border-2 border-black rounded-xl p-7 flex justify-between items-start cursor-pointer`}
               >
                 <div className="flex items-center">
                   <div className="flex flex-col gap-3">

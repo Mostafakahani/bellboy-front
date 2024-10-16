@@ -10,7 +10,7 @@ const variantStyles = {
   },
   secondary: {
     default:
-      "bg-primary-400/10 text-black border-[2px] border-black font-bold bg-primary-300 hover:bg-primary-50 active:bg-black active:text-white disabled:bg-white disabled:text-primary-200 disabled:border-black",
+      "bg-primary-400/10 py-6 text-black border-[2px] border-black font-bold bg-primary-300 hover:bg-primary-50 active:bg-black active:text-white disabled:bg-white disabled:text-primary-200 disabled:border-black",
     error: "bg-white text-red-500 border-2 border-red-500",
   },
   tertiary: {
@@ -35,7 +35,7 @@ const iconSizeStyles = {
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "tertiary";
   size?: "sm" | "md" | "lg";
-  icon?: "plus" | "minus" | "trash";
+  icon?: "plus" | "minus" | "trash" | "right";
   isError?: boolean;
   iconOnly?: boolean;
   children?: React.ReactNode;
@@ -65,6 +65,8 @@ const Button: React.FC<ButtonProps> = ({
         return <MinusIcon className="w-5 h-5" />;
       case "trash":
         return <Image width={25} height={25} src={"/images/icons/trash.svg"} alt="trash icon" />;
+      case "right":
+        return <Image width={25} height={25} src={"/images/icons/left.svg"} alt="right icon" />;
       default:
         return null;
     }

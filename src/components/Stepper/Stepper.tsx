@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Check } from "lucide-react";
+import { Address } from "../Profile/Address/types";
+import Button from "../ui/Button/Button";
 
 interface Step {
   id: number;
@@ -9,8 +11,8 @@ interface Step {
 
 interface MultiStepFormProps {
   steps: Step[];
-  formData: Record<string, string>;
-  onFormChange: (newData: Record<string, string>) => void;
+  formData: { addresses: Address[] }; 
+  onFormChange: (newData: { addresses: Address[] }) => void;
 }
 
 const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, currentStep }) => {
@@ -82,31 +84,36 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, formData, onFormCh
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="w-full overflow-y-auto">
-        <Stepper steps={steps} currentStep={currentStep} />
+    <div className="max-w-2xl mx-auto flex flex-col justify-between h-[80vh]">
+      <div className="w-full h-full">
+        <div className="w-full overflow-y-auto">
+          <Stepper steps={steps} currentStep={currentStep} />
+          <div className="w-full border-b-2 border-black absolute top-36 left-0"></div>
+        </div>
+        <div className="">
+          {React.cloneElement(steps[currentStep - 1].content as React.ReactElement, {
+            formData,
+            handleInputChange,
+          })}
+        </div>
       </div>
-      <div className="mt-8">
-        {React.cloneElement(steps[currentStep - 1].content as React.ReactElement, {
-          formData,
-          handleInputChange,
-        })}
-      </div>
-      <div className="mt-8 flex justify-between">
-        <button
+      <div className="mt-8 flex justify-between gap-7 mx-1">
+        <Button
+          icon="right"
+          variant="secondary"
           onClick={handlePrevStep}
           disabled={currentStep === 1}
-          className="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
         >
           قبلی
-        </button>
-        <button
+        </Button>
+        <Button
+          className="w-full"
+          onXsIsText
           onClick={handleNextStep}
-          disabled={currentStep === steps.length}
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+          disabled={currentStep === steps.length || formData.addresses.length === 0}
         >
-          بعدی
-        </button>
+          ادامه
+        </Button>
       </div>
     </div>
   );
