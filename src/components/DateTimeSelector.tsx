@@ -13,29 +13,6 @@ type DaySchedule = {
   timeSlots: TimeSlot[];
 };
 
-// نمونه داده برای یک هفته
-const demoWeekSchedule: DaySchedule[] = [
-  {
-    date: "۱۲ مهر",
-    dayName: "شنبه",
-    timeSlots: [
-      { start: "۸", end: "۱۲" },
-      { start: "۱۳", end: "۱۷" },
-      { start: "۱۸", end: "۲۲" },
-    ],
-  },
-  {
-    date: "۱۳ مهر",
-    dayName: "یکشنبه",
-    timeSlots: [
-      { start: "۸", end: "۱۲" },
-      { start: "۱۳", end: "۱۷" },
-      { start: "۱۸", end: "۲۲" },
-    ],
-  },
-  // ... سایر روزهای هفته
-];
-
 interface DateTimeSelectorProps {
   weekSchedule: DaySchedule[];
   onSelect: (selectedDate: string, selectedTime: TimeSlot) => void;
@@ -82,9 +59,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ weekSchedule, onSel
                   <button
                     key={index}
                     className={`w-full flex flex-row text-right py-3 px-4 rounded-xl text-black font-bold border-2 border-black ${
-                      selectedTime === slot
-                        ? "bg-primary-100"
-                        : "bg-white"
+                      selectedTime === slot ? "bg-primary-100" : "bg-white"
                     }`}
                     onClick={() => handleTimeSelect(slot)}
                   >

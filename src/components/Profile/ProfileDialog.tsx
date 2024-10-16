@@ -15,7 +15,7 @@ export const ProfileDialog: React.FC<DialogProps> = ({ isOpen, onClose }) => {
   });
   const [showPhoneEdit, setShowPhoneEdit] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };

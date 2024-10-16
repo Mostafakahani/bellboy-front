@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingBag, Clipboard, User, Settings, BarChart, Users } from "lucide-react";
 import Image from "next/image";
 
 interface MenuItem {
@@ -19,15 +18,15 @@ interface MenuConfig {
   [key: string]: MenuItem[];
 }
 
-const iconComponents = {
-  Home,
-  ShoppingBag,
-  Clipboard,
-  User,
-  Settings,
-  BarChart,
-  Users,
-};
+// const iconComponents = {
+//   Home,
+//   ShoppingBag,
+//   Clipboard,
+//   User,
+//   Settings,
+//   BarChart,
+//   Users,
+// };
 
 const menuConfigs: MenuConfig = {
   main: [
@@ -184,7 +183,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
     >
       <ul className="flex justify-around items-center h-16 bg-black">
         {activeConfig.map((item) => {
-          const IconComponent = iconComponents[item.icon as keyof typeof iconComponents];
+          // const IconComponent = iconComponents[item.icon as keyof typeof iconComponents];
           return (
             <li key={item.href} className="flex-1">
               <button

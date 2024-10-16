@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Phone } from "lucide-react";
 import DrawerMenu from "./DrawerMenu";
 import Image from "next/image";
 const links = [

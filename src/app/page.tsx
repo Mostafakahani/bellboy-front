@@ -36,8 +36,7 @@ export default function Home() {
                 </label>
               </div>
             </section>
-            <ThemeSelector darkMode={darkMode} setDarkMode={setDarkMode} />
-            <ThemeSelectorCheckBox darkMode={darkMode} setDarkMode={setDarkMode} />
+            {/* <ThemeSelectorCheckBox darkMode={darkMode} setDarkMode={setDarkMode} /> */}
           </div>
           <div className="space-y-4 p-4">
             <Input label="عنوان فیلد" />
@@ -61,77 +60,48 @@ export default function Home() {
     </>
   );
 }
-export const ThemeSelector = ({ darkMode, setDarkMode, className }: any) => {
-  return (
-    <section className={className}>
-      <div className="flex flex-col">
-        <label
-          key={darkMode}
-          className={`inline-flex items-center cursor-pointer ${
-            darkMode === darkMode ? "opacity-100" : "opacity-90"
-          }`}
-        >
-          <input
-            type="radio"
-            name="theme"
-            value={darkMode}
-            className="sr-only peer"
-            checked={darkMode}
-            onChange={() => setDarkMode(!darkMode)}
-          />
-          <div className="relative w-6 h-6 rounded-full border-2 border-black flex items-center justify-center">
-            <div
-              className={`w-4 h-4 rounded-full peer-checked:bg-primary-400 border-black ${
-                darkMode ? "bg-primary-400 border-2" : "bg-white border-0 "
-              }`}
-            ></div>
-          </div>
-        </label>
-      </div>
-    </section>
-  );
-};
-const ThemeSelectorCheckBox = ({ darkMode, setDarkMode }: any) => {
-  return (
-    <section className="mb-6">
-      <h3 className="text-md font-medium mb-2">ظاهر</h3>
-      <div className="flex items-center justify-between">
-        <span className="flex items-center">
-          <Moon size={20} className="ml-2" />
-          حالت تاریک
-        </span>
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            checked={darkMode}
-            onChange={() => setDarkMode(!darkMode)}
-          />
-          <CheckMark isChecked={darkMode} />
-        </label>
-      </div>
-    </section>
-  );
-};
-const CheckMark = ({ isChecked }: any) => {
-  return (
-    <div
-      className={`w-6 h-6 rounded-md border-2 border-black flex items-center justify-center ${
-        isChecked ? "bg-primary-400" : "bg-white"
-      }`}
-    >
-      {isChecked && (
-        <svg
-          className="w-4 h-4 text-black"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      )}
-    </div>
-  );
-};
+
+// const ThemeSelectorCheckBox = ({ darkMode, setDarkMode }: any) => {
+//   return (
+//     <section className="mb-6">
+//       <h3 className="text-md font-medium mb-2">ظاهر</h3>
+//       <div className="flex items-center justify-between">
+//         <span className="flex items-center">
+//           <Moon size={20} className="ml-2" />
+//           حالت تاریک
+//         </span>
+//         <label className="relative inline-flex items-center cursor-pointer">
+//           <input
+//             type="checkbox"
+//             className="sr-only peer"
+//             checked={darkMode}
+//             onChange={() => setDarkMode(!darkMode)}
+//           />
+//           <CheckMark isChecked={darkMode} />
+//         </label>
+//       </div>
+//     </section>
+//   );
+// };
+// const CheckMark = ({ isChecked }: any) => {
+//   return (
+//     <div
+//       className={`w-6 h-6 rounded-md border-2 border-black flex items-center justify-center ${
+//         isChecked ? "bg-primary-400" : "bg-white"
+//       }`}
+//     >
+//       {isChecked && (
+//         <svg
+//           className="w-4 h-4 text-black"
+//           fill="none"
+//           stroke="currentColor"
+//           strokeWidth="2"
+//           viewBox="0 0 24 24"
+//           xmlns="http://www.w3.org/2000/svg"
+//         >
+//           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+//         </svg>
+//       )}
+//     </div>
+//   );
+// };

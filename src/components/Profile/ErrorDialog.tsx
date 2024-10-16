@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Button from "../ui/Button/Button";
-import Image from "next/image";
 
 interface ErrorDialogProps {
   isOpen: boolean;

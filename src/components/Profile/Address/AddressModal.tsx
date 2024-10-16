@@ -1,10 +1,10 @@
 "use client ";
 
-import { Address, Province } from "@/app/profile/address/types";
 import Button from "@/components/ui/Button/Button";
 import { Input } from "@/components/ui/Input/Input";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { Address, Province } from "./types";
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -50,7 +50,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
     setIsFormValid(isValid);
   }, [formData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     if (name === "province") {
       setFormData((prevData) => ({

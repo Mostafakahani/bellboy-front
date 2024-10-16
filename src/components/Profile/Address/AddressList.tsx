@@ -1,4 +1,3 @@
-import { ThemeSelector } from "@/app/page";
 import Button from "@/components/ui/Button/Button";
 import Image from "next/image";
 import React from "react";

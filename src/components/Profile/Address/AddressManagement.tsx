@@ -18,7 +18,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
   title,
 }) => {
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = false;
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
   const [clickEditButton, setClickEditButton] = useState<boolean>(false);

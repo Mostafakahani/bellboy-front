@@ -13,7 +13,7 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
   currentPhoneNumber,
 }) => {
   const [step, setStep] = useState<Step>(Step.PHONE);
-  const [phoneNumber, setPhoneNumber] = useState(currentPhoneNumber);
+  const phoneNumber = currentPhoneNumber;
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(120);
@@ -95,13 +95,18 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
     }
   };
 
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     if (e.key === "Backspace" && index > 0 && otp[index] === "") {
       inputRefs[index - 1].current?.focus();
     }
   };
 
-  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const input = e.target.value.replace(/\D/g, "");
     setNewPhoneNumber(input);
 
@@ -147,10 +152,12 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
                   ref={inputRefs[index]}
                   type="text"
                   value={digit}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleChange(index, e.target.value)
-                  }
-                  onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
+                  onChange={(
+                    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+                  ) => handleChange(index, e.target.value)}
+                  onKeyDown={(
+                    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+                  ) => handleKeyDown(index, e)}
                   className={`w-[4.32rem] h-[4.32rem] text-center text-2xl border-2 rounded-xl ${
                     errorMessage ? "border-red-500" : "border-gray-500"
                   } focus:!border-green-500 focus:!ring-green-500`}

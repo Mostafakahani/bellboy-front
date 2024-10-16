@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, useRef, KeyboardEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "./ui/Input/Input";
-import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+// import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import Button from "./ui/Button/Button";
 import { Pencil } from "lucide-react";
 
@@ -12,10 +12,10 @@ interface UserDetails {
   lastname: string;
 }
 
-interface UserStatus {
-  isRegistered: boolean;
-  details?: UserDetails;
-}
+// interface UserStatus {
+//   isRegistered: boolean;
+//   details?: UserDetails;
+// }
 
 const ProfileAuth: React.FC = () => {
   const [step, setStep] = useState<Step>("phone");
@@ -35,7 +35,7 @@ const ProfileAuth: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>({ name: "", lastname: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const authenticatedFetch = useAuthenticatedFetch(); // Use the hook
+  // const authenticatedFetch = useAuthenticatedFetch(); // Use the hook
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -131,7 +131,9 @@ const ProfileAuth: React.FC = () => {
     // }
   };
 
-  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const input = e.target.value.replace(/\D/g, "");
     setPhone(input);
 
@@ -144,7 +146,9 @@ const ProfileAuth: React.FC = () => {
     }
   };
 
-  const handleUserDetailsChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleUserDetailsChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
@@ -161,7 +165,10 @@ const ProfileAuth: React.FC = () => {
     }
   };
 
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     if (e.key === "Backspace" && index > 0 && otp[index] === "") {
       inputRefs[index + 1].current?.focus();
     }
@@ -241,10 +248,12 @@ const ProfileAuth: React.FC = () => {
                   ref={inputRefs[index]}
                   type="text"
                   value={digit}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleChange(index, e.target.value)
-                  }
-                  onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
+                  onChange={(
+                    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+                  ) => handleChange(index, e.target.value)}
+                  onKeyDown={(
+                    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+                  ) => handleKeyDown(index, e)}
                   className={`w-[4.32rem] h-[4.32rem] text-center text-2xl border-2 rounded-xl ${
                     errorMessage ? "border-red-500" : "border-gray-500"
                   } focus:!border-green-500 focus:!ring-green-500`}

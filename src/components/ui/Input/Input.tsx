@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDownIcon, SearchIcon } from "lucide-react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
+interface InputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement>, "onChange"> {
   label?: string;
   variant?: "default" | "dropdown" | "active" | "error" | "search" | "textarea";
   options?: string[];
   errorMessage?: string;
   rows?: number;
+  onChange?: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -68,7 +72,7 @@ export const Input: React.FC<InputProps> = ({
           name: props.name,
           value: option,
         },
-      } as React.ChangeEvent<HTMLInputElement>;
+      } as React.ChangeEvent<HTMLSelectElement>;
       onChange(event);
     }
     setIsOpen(false);
