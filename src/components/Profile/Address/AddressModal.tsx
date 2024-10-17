@@ -1,16 +1,11 @@
-"use client";
-
-import Button from "@/components/ui/Button/Button";
-import { Input } from "@/components/ui/Input/Input";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Address, Province } from "./types";
+import { Input } from "@/components/ui/Input/Input";
 import dynamic from "next/dynamic";
-import { CircularArea } from "../../Map/IranMap";
-
-// Import IranMap component dynamically to avoid SSR issues with Leaflet
-const IranMap = dynamic(() => import("../../Map/IranMap"), { ssr: false });
-
+const IranMap = dynamic(() => import("@/components/Map/IranMap"), {
+  ssr: false,
+});
 interface AddressModalProps {
   isOpen: boolean;
   address: Address | null;
@@ -22,7 +17,6 @@ interface AddressModalProps {
 interface Location {
   lat: number;
   lng: number;
-  address?: string;
 }
 
 const AddressModal: React.FC<AddressModalProps> = ({
@@ -42,9 +36,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
   const [isFormValid, setIsFormValid] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const initialAreas: CircularArea[] = [
-    { center: { lat: 35.6892, lng: 51.3890 }, radius: 5000, color: '#ff0000' }
-  ];
+
   useEffect(() => {
     if (address) {
       setFormData(address);
@@ -96,7 +88,6 @@ const AddressModal: React.FC<AddressModalProps> = ({
     setFormData((prevData) => ({
       ...prevData,
       location: location,
-      street: location.address || prevData.street,
     }));
     setShowMap(false);
   };
@@ -173,9 +164,13 @@ const AddressModal: React.FC<AddressModalProps> = ({
               />
             </div>
             <div className="mb-4">
-              <Button className="w-full" onXsIsText type="button" onClick={() => setShowMap(true)}>
+              <button
+                type="button"
+                onClick={() => setShowMap(true)}
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+              >
                 انتخاب موقعیت مکانی روی نقشه
-              </Button>
+              </button>
             </div>
             {formData.location && (
               <div className="mb-4">
@@ -186,23 +181,23 @@ const AddressModal: React.FC<AddressModalProps> = ({
               </div>
             )}
             <div className="w-full flex justify-center">
-              <Button className="w-full" onXsIsText type="submit" disabled={!isFormValid}>
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
                 ثبت موقعیت
-              </Button>
+              </button>
             </div>
           </div>
         </form>
       </div>
       {showMap && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg w-full max-w-2xl h-[80vh]">
-            <h3 className="text-lg font-semibold mb-2">انتخاب موقعیت روی نقشه</h3>
-            <IranMap onLocationSelect={handleLocationSelect} initialAreas={initialAreas} />
-            <Button className="mt-4" onClick={() => setShowMap(false)}>
-              بستن نقشه
-            </Button>
-          </div>
-        </div>
+        <IranMap
+          onClose={() => setShowMap(false)}
+          onLocationSelect={handleLocationSelect}
+          initialLocation={formData.location}
+        />
       )}
     </div>
   );
