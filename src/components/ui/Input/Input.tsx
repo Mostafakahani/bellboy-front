@@ -53,7 +53,7 @@ export const Input: React.FC<InputProps> = ({
       case "error":
         return `${baseInputClasses} border-red-500`;
       case "search":
-        return `${baseInputClasses} pl-10`;
+        return `${baseInputClasses} pl-10 border-b-2`;
       case "textarea":
         return `${baseInputClasses} resize-none`;
       default:
@@ -122,8 +122,8 @@ export const Input: React.FC<InputProps> = ({
       case "search":
         return (
           <div className="relative">
-            <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input {...props} className={getInputClasses()} onChange={onChange} />
+            <SearchIcon className="absolute !left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black" />
+            <input {...props} className={'pl-10 w-full px-3 py-3 border-b-2 border-black focus:outline-none focus:ring-0 focus:ring-blue-500 placeholder-black/90 placeholder:text-sm'} onChange={onChange} />
           </div>
         );
       case "textarea":

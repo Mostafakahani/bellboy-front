@@ -1,8 +1,9 @@
-"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import Button from "../ui/Button/Button";
+import { Input } from "../ui/Input/Input";
 
 interface Location {
   lat: number;
@@ -20,22 +21,23 @@ interface CircularArea {
   radius: number;
   color: string;
 }
+
 interface SearchResult {
   name: string;
   location: Location;
   boundingbox?: [string, string, string, string];
 }
-const defaultCenter: Location = { lat: 32.4279, lng: 53.688 }; // Center of Iran
+
+const defaultCenter: Location = { lat: 32.4279, lng: 53.688 };
 const defaultZoom = 6;
 const iranBounds: L.LatLngBoundsExpression = [
-  [25.064, 44.036], // Southwest corner
-  [39.777, 63.317], // Northeast corner
+  [25.064, 44.036],
+  [39.777, 63.317],
 ];
 
 const predefinedAreas: CircularArea[] = [
   { center: { lat: 35.7219, lng: 51.3347 }, radius: 50000, color: "#ff0000" },
   { center: { lat: 32.6539, lng: 51.666 }, radius: 30000, color: "#00ff00" },
-  // Add more predefined areas as needed
 ];
 
 const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialLocation }) => {
@@ -44,6 +46,8 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Array<{ name: string; location: Location }>>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
   const handleLocationSelect = () => {
@@ -64,6 +68,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
     if (searchQuery.length < 3) return;
 
     try {
+      setIsLoading(true);
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           searchQuery
@@ -78,6 +83,9 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
       setSuggestions(filteredSuggestions);
     } catch (error) {
       console.error("Error fetching search results:", error);
+      setError("خطا در جستجو. لطفاً دوباره تلاش کنید.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,6 +118,55 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
     setSuggestions([]);
   };
 
+  const handleGetMyLocation = () => {
+    setIsLoading(true);
+    setError(null);
+
+    if (!navigator.geolocation) {
+      setError("مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند.");
+      setIsLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        if (L.latLngBounds(iranBounds).contains(L.latLng(newLocation.lat, newLocation.lng))) {
+          setCurrentLocation(newLocation);
+          if (mapRef.current) {
+            mapRef.current.flyTo(newLocation, 13);
+          }
+        } else {
+          setError("موقعیت شما خارج از مرزهای ایران است.");
+        }
+        setIsLoading(false);
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setError(
+              "دسترسی به موقعیت مکانی رد شد. لطفاً دسترسی را در تنظیمات مرورگر خود فعال کنید."
+            );
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setError("اطلاعات موقعیت مکانی در دسترس نیست. لطفاً دوباره تلاش کنید.");
+            break;
+          case error.TIMEOUT:
+            setError("درخواست برای دریافت موقعیت مکانی به پایان رسید. لطفاً دوباره تلاش کنید.");
+            break;
+          default:
+            setError("خطای ناشناخته در هنگام دریافت موقعیت مکانی رخ داد. لطفاً دوباره تلاش کنید.");
+        }
+        setIsLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+  };
+
   const LocationMarker: React.FC = () => {
     const map = useMapEvents({
       click(e) {
@@ -118,7 +175,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
           setCurrentLocation(newLocation);
           map.flyTo(e.latlng, map.getZoom());
         } else {
-          alert("لطفاً مکانی درون مرزهای ایران انتخاب کنید.");
+          setError("لطفاً مکانی درون مرزهای ایران انتخاب کنید.");
         }
       },
     });
@@ -144,8 +201,8 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded-lg w-full max-w-2xl h-[80vh] flex flex-col">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white rounded-lg w-full max-w-2xl h-[95vh] flex flex-col">
+        <div className="flex justify-between items-center mb-4 p-4">
           <h3 className="text-lg font-semibold">انتخاب موقعیت روی نقشه</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <svg
@@ -165,32 +222,55 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
           </button>
         </div>
         <div className="flex flex-col mb-4 relative">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="جستجوی آدرس"
-            className="border border-gray-300 rounded px-4 py-2"
-          />
-          {suggestions.length > 0 && (
-            <ul className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded mt-1 max-h-40 overflow-y-auto z-[8888888888]">
+          <div className="flex items-center space-x-2">
+            <Input
+              variant="search"
+              className="!placeholder:pr-3 flex-grow"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="جستجو در نقشه"
+            />
+            <Button
+              className="absolute top-[385px] right-[24px] z-[800] h-12 w-12 !p-1 border-2 border-black bg-white"
+              variant="tertiary"
+              onClick={handleGetMyLocation}
+              disabled={isLoading}
+              icon="gps"
+            >
+              {isLoading ? "در حال دریافت..." : "دریافت موقعیت من"}
+            </Button>
+          </div>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+          <div className="absolute w-full top-[50px] left-4 right-0 bg-gray-100 border-b-2 border-black max-h-56 overflow-hidden z-[8888888888] shadow-lg">
+            <ul
+              className={`transition-all duration-300 ease-in-out ${
+                suggestions.length > 0 ? "max-h-56" : "max-h-0"
+              } overflow-y-auto`}
+            >
               {suggestions.map((suggestion, index) => (
                 <li
                   key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer z-[8888888888]"
+                  className="px-4 py-3 hover:bg-gray-100 cursor-pointer z-[8888888888] transition-all duration-300 ease-in-out text-sm font-bold"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion.name}
+                  <div
+                    className={`w-full h-[0.4px] mt-5 bg-black ${
+                      index === suggestions.length - 1 ? "hidden" : ""
+                    }`}
+                  ></div>
                 </li>
               ))}
             </ul>
-          )}
+          </div>
         </div>
-        <div className="flex-grow relative">
+
+        <div className="flex-grow relative rounded-xl p-4">
           <MapContainer
             center={defaultCenter}
             zoom={defaultZoom}
-            style={{ height: "100%", width: "100%" }}
+            className="!rounded-xl"
+            style={{ height: "100%", width: "100%", borderRadius: "32px" }}
             maxBounds={iranBounds}
             ref={(map) => {
               if (map) {
@@ -213,13 +293,10 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
             ))}
           </MapContainer>
         </div>
-        <div className="flex justify-between mt-4">
-          <button
-            onClick={handleLocationSelect}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
-          >
-            انتخاب این موقعیت
-          </button>
+        <div className="flex justify-between mt-4 p-4">
+          <Button onXsIsText onClick={handleLocationSelect} className="w-full mx-5">
+            ادامه
+          </Button>
         </div>
       </div>
     </div>

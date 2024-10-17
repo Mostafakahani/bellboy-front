@@ -30,3 +30,26 @@ body {
     text-wrap: balance;
   }
 }
+
+.leaflet-container {
+  border-radius: 12px;
+}
+
+.leaflet-touch .leaflet-bar {
+  border: 0 !important;
+  padding: 2px;
+}
+
+.leaflet-touch .leaflet-bar a:first-child {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.leaflet-touch .leaflet-bar a:last-child {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.leaflet-control-attribution {
+  display: none;
+}

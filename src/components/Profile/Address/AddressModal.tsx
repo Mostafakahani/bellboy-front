@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Address, Province } from "./types";
 import { Input } from "@/components/ui/Input/Input";
 import dynamic from "next/dynamic";
+import Button from "@/components/ui/Button/Button";
 const IranMap = dynamic(() => import("@/components/Map/IranMap"), {
   ssr: false,
 });
@@ -111,6 +112,20 @@ const AddressModal: React.FC<AddressModalProps> = ({
         </div>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col justify-between h-full">
+            <div className="mb-6 mt-4 flex flex-row justify-between items-center">
+              <div className="flex flex-row gap-4 items-center">
+                <Image
+                  width={1080}
+                  height={1080}
+                  className="h-16 w-16 bg-cover"
+                  src="/images/icons/gps.png"
+                  alt="gps"
+                  quality={100}
+                />
+                <p className="font-bold text-sm"> موقعیت مکانی</p>
+              </div>
+              <Button variant="tertiary" onClick={() => setShowMap(true)} icon="edit"></Button>
+            </div>
             <div className="mb-4">
               <Input
                 variant="dropdown"
@@ -163,15 +178,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                 required
               />
             </div>
-            <div className="mb-4">
-              <button
-                type="button"
-                onClick={() => setShowMap(true)}
-                className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-              >
-                انتخاب موقعیت مکانی روی نقشه
-              </button>
-            </div>
+
             {formData.location && (
               <div className="mb-4">
                 <p>
@@ -181,13 +188,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
               </div>
             )}
             <div className="w-full flex justify-center">
-              <button
-                type="submit"
-                disabled={!isFormValid}
-                className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
+              <Button className="w-full" onXsIsText type="submit" disabled={!isFormValid}>
                 ثبت موقعیت
-              </button>
+              </Button>
             </div>
           </div>
         </form>
