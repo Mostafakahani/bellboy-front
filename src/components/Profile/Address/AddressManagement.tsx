@@ -8,24 +8,22 @@ import Button from "@/components/ui/Button/Button";
 
 interface AddressManagementProps {
   initialAddresses: Address[];
-  onAddressChange: (addresses: Address[]) => void;
+  onAddressChange: (addresses: Address[], selectedAddress: Address | null) => void;
   title?: string;
 }
 
 const AddressManagement: React.FC<AddressManagementProps> = ({
   initialAddresses,
   onAddressChange,
-  title,
+  title = "آدرس‌ها",
 }) => {
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
-  const isLoading = false;
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
   const [clickEditButton, setClickEditButton] = useState<boolean>(false);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     fetchProvinces();
@@ -59,7 +57,8 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
       updatedAddresses = [...addresses, { ...address, id: Date.now().toString() }];
     }
     setAddresses(updatedAddresses);
-    onAddressChange(updatedAddresses);
+    setSelectedAddress(address);
+    onAddressChange(updatedAddresses, address);
     setIsModalOpen(false);
   };
 
@@ -71,12 +70,15 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
   const handleDeleteAddress = () => {
     const updatedAddresses = addresses.filter((a) => a.id !== selectedForDeleteAddressId);
     setAddresses(updatedAddresses);
-    onAddressChange(updatedAddresses);
+    setSelectedAddress(null);
+    onAddressChange(updatedAddresses, null);
     setOpenDeleteDialog(false);
   };
 
   const handleSelectAddress = (addressId: string) => {
-    setSelectedAddressId(addressId);
+    const selected = addresses.find((a) => a.id === addressId) || null;
+    setSelectedAddress(selected);
+    onAddressChange(addresses, selected);
   };
 
   const handleCloseModal = () => {
@@ -84,21 +86,15 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
     setSelectedAddress(null);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full">
       <div className="w-full flex flex-row justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">{title || "آدرس‌ها"}</h1>
+        <h1 className="text-xl font-bold">{title}</h1>
         <button
           onClick={() => setClickEditButton(!clickEditButton)}
-          className="text-gray-400 hover:text-gray-600 focus:outline-none"
+          className={`text-gray-400 hover:text-gray-600 focus:outline-none p-2 ${
+            clickEditButton && "bg-gray-100 rounded-full"
+          }`}
         >
           <Image width={25} height={25} src="/images/icons/edit.svg" alt="edit" />
         </button>
@@ -107,7 +103,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
         <AddressList
           clickEditButton={clickEditButton}
           addresses={addresses}
-          selectedAddressId={selectedAddressId}
+          selectedAddressId={selectedAddress?.id || null}
           onEdit={handleEditAddress}
           onDelete={handleDeleteAddressDialog}
           onSelect={handleSelectAddress}

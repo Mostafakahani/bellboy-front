@@ -7,12 +7,18 @@ interface Step {
   id: number;
   label: string;
   content: React.ReactNode;
+  isComplete: () => boolean; // Add this line to define isComplete as a function
 }
 
 interface MultiStepFormProps {
-  steps: Step[];
-  formData: { addresses: Address[] }; 
-  onFormChange: (newData: { addresses: Address[] }) => void;
+  steps: Step[]; // The steps array will now contain `isComplete` for each step
+  formData: { addresses: Address[]; selectedAddress: any; selectedServices: any[] }; // Adjust formData to match structure
+  onFormChange: (newData: {
+    addresses: Address[];
+    selectedAddress?: any;
+    selectedServices?: any[];
+  }) => void;
+  handleSubmit: () => void;
 }
 
 const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, currentStep }) => {
@@ -64,11 +70,16 @@ const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, curr
   );
 };
 
-const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, formData, onFormChange }) => {
+const MultiStepForm: React.FC<MultiStepFormProps> = ({
+  steps,
+  formData,
+  onFormChange,
+  handleSubmit,
+}) => {
   const [currentStep, setCurrentStep] = useState(1);
 
   const handleNextStep = () => {
-    if (currentStep < steps.length) {
+    if (currentStep < steps.length && steps[currentStep - 1].isComplete()) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -84,7 +95,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, formData, onFormCh
   };
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col justify-between h-[80vh]">
+    <div className="max-w-2xl mx-auto flex flex-col justify-between min-h-[80vh]">
       <div className="w-full h-full">
         <div className="w-full overflow-y-auto">
           <Stepper steps={steps} currentStep={currentStep} />
@@ -109,8 +120,12 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, formData, onFormCh
         <Button
           className="w-full"
           onXsIsText
-          onClick={handleNextStep}
-          disabled={currentStep === steps.length || formData.addresses.length === 0}
+          onClick={
+            currentStep === steps.length && steps[currentStep - 1].isComplete()
+              ? handleSubmit
+              : handleNextStep
+          }
+          // disabled={currentStep === steps.length || formData.addresses.length === 0}
         >
           ادامه
         </Button>

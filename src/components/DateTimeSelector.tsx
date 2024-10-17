@@ -15,22 +15,28 @@ type DaySchedule = {
 
 interface DateTimeSelectorProps {
   weekSchedule: DaySchedule[];
+  selectedTime: TimeSlot | null;
+  setSelectedTime: React.Dispatch<React.SetStateAction<TimeSlot | null>>;
   onSelect: (selectedDate: string, selectedTime: TimeSlot) => void;
 }
 
-const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ weekSchedule, onSelect }) => {
+const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
+  weekSchedule,
+  selectedTime,
+  setSelectedTime,
+  onSelect,
+}) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
-    setSelectedTime(null);
+    // setSelectedTime(null); // Reset time when date is changed
   };
 
   const handleTimeSelect = (time: TimeSlot) => {
     setSelectedTime(time);
     if (selectedDate) {
-      onSelect(selectedDate, time);
+      onSelect(selectedDate, time); // Call the onSelect function when both date and time are selected
     }
   };
 
@@ -44,7 +50,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ weekSchedule, onSel
 
       <div className="space-y-5">
         {weekSchedule.map((day) => (
-          <div key={day.date} className="">
+          <div key={day.date}>
             <button
               className={`border-2 border-black rounded-xl overflow-hidden w-full text-black font-bold text-right py-3 px-4 ${
                 selectedDate === day.date ? "bg-primary-100" : "bg-white"
@@ -59,12 +65,14 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({ weekSchedule, onSel
                   <button
                     key={index}
                     className={`w-full flex flex-row text-right py-3 px-4 rounded-xl text-black font-bold border-2 border-black ${
-                      selectedTime === slot ? "bg-primary-100" : "bg-white"
+                      selectedTime?.start === slot.start && selectedTime.end === slot.end
+                        ? "bg-primary-100"
+                        : "bg-white"
                     }`}
                     onClick={() => handleTimeSelect(slot)}
                   >
                     <InputRadio
-                      darkMode={selectedTime === slot}
+                      darkMode={selectedTime?.start === slot.start && selectedTime.end === slot.end}
                       setDarkMode={() => handleTimeSelect(slot)}
                       className="ml-2"
                     />
