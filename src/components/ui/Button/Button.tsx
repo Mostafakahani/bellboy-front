@@ -6,7 +6,7 @@ const variantStyles = {
   primary: {
     default:
       "bg-primary-400 py-6 text-black border-[2px] border-black hover:bg-primary-300 active:bg-black active:text-white disabled:bg-primary-100 disabled:text-slate-400 disabled:border-black/30",
-    error: "bg-white text-red-500 border-2 border-red-500  py-6",
+    error: "bg-white text-red-500 border-2 border-red-500 py-6",
   },
   secondary: {
     default:
@@ -15,7 +15,7 @@ const variantStyles = {
   },
   tertiary: {
     default:
-      "bg-transparent text-black hover:bg-primary-50 active:bg-black active:text-white disabled:text-primary-200",
+      "bg-transparent text-black hover:bg-primary-50 active:bg-black active:text-white disabled:border-black/50 disabled:text-primary-200",
     error: "bg-transparent text-red-500",
   },
 };
@@ -84,9 +84,9 @@ const Button: React.FC<ButtonProps> = ({
     >
       {!iconOnly && children && (
         <span
-          className={`${onXsIsText ? "block" : "hidden"}  md:block ${icon ? "ml-2" : "text-sm"} ${
+          className={`${onXsIsText ? "block" : "hidden"}  md:block ${icon ? "ml-2" : "text-sm "} ${
             disabled ? "!text-slate-600" : "text-black"
-          }!text-base`}
+          } !text-base`}
         >
           {children}
         </span>

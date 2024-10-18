@@ -3,7 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import DesktopMessage from "./DesktopMessage";
-
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 const yekanBakhLight = localFont({
   src: "./fonts/YekanBakhFaNum-Light.woff2",
   variable: "--font-yekanBakh-light",
