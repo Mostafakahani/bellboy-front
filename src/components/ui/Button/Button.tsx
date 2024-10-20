@@ -1,6 +1,6 @@
 import React from "react";
 import { PlusIcon, MinusIcon } from "lucide-react";
-import Image from "next/image";
+import { BackArrowIcon, EditIcon, GPSIcon, LeftArrowIcon, TrashIcon } from "@/icons/Icons";
 
 const variantStyles = {
   primary: {
@@ -64,15 +64,16 @@ const Button: React.FC<ButtonProps> = ({
       case "minus":
         return <MinusIcon className="w-5 h-5" />;
       case "trash":
-        return <Image width={25} height={25} src={"/images/icons/trash.svg"} alt="trash icon" />;
+        return <TrashIcon />;
+      // <Image width={25} height={25} src={"/images/icons/trash.svg"} alt="trash icon" />;
       case "right":
-        return <Image width={25} height={25} src={"/images/icons/left.svg"} alt="right icon" />;
+        return <BackArrowIcon className="w-5 h-5" />;
       case "left":
-        return <Image width={25} height={25} src={"/images/icons/toleft.svg"} alt="toleft icon" />;
+        return <LeftArrowIcon />;
       case "gps":
-        return <Image width={25} height={25} src={"/images/icons/gps2.svg"} alt="gps icon" />;
+        return <GPSIcon />;
       case "edit":
-        return <Image width={25} height={25} src={"/images/icons/edit.svg"} alt="edit icon" />;
+        return <EditIcon />;
       default:
         return null;
     }

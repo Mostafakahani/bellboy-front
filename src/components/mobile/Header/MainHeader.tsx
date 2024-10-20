@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import DrawerMenu from "./DrawerMenu";
 import Image from "next/image";
+import { LogoIcon, MenuIcon } from "@/icons/Icons";
 const links = [
   { name: "پرسش های شما", href: "/" },
   { name: "شعبه های ما", href: "/about" },
@@ -23,22 +24,24 @@ const MainHeader: React.FC = () => {
       <div className="flex items-center justify-between px-4 py-2 mx-1 mt-2">
         {/* Drawer toggle button */}
         <button onClick={toggleDrawer} className="text-2xl">
-          <Image
+          {/* <Image
             src={"/images/icons/menu.svg"}
             width={20}
             height={20}
             alt="menu بل بوی | menu Bell Boy"
-          />
+          /> */}
+          <MenuIcon />
         </button>
 
         {/* Logo */}
         <div className="flex items-center ml-3">
-          <Image
+          <LogoIcon />
+          {/* <Image
             src={"/images/logo.svg"}
             width={120}
             height={100}
             alt="لوگو بل بوی | Logo Bell Boy"
-          />
+          /> */}
         </div>
 
         {/* Phone link */}

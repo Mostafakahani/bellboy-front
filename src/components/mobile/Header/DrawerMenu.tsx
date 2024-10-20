@@ -1,4 +1,4 @@
-import { Github, Linkedin } from "lucide-react";
+import { InstagramIcon, LinkedinIcon, TelegramIcon, WhatsAppIcon, XIcon } from "@/icons/Icons";
 import Link from "next/link";
 import React from "react";
 
@@ -42,12 +42,11 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ isDrawerOpen, toggleDrawer, lin
             <p className="text-center font-bold">ما را دنبال کنید</p>
           </div>
           <div className="w-full flex flex-row justify-between mt-5">
-            <Github />
-            <Linkedin />
-            <Github />
-            <Linkedin />
-            <Github />
-            <Linkedin />
+            <InstagramIcon />
+            <TelegramIcon />
+            <LinkedinIcon />
+            <XIcon />
+            <WhatsAppIcon />
           </div>
         </div>
       </div>

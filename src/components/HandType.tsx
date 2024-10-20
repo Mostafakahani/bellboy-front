@@ -14,7 +14,13 @@ const HandType: React.FC<HandTypeProps> = ({ items }) => {
     <div className="p-4">
       {items.map((item, index) => (
         <div key={index} className="flex flex-row items-start gap-2 mb-4">
-          <Image src="/images/icons/hand.png" width={24} height={24} alt="hand" />
+          <Image
+            src="/images/icons/hand.png"
+            className="h-6 w-6"
+            width={24}
+            height={24}
+            alt="hand"
+          />
           <p className="text-sm text-black font-light text-right">
             <span className="font-bold relative inline-block mr-1">
               <span className="relative z-10">{item.bold}</span>

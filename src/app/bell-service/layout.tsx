@@ -1,3 +1,4 @@
+import Footer from "@/components/mobile/Footer/Footer";
 import MainHeader from "@/components/mobile/Header/MainHeader";
 
 export default function BellServiceLayout({
@@ -9,6 +10,7 @@ export default function BellServiceLayout({
     <>
       <MainHeader />
       {children}
+      <Footer />
     </>
   );
 }

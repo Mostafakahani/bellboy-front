@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import CheckMarkInput from "../ui/Input/CheckMarkInput";
 import { Address } from "../Profile/Address/types";
+import { LineIcon } from "@/icons/Icons";
 
 interface Service {
   id: string;
@@ -180,7 +181,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ formData, onFormChange
                 </span>
               </span>
               <div className="w-full absolute left-0 bottom-[-36px]">
-                <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+                <LineIcon />
+                {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
               </div>
             </div>
           </div>

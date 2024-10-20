@@ -2,6 +2,7 @@ import React from "react";
 import { Order } from "@/app/profile/orders/types";
 import { formatCurrency } from "@/utils/formatCurrency";
 import Image from "next/image";
+import { LineIcon } from "@/icons/Icons";
 
 interface OrderDetailsProps {
   order: Order | null;
@@ -46,7 +47,8 @@ export default function OrderDetails({ order, onClose }: OrderDetailsProps) {
           </div>
         </div>
         <div className="w-full absolute left-0 top-[155px]">
-          <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+          <LineIcon />
+          {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
         </div>
       </div>
 

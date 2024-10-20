@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input/Input";
 import DateTimeSelector from "@/components/DateTimeSelector";
 import HandType from "@/components/HandType";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
+import { LineIcon } from "@/icons/Icons";
 
 // DetailsForm Component for Step 1
 const DetailsForm: React.FC<{
@@ -182,10 +183,12 @@ export default function Page() {
       </div>
       <div>
         <div className="w-full">
-          <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+          <LineIcon />
+          {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
         </div>
         <div className="w-full">
-          <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+          <LineIcon />
+          {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
         </div>
       </div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>

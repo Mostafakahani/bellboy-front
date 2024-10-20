@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Image from "next/image";
 import ProductSlider from "@/components/ui/Slider/ProductSlider";
 import { formatCurrency } from "@/utils/formatCurrency";
 import Button from "@/components/ui/Button/Button";
+import { Heram2Icon } from "@/icons/Icons";
 
 export interface ProductType {
   id: number;
@@ -51,13 +51,14 @@ export const Step2: React.FC<Step2Props> = ({
   return (
     <div className="flex flex-col justify-between  min-h-[75vh]">
       <div className="w-full flex flex-col justify-between items-center h-36">
-        <Image
+        {/* <Image
           src={"/images/icons/heram02.svg"}
           width={200}
           height={200}
           className="w-16 h-16"
           alt="heram 1"
-        />
+        /> */}
+        <Heram2Icon className="w-16 h-16" />
         <h2 className="text-xl font-black mb-4 text-center">انتخاب طبقه دوم</h2>
       </div>
       <div className="mt-16 flex flex-row flex-nowrap gap-0 justify-start overflow-x-auto">

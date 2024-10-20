@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Image from "next/image";
 import { formatCurrency } from "@/utils/formatCurrency";
 import Button from "../ui/Button/Button";
 import DiscountDialog from "../Profile/DiscountDialog";
+import { LineIcon } from "@/icons/Icons";
 
 interface Product {
   name: string;
@@ -41,7 +41,8 @@ export default function FactorDetails({ orderSummary }: FactorDetailsProps) {
       <h2 className="text-lg font-bold text-right my-4">صورتحساب شما</h2>
 
       <div className="w-full absolute left-0 top-[205px]">
-        <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+        <LineIcon />
+        {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
       </div>
 
       <div className="flex flex-col gap-3 mt-16 py-4">
