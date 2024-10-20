@@ -135,8 +135,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ formData, onFormChange
   };
 
   return (
-    <div className="pt-4">
-      <h2 className="text-lg font-bold text-right my-4">خدمات مورد نیاز خود را انتخاب کنید</h2>
+    <div className="pt-4 px-4">
+      <h2 className="text-xl font-bold mt-2 mb-4">خدمات مورد نیاز خود را انتخاب کنید</h2>
 
       {/* Info messages */}
       {["hand", "hand", "hand"].map((icon, index) => (

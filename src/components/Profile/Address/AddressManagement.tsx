@@ -87,7 +87,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full px-4">
       <div className="w-full flex flex-row justify-between items-center mb-4">
         <h1 className="text-xl font-bold">{title}</h1>
         <button

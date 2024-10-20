@@ -23,7 +23,7 @@ const ServicesDrawer: React.FC<ServicesDrawerProps> = ({ isOpen, onClose }) => {
 
   const services = [
     { icon: "/images/icons/bellShop.svg", name: "Bell Shop", arabic: "بِل شاپ", link: "" },
-    { icon: "/images/icons/bellMazeh.svg", name: "Bell Mazah", arabic: "بِل مزه", link: "" },
+    { icon: "/images/icons/bellMazeh.svg", name: "Bell Mazah", arabic: "بِل مزه", link: "/bell-mazeh" },
     {
       icon: "/images/icons/bellClean.svg",
       name: "Bell Clean",

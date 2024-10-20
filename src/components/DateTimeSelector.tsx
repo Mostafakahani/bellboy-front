@@ -42,7 +42,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold text-right mb-4">برای دریافت خدمت، یک زمان انتخاب کنید</h2>
+      <h2 className="text-lg font-bold mt-2 mb-4">برای دریافت خدمت، یک زمان انتخاب کنید</h2>
       <p className="flex flex-row gap-2 text-sm text-black font-light text-right mb-4">
         <Image src={"/images/icons/hand.png"} width={24} height={24} alt="hand" />
         در زمان مورد نظر در منزل حاضر باشید

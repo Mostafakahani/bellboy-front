@@ -6,7 +6,7 @@ import AddressManagement from "@/components/Profile/Address/AddressManagement";
 
 export default function ProfileAddressPage() {
   const [addresses, setAddresses] = useState<Address[]>(demoAddresses);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  // const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,9 +27,13 @@ export default function ProfileAddressPage() {
     }
   };
 
-  const handleAddressChange = (updatedAddresses: Address[], selectedAddr: Address | null) => {
+  const handleAddressChange = (
+    updatedAddresses: Address[]
+
+    // selectedAddr: Address | null
+  ) => {
     setAddresses(updatedAddresses);
-    setSelectedAddress(selectedAddr);
+    // setSelectedAddress(selectedAddr);
     // Here you can add logic to sync with the backend if needed
   };
 
@@ -41,16 +45,16 @@ export default function ProfileAddressPage() {
     );
   }
 
-  const isContinueButtonEnabled = selectedAddress !== null;
+  // const isContinueButtonEnabled = selectedAddress !== null;
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-20">
+    <div className="container mx-auto py-8 mt-20">
       <AddressManagement
         initialAddresses={addresses}
         onAddressChange={handleAddressChange}
         title="آدرس‌های من"
       />
-      <button
+      {/* <button
         className={`mt-4 px-4 py-2 rounded ${
           isContinueButtonEnabled
             ? "bg-blue-500 text-white"
@@ -59,7 +63,7 @@ export default function ProfileAddressPage() {
         disabled={!isContinueButtonEnabled}
       >
         ادامه
-      </button>
+      </button> */}
     </div>
   );
 }

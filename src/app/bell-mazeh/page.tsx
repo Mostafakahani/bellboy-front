@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { demoProducts } from "./demoData";
 import MultiStepModal from "@/components/Stepper/MultiStepModalHeram/MultiStepModalHeram";
+import Layout from "@/components/mobile/Drawers/Layout";
 
 const categorys = [
   { id: 1, name: "هرم مزه", icon: "/images/icons/heramMazeh.svg", type: "drawer" },
@@ -45,7 +46,7 @@ const HomePage: React.FC = () => {
   return (
     <>
       <MainHeader />
-      <div>
+      <Layout>
         <h1 className="text-2xl font-bold mb-4">صفحه اصلی</h1>
 
         {/* دسته‌بندی‌ها */}
@@ -138,7 +139,7 @@ const HomePage: React.FC = () => {
             />
           )}
         </div>
-      </div>
+      </Layout>
     </>
   );
 };

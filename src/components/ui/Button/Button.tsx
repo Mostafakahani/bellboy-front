@@ -35,7 +35,7 @@ const iconSizeStyles = {
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "tertiary";
   size?: "sm" | "md" | "lg";
-  icon?: "plus" | "minus" | "trash" | "right" | "gps" | "edit" | boolean;
+  icon?: "plus" | "minus" | "trash" | "right" | "gps" | "edit" | "left" | boolean;
   isError?: boolean;
   iconOnly?: boolean;
   children?: React.ReactNode;
@@ -67,6 +67,8 @@ const Button: React.FC<ButtonProps> = ({
         return <Image width={25} height={25} src={"/images/icons/trash.svg"} alt="trash icon" />;
       case "right":
         return <Image width={25} height={25} src={"/images/icons/left.svg"} alt="right icon" />;
+      case "left":
+        return <Image width={25} height={25} src={"/images/icons/toleft.svg"} alt="toleft icon" />;
       case "gps":
         return <Image width={25} height={25} src={"/images/icons/gps2.svg"} alt="gps icon" />;
       case "edit":

@@ -53,3 +53,35 @@ body {
 .leaflet-control-attribution {
   display: none;
 }
+
+/* global.css */
+
+/* فعال کردن اسکرول نرم */
+html {
+  scroll-behavior: smooth;
+}
+
+/* استایل‌دهی به اسکرول بار */
+::-webkit-scrollbar {
+  width: 8px;
+  /* عرض اسکرول بار */
+}
+
+::-webkit-scrollbar-track {
+  background: #fffcfc;
+  /* رنگ پس‌زمینه */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #E6FFF6;
+  /* رنگ دسته اسکرول بار */
+  border-radius: 10px;
+  /* گرد کردن گوشه‌های دسته */
+  border: 2px solid transparent;
+  /* حاشیه شفاف برای فضای داخلی */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+  /* رنگ هنگام هاور روی اسکرول بار */
+}

@@ -7,6 +7,8 @@ import AddressManagement from "@/components/Profile/Address/AddressManagement";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input/Input";
 import DateTimeSelector from "@/components/DateTimeSelector";
+import HandType from "@/components/HandType";
+import BellTypoGraphy from "@/components/BellTypoGraphy";
 
 // DetailsForm Component for Step 1
 const DetailsForm: React.FC<{
@@ -122,13 +124,13 @@ export default function Page() {
       id: 1,
       label: "موقعیت",
       content: <DetailsForm addresses={formData.addresses} onAddressChange={handleAddressChange} />,
-      isComplete: () => formData.addresses.length > 0, // Dynamic function to check completion
+      isComplete: () => formData.addresses.length > 0,
     },
     {
       id: 2,
       label: "سرویس",
       content: <ServiceForm />,
-      isComplete: () => formData.selectedServices.length > 0, // Dynamic function to check completion
+      isComplete: () => true, // formData.selectedServices.length > 0
     },
     {
       id: 3,
@@ -141,20 +143,51 @@ export default function Page() {
           onSelect={handleDateTimeSelect}
         />
       ),
-      isComplete: () => selectedTime !== null, // Dynamic function to check completion
+      isComplete: () => selectedTime !== null,
     },
   ];
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const handleSubmit = () => {
+    window.alert("Console");
     console.log(formData);
   };
+  const handTypeItems = [
+    {
+      bold: "سرویس‌های سریع و قابل اطمینان:",
+      normal:
+        "تیم حرفه‌ای ما با سرعت بالا به درخواست شما پاسخ داده و در کمترین زمان ممکن با شما تماس می‌گیرند.",
+    },
+    {
+      bold: "بازدید رایگان و تعیین قیمت شفاف:",
+      normal:
+        " پس از دریافت اطلاعات از شما، تیم ما به صورت رایگان به محل شما می‌آید، مشکل را بررسی می‌کند و هزینه دقیق و شفاف را برای شما تعیین می‌کند. هیچ هزینه پنهانی وجود ندارد!",
+    },
+    {
+      bold: "متخصصین با تجربه در هر زمینه:",
+      normal:
+        " فرقی نمی‌کند که مشکل شما در حوزه قفل و پنجره، تعمیرات برق یا لوله و اتصالات باشد؛ ما تیمی از متخصصین با تجربه و ماهر در هر حوزه داریم که آماده حل مشکل شما هستند.",
+    },
+  ];
+
   return (
-    <div className="p-4">
-      <Button onXsIsText onClick={openModal}>
-        ثبت سفارش
-      </Button>
+    <div className="mt-16">
+      <BellTypoGraphy farsi="بِل سرویس" english="Bell Service" />
+      <HandType items={handTypeItems} />
+      <div className="w-full flex justify-center">
+        <Button icon="left" onXsIsText onClick={openModal}>
+          ثبت سفارش
+        </Button>
+      </div>
+      <div>
+        <div className="w-full">
+          <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+        </div>
+        <div className="w-full">
+          <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
+        </div>
+      </div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <MultiStepForm
           formData={formData}
