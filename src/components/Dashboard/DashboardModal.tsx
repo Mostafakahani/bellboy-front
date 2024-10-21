@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
 import Image from "next/image";
 
-interface ModalProps {
+interface DashboardModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
@@ -9,7 +9,13 @@ interface ModalProps {
   haveBorder?: boolean;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, haveBorder }) => {
+export const DashboardModal: React.FC<DashboardModalProps> = ({
+  isOpen,
+  onClose,
+  children,
+  title,
+  haveBorder,
+}) => {
   const [shouldRender, setShouldRender] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -58,7 +64,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, 
       }`}
       onClick={onClose}
     >
-      <div 
+      <div
         className={`absolute inset-0 bg-black transition-opacity duration-300 ${
           isAnimating ? "opacity-50" : "opacity-0"
         }`}
