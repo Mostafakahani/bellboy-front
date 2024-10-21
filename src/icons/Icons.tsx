@@ -185,7 +185,10 @@ export const LogoIcon = (props: React.SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-export const UserIcon = (props: React.SVGProps<SVGSVGElement>) => (
+export const UserIcon = ({
+  color = "black",
+  ...props
+}: React.SVGProps<SVGSVGElement> & { color?: string }) => (
   <svg
     width="24"
     height="25"
@@ -196,14 +199,14 @@ export const UserIcon = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <path
       d="M12 12.2812C14.7614 12.2812 17 10.0427 17 7.28125C17 4.51983 14.7614 2.28125 12 2.28125C9.23858 2.28125 7 4.51983 7 7.28125C7 10.0427 9.23858 12.2812 12 12.2812Z"
-      stroke="white"
+      stroke={color}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M20.5901 22.2812C20.5901 18.4113 16.7402 15.2812 12.0002 15.2812C7.26015 15.2812 3.41016 18.4113 3.41016 22.2812"
-      stroke="white"
+      stroke={color}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
