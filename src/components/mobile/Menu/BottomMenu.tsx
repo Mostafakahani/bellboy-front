@@ -60,33 +60,39 @@ const menuConfigs: MenuConfig = {
       action: "link",
     },
   ],
-  userDashboard: [
+  adminDashboard: [
     {
-      iconActive: "/images/icons/home-active.svg",
-      iconInactive: "/images/icons/home.svg",
-      label: "داشبورد",
-      href: "/dashboard",
-      action: "link",
-    },
-    {
-      iconActive: "/images/icons/home-active.svg",
-      iconInactive: "/images/icons/home.svg",
-      label: "سفارش‌ها",
+      iconActive: "/images/icons/admin/orders-active.svg",
+      iconInactive: "/images/icons/admin/orders.svg",
+      label: "سفارش ها",
       href: "/dashboard/orders",
       action: "link",
     },
     {
-      iconActive: "/images/icons/home-active.svg",
-      iconInactive: "/images/icons/home.svg",
-      label: "تنظیمات",
-      href: "/dashboard/settings",
-      action: "drawer",
-      drawerId: "settings",
+      iconActive: "/images/icons/admin/guid-active.svg",
+      iconInactive: "/images/icons/admin/guid.svg",
+      label: "بل‌گاید",
+      href: "/dashboard/bellguid",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/admin/products-active.svg",
+      iconInactive: "/images/icons/admin/products.svg",
+      label: "کالاها",
+      href: "/dashboard/products",
+      action: "link",
+    },
+    {
+      iconActive: "/images/icons/admin/users-active.svg",
+      iconInactive: "/images/icons/admin/users.svg",
+      label: "کاربران",
+      href: "/dashboard/users",
+      action: "link",
     },
     {
       iconActive: "/images/icons/home-active.svg",
       iconInactive: "/images/icons/home.svg",
-      label: "پروفایل",
+      label: "حساب من",
       href: "/dashboard/profile",
       action: "drawer",
       drawerId: "profile",
@@ -150,7 +156,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
 
   useEffect(() => {
     if (pathname.startsWith("/dashboard")) {
-      setActiveConfig(menuConfigs.userDashboard);
+      setActiveConfig(menuConfigs.adminDashboard);
     } else if (pathname.startsWith("/admin")) {
       setActiveConfig(menuConfigs.adminPanel);
     } else {
