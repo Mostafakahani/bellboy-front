@@ -12,6 +12,9 @@ import {
   CleaingIcon,
   ColdDrinkIcon,
   HeramMazehIcon,
+  Mazaya1Icon,
+  Mazaya2Icon,
+  Mazaya3Icon,
   OneUseabelIcon,
   SiniMazehIcon,
   TabkhIcon,
@@ -19,6 +22,8 @@ import {
   WarmDrinkIcon,
 } from "@/icons/mainIcons";
 import Image from "next/image";
+import { demoProducts } from "./bell-mazeh/demoData";
+import ProfileSlider from "@/components/ui/Slider/ProfileSlider";
 interface Item {
   icon: JSX.Element;
   label: string;
@@ -211,10 +216,38 @@ export default function Home() {
               <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span>
             </span>
           </div>
-          <div className="w-full flex flex-col justify-between px-8 mt-8">
-            <div className="w-full flex justify-start">test</div>
-            <div className="w-full flex justify-end">test</div>
-            <div className="w-full flex justify-start">test</div>
+          <div className="w-full flex flex-col justify-between px-8 my-8">
+            <div className="w-full flex flex-col justify-start">
+              <Mazaya1Icon />
+              <h6 className="text-lg font-bold mt-5">بهبود تجربه اقامت در سفر</h6>
+              <span className="w-[15rem]">ارائه خدمات و راه‌حل‌های متمرکز در مناطق ویلایی</span>
+            </div>
+            <div className="w-full flex flex-col items-end">
+              <Mazaya2Icon />
+              <h6 className="text-lg font-bold mt-5">ضمانت کیفیت</h6>
+              <span className="w-[15rem] text-left">
+                تضمین خدماتی با کیفیتی جهت جلب اعتماد و رضایت کاربران
+              </span>
+            </div>
+            <div className="w-full flex flex-col justify-start">
+              <Mazaya3Icon />
+              <h6 className="text-lg font-bold mt-5">سهولت و دسترسی</h6>
+              <span className="w-[15rem]">دسترسی سریع و بدون دردسر به خدمات متنوع </span>
+            </div>
+          </div>
+          <LineIcon />
+          <div className="mt-16 flex flex-row flex-nowrap gap-0 justify-start overflow-x-auto">
+            {demoProducts.map((product) => (
+              <div
+                key={product.id}
+                className={`flex flex-col items-start p-4 min-w-44 first:mr-0 transition-opacity duration-300 ${
+                  !true ? "opacity-100" : true ? " opacity-100" : "opacity-50"
+                }`}
+                // onClick={() => handleProductSelect(product)}
+              >
+                <ProfileSlider className="mb-4" product={product} dots={false} />
+              </div>
+            ))}
           </div>
         </div>
       </>
