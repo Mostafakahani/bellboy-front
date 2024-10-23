@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
-import Image from "next/image";
 
 interface DashboardModalProps {
   isOpen: boolean;
@@ -13,7 +12,7 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({
   isOpen,
   onClose,
   children,
-  title,
+  // title,
   haveBorder,
 }) => {
   const [shouldRender, setShouldRender] = useState(false);
@@ -78,13 +77,13 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white w-full h-full overflow-auto relative">
-          <div className="flex justify-between items-center mt-4 sm:mt-6 px-4">
+          {/* <div className="flex justify-between items-center mt-4 sm:mt-6 px-4">
             <h5 className="font-black text-lg sm:text-xl">{title || "بل سرویس"}</h5>
             <button onClick={onClose} className="p-2">
               <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
             </button>
-          </div>
-          <div className="w-full mt-8 sm:mt-10">{children}</div>
+          </div> */}
+          <div className="w-full mt-2 sm:mt-4">{children}</div>
         </div>
       </div>
     </div>
