@@ -21,6 +21,22 @@ export const LineIcon = (props: React.SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
+export const OneLineIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="313"
+    height="5"
+    viewBox="0 0 313 5"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M-0.000169459 3.6548C62.466 3.58691 273.867 -0.525385 312 3.91258"
+      stroke="black"
+      strokeWidth="2"
+    />
+  </svg>
+);
 export const LogoIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="128"
@@ -591,7 +607,7 @@ export const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <g clip-path="url(#clip0_2462_49248)">
+    <g clipPath="url(#clip0_2462_49248)">
       <path d="M4 4.51562L20 20.5156" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M20 4.51562L4 20.5156" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
     </g>
@@ -679,7 +695,7 @@ export const GPS2Icon = (props: React.SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <g clip-path="url(#clip0_2462_33040)">
+    <g clipPath="url(#clip0_2462_33040)">
       <path
         d="M20.25 12C20.25 13.6317 19.7662 15.2267 18.8596 16.5835C17.9531 17.9402 16.6646 18.9976 15.1571 19.622C13.6497 20.2464 11.9909 20.4098 10.3905 20.0915C8.79017 19.7732 7.32016 18.9874 6.16637 17.8336C5.01259 16.6798 4.22685 15.2098 3.90853 13.6095C3.5902 12.0092 3.75357 10.3504 4.378 8.84286C5.00242 7.33537 6.05984 6.0469 7.41655 5.14038C8.77325 4.23385 10.3683 3.75 12 3.75C14.188 3.75 16.2865 4.61919 17.8336 6.16637C19.3808 7.71354 20.25 9.81196 20.25 12Z"
         stroke="black"
@@ -764,7 +780,7 @@ export const LeftArrowIcon = (props: React.SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <g clip-path="url(#clip0_8162_14979)">
+    <g clipPath="url(#clip0_8162_14979)">
       <path
         d="M14 6.3125C12.4842 9.31981 11.3686 10.6119 9 12.3125"
         stroke="black"
@@ -794,7 +810,7 @@ export const BackArrowIcon = (props: React.SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <g clip-path="url(#clip0_2674_20837)">
+    <g clipPath="url(#clip0_2674_20837)">
       <path
         d="M16.3281 6.33203L22.4976 12.5015L16.3281 18.6709"
         stroke="black"
