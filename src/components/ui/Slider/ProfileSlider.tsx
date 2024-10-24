@@ -1,41 +1,45 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
-// File imports for slick-carousel CSS are commented out as they're not typically used in React components
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
-
-import { ProductType } from "@/components/BellMazeh/types";
-
-interface ProfileSliderProps {
-  product: ProductType;
-  dots?: boolean;
-  className?: string;
+export interface ItemExprience {
+  image: string;
+  name: string;
+  role: string;
+  desc: string;
 }
 
-const ProfileSlider: React.FC<ProfileSliderProps> = ({ product, dots, className }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+interface MainSliderProps {
+  exprienceData: ItemExprience[];
+}
+
+const MainSlider: React.FC<MainSliderProps> = ({ exprienceData }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       handleNext();
     }, 5000);
 
-    return () => clearInterval(interval);
-  }, [currentIndex, product.imageUrls.length]);
+    return () => clearInterval(timer);
+  }, [currentSlide]);
+
+  const handleTransitionEnd = () => {
+    setIsAnimating(false);
+  };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === product.imageUrls.length - 1 ? 0 : prevIndex + 1
-    );
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentSlide((prev) => (prev === exprienceData.length - 1 ? 0 : prev + 1));
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? product.imageUrls.length - 1 : prevIndex - 1
-    );
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentSlide((prev) => (prev === 0 ? exprienceData.length - 1 : prev - 1));
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -50,47 +54,96 @@ const ProfileSlider: React.FC<ProfileSliderProps> = ({ product, dots, className 
     if (touchStart - touchEnd > 75) {
       handleNext();
     }
-
     if (touchStart - touchEnd < -75) {
       handlePrev();
     }
   };
 
   return (
-    <div className={`w-full max-w-3xl ${className}`}>
-      <div
-        className="relative overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className="relative w-full h-full">
+    <div className="w-full max-w-md mx-auto px-4">
+      <div className="relative">
+        {/* Navigation Arrows */}
+        <button onClick={handlePrev} className="absolute left-0 top-24 -translate-y-1/2 z-10 p-2">
           <Image
-            src={product.imageUrls[currentIndex]}
-            alt={`${product.name} - تصویر ${currentIndex + 1}`}
             width={1080}
-            height={1080}
-            className="rounded-xl transition-opacity duration-300 w-40 h-40 object-cover"
-            priority
-            quality={80}
+            height={150}
+            className="w-full"
+            src={"/images/main/left.svg"}
+            alt="left"
           />
-        </div>
-      </div>
-      {dots && (
-        <div className="mt-4 flex justify-center gap-2">
-          {product.imageUrls.map((_, index) => (
+        </button>
+
+        <button onClick={handleNext} className="absolute right-0 top-24 -translate-y-1/2 z-10 p-2">
+          <Image
+            width={1080}
+            height={150}
+            className="w-full"
+            src={"/images/main/right.svg"}
+            alt="right"
+          />
+        </button>
+
+        <div
+          className="relative overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div
+            className={`transition-all duration-500 ease-in-out`}
+            onTransitionEnd={handleTransitionEnd}
+          >
+            {/* Image Container */}
+            <div className="aspect-square w-48 h-48 mx-auto rounded-full border-[14px] border-emerald-400 overflow-hidden transition-transform duration-500">
+              <Image
+                src={exprienceData[currentSlide].image}
+                alt={exprienceData[currentSlide].name}
+                width={1080}
+                height={1080}
+                className={`w-full h-full object-cover transform transition-transform duration-500 ${
+                  isAnimating ? "scale-110" : "scale-100"
+                }`}
+                priority
+                quality={100}
+              />
+            </div>
+
+            {/* Content */}
             <div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                index === currentIndex ? "bg-blue-500 w-4" : "bg-gray-300"
+              className={`mt-6 text-center transition-opacity duration-500 ${
+                isAnimating ? "opacity-50" : "opacity-100"
               }`}
-              onClick={() => setCurrentIndex(index)}
+            >
+              <h2 className="text-xl font-semibold">{exprienceData[currentSlide].name}</h2>
+              <p className="text-gray-600 mt-5">{exprienceData[currentSlide].role}</p>
+              <p className="text-sm text-gray-700 max-w-md mx-auto leading-relaxed mt-8">
+                {exprienceData[currentSlide].desc}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Dots */}
+        <div className="mt-6 flex justify-center gap-2">
+          {exprienceData.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                if (!isAnimating) {
+                  setIsAnimating(true);
+                  setCurrentSlide(index);
+                }
+              }}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === currentSlide ? "w-4 bg-black" : "w-2 bg-primary-400"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default ProfileSlider;
+export default MainSlider;
