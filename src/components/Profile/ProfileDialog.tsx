@@ -7,32 +7,141 @@ import { PhoneNumberDisplay } from "./PhoneNumberDisplay";
 import { PhoneNumberEditDialog } from "./PhoneNumberEditDialog";
 import { DialogProps, FormData } from "./ProfileTypes";
 import { ProfileData } from "@/app/profile/(main)/ProfileMainPageClient";
+import { DatePickerDemo } from "../DatePicker";
+import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+import { showError, showSuccess } from "@/lib/toastService";
 
 interface ExtendedDialogProps extends DialogProps {
   profileData: ProfileData;
 }
+
+// تبدیل تاریخ شمسی به میلادی با فرمت ISO
+const convertJalaliToIso = (jalaliDate: string): string => {
+  if (!jalaliDate) return "";
+  try {
+    return moment.from(jalaliDate, "fa", "YYYY/MM/DD").locale("en").format("YYYY-MM-DD");
+  } catch (error) {
+    console.error("Error converting Jalali to ISO:", error);
+    return "";
+  }
+};
+
+// تبدیل تاریخ میلادی به شمسی
+const convertIsoToJalali = (isoDate: string): string => {
+  if (!isoDate) return "";
+  try {
+    return moment(isoDate).locale("fa").format("YYYY/MM/DD");
+  } catch (error) {
+    console.error("Error converting ISO to Jalali:", error);
+    return "";
+  }
+};
+
+// اعتبارسنجی فرمت ISO
+const isValidIsoFormat = (date: string): boolean => {
+  if (!date) return true; // اگر تاریخ خالی باشد، معتبر است
+  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!isoFormatRegex.test(date)) return false;
+  return moment(date, "YYYY-MM-DD", true).isValid();
+};
 
 export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, profileData }) => {
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     phoneNumber: "09123456789",
-    birthDate: "",
+    birthDate: "", // این در فرمت ISO ذخیره می‌شود
   });
+  const [displayDate, setDisplayDate] = useState(""); // این در فرمت شمسی نمایش داده می‌شود
+  const [loading, setLoading] = useState<boolean>(false);
+  const [dateError, setDateError] = useState<string>("");
+
   const [showPhoneEdit, setShowPhoneEdit] = useState(false);
+  const authenticatedFetch = useAuthenticatedFetch();
 
   useEffect(() => {
     if (profileData) {
+      console.log(profileData);
       setFormData((prev) => ({
         ...prev,
-        firstName: profileData.firstName,
-        lastName: profileData.lastName,
-        birthDate: profileData.birthDate
-          ? moment(profileData.birthDate).locale("fa").format("YYYY-MM-DD")
-          : "",
+        firstName: profileData.firstName || "",
+        lastName: profileData.lastName || "",
+        birthDate: profileData.birthDate || "",
       }));
+      // تبدیل تاریخ ISO به شمسی برای نمایش
+      if (profileData.birthDate) {
+        setDisplayDate(convertIsoToJalali(profileData.birthDate));
+      }
     }
   }, [profileData]);
+
+  const handleDateChange = (jalaliDate: string | null) => {
+    setDateError("");
+
+    if (!jalaliDate) {
+      setFormData((prev) => ({ ...prev, birthDate: "" }));
+      setDisplayDate("");
+      return;
+    }
+
+    // const isoDate = convertJalaliToIso(jalaliDate);
+
+    // if (!isValidIsoFormat(isoDate)) {
+    //   setDateError("فرمت تاریخ تولد وارد شده صحیح نیست. لطفا تاریخ معتبری را انتخاب کنید.");
+    //   return;
+    // }
+
+    setDisplayDate(jalaliDate);
+    setFormData((prev) => ({ ...prev, birthDate: jalaliDate }));
+  };
+
+  const formatErrorMessage = (message: string | string[] | any): string => {
+    if (Array.isArray(message)) {
+      return message.join(" ");
+    }
+    return message?.toString() || "خطای ناشناخته رخ داده است";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // if (formData.birthDate && !isValidIsoFormat(formData.birthDate)) {
+    //   setDateError("فرمت تاریخ تولد وارد شده صحیح نیست. لطفا تاریخ معتبری را انتخاب کنید.");
+    //   return;
+    // }
+
+    try {
+      setLoading(true);
+
+      const { data, error, message, status } = await authenticatedFetch<ApiResponse>(
+        "/users/profile",
+        {
+          method: "PATCH",
+          body: JSON.stringify({ ...formData, birthDate: convertJalaliToIso(formData.birthDate) }), // تاریخ بصورت ISO ارسال می‌شود
+        }
+      );
+
+      if (error) {
+        setLoading(false);
+        throw new Error(formatErrorMessage(message));
+      }
+
+      if (data?.statusCode && data.statusCode !== 200) {
+        throw new Error(formatErrorMessage(data.message));
+      }
+
+      if (status === "success") {
+        showSuccess(message);
+        onClose();
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -41,21 +150,7 @@ export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Convert Jalali date back to Gregorian before submitting
-    const submissionData = {
-      ...formData,
-      birthDate: formData.birthDate
-        ? moment.from(formData.birthDate, "fa", "YYYY-MM-DD").format("YYYY-MM-DD")
-        : "",
-    };
-    console.log("Form submitted:", submissionData);
-    onClose();
-  };
-
   const handlePhoneEdit = () => {
-    console.log(`Sending OTP to ${formData.phoneNumber}`);
     setShowPhoneEdit(true);
   };
 
@@ -100,16 +195,15 @@ export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, 
                 label="نام خانوادگی"
               />
               <PhoneNumberDisplay phoneNumber={formData.phoneNumber} onEdit={handlePhoneEdit} />
-              <Input
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleInputChange}
-                type="date"
-                label="تاریخ تولد"
+              <DatePickerDemo
+                value={displayDate} // نمایش تاریخ شمسی
+                onChange={handleDateChange}
+                readOnly={false}
               />
+              {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>}
             </div>
-            <Button onXsIsText type="submit">
-              ذخیره تغییرات
+            <Button onXsIsText type="submit" disabled={loading || !!dateError}>
+              {loading ? "در حال ذخیره..." : "ذخیره تغییرات"}
             </Button>
           </form>
         </div>

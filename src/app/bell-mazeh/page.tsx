@@ -43,7 +43,12 @@ const HomePage: React.FC = () => {
         .filter((item) => item.quantity > 0)
     );
   };
-
+  useEffect(() => {
+    const defaultCategory = categorys.find((category) => category.type === "list");
+    if (defaultCategory) {
+      setSelectedCategory(defaultCategory);
+    }
+  }, []);
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
 
@@ -68,8 +73,14 @@ const HomePage: React.FC = () => {
           <div className="flex flex-row justify-center gap-5">
             {categorys.map((category) => (
               <div
-                className={`flex flex-col gap-5 items-center justify-between  w-[80px] h-[100px] cursor-pointer px-3 py-4 bg-white border-[3px] border-black rounded-t-full rounded-b-xl transition-all ${
-                  selectedCategory?.id === category.id ? "bg-green-200" : ""
+                style={{
+                  borderTopRightRadius: "100%",
+                  borderTopLeftRadius: "100%",
+                  borderBottomLeftRadius: "24px",
+                  borderBottomRightRadius: "24px",
+                }}
+                className={`flex flex-col gap-5 items-center justify-between  w-[80px] cursor-pointer px-3 py-2.5 border-[3px] border-black transition-all ${
+                  category.id === selectedCategory?.id ? "bg-primary-200" : " bg-white"
                 }`}
                 onClick={() => {
                   if (category.type === "drawer") {
@@ -77,11 +88,12 @@ const HomePage: React.FC = () => {
                     setSelectedCategory(category);
                   } else {
                     setSelectedCategory(category);
+                    console.log(category.id == selectedCategory?.id);
                   }
                 }}
                 key={category.id}
               >
-                <div className="flex flex-col items-center justify-between gap-y-3">
+                <div className="flex flex-col items-center justify-between gap-y-3 py-1">
                   <Image
                     src={category.icon}
                     width={24}
@@ -112,12 +124,19 @@ const HomePage: React.FC = () => {
                     <span className="text-sm">{product.price}</span>
 
                     {/* دکمه اضافه کردن به سبد خرید */}
-                    <button
-                      className="bg-green-500 text-white p-2 rounded-lg"
-                      onClick={() => addToCart(product)}
-                    >
-                      اضافه به سبد خرید
-                    </button>
+                    <div className="absolute">
+                      <button
+                        className="relative w-[30px] h-[30px] bottom-[-60px] right-[110px] bg-green-500 text-white px-2 rounded-full "
+                        onClick={() => {
+                          addToCart(product);
+                          console.log(
+                            cart.find((product) => product.id === product.id) === product.id
+                          );
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
 
                     {/* دکمه حذف از سبد خرید */}
                     <button
