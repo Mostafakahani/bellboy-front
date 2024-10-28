@@ -23,6 +23,40 @@ const HomePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quantityInCart, setQuantityInCart] = useState(0);
+
+  const handleAddToCart = (product: any) => {
+    addToCart(product);
+    const existingProduct = cart.find((item) => item.id === product.id);
+    if (existingProduct) {
+      setQuantityInCart(existingProduct.quantity);
+    } else {
+      setQuantityInCart(1);
+    }
+  };
+
+  const handleIncreaseQuantity = (productId: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+    setQuantityInCart((prevQuantity) => prevQuantity + 1);
+  };
+
+  const handleDecreaseQuantity = (productId: number) => {
+    setCart((prevCart) =>
+      prevCart
+        .map((item) => (item.id === productId ? { ...item, quantity: item.quantity - 1 } : item))
+        .filter((item) => item.quantity > 0)
+    );
+    setQuantityInCart((prevQuantity) => prevQuantity - 1);
+  };
+
+  const handleRemoveFromCart = (productId: number) => {
+    removeFromCart(productId);
+    setQuantityInCart(0);
+  };
 
   const addToCart = (product: any) => {
     setCart((prevCart) => {
@@ -122,29 +156,76 @@ const HomePage: React.FC = () => {
                     <span className="text-sm">{product.name}</span>
                     <span className="text-sm">{product.description}</span>
                     <span className="text-sm">{product.price}</span>
-
-                    {/* دکمه اضافه کردن به سبد خرید */}
                     <div className="absolute">
-                      <button
-                        className="relative w-[30px] h-[30px] bottom-[-60px] right-[110px] bg-green-500 text-white px-2 rounded-full "
-                        onClick={() => {
-                          addToCart(product);
-                          console.log(
-                            cart.find((product) => product.id === product.id) === product.id
-                          );
-                        }}
-                      >
-                        +
-                      </button>
+                      <div className="relative left-28 top-16 flex items-center gap-2">
+                        <button
+                          className={`relative right-48 flex items-center text-white px-3 py-1 rounded-full transition-all duration-[1000ms] ${
+                            cart.find((cartItem) => cartItem.id === product.id)
+                              ? "bg-green-500 w-auto"
+                              : "bg-gray-400 w-[30px] h-[30px]"
+                          }`}
+                          onClick={() => {
+                            if (cart.find((cartItem) => cartItem.id === product.id)) {
+                              handleRemoveFromCart(product.id); // حذف از سبد
+                            } else {
+                              addToCart(product); // اضافه کردن به سبد
+                            }
+                          }}
+                        >
+                          {cart.find((cartItem) => cartItem.id === product.id) ? (
+                            <div className="flex items-center gap-2 justify-end">
+                              {(cart.find((cartItem) => cartItem.id === product.id)?.quantity ||
+                                0) > 1 ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDecreaseQuantity(product.id);
+                                  }}
+                                  className="bg-red-500 w-[30px] h-[30px] text-white rounded-full flex items-center justify-center"
+                                >
+                                  -
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveFromCart(product.id);
+                                  }}
+                                  className="bg-red-500 text-white p-2 rounded-lg"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="w-6 h-6"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951A52.662 52.662 0 0112 4c.257 0 .511.001.765.003 1.603.051 2.816 1.387 2.816 2.951zm-6.136-1.452a51.196 51.196 0 013.273-.512 3.753 3.753 0 00-3.386-2.372Zm-2.911-.095a3 3 0 00-2.966 3.48l1.061 14.246a2.25 2.25 0 002.22 2.023h6.533a2.25 2.25 0 002.22-2.023l1.061-14.246a3 3 0 00-2.966-3.48l-.255.015a49.sdfsdf.001A52.662 52.662 0 0112 4c.257 0 .511.001.765.003-2.501-.001-5.201 0-8.066.095Z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </button>
+                              )}
+                              <span className="px-2">
+                                {cart.find((cartItem) => cartItem.id === product.id)?.quantity || 0}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addToCart(product);
+                                }}
+                                className="bg-green-500 w-[30px] h-[30px] text-white rounded-full flex items-center justify-center"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ) : (
+                            "+"
+                          )}
+                        </button>
+                      </div>
                     </div>
-
-                    {/* دکمه حذف از سبد خرید */}
-                    <button
-                      className="bg-red-500 text-white p-2 rounded-lg"
-                      onClick={() => removeFromCart(product.id)}
-                    >
-                      حذف از سبد خرید
-                    </button>
                   </div>
                 ))
               : null}
