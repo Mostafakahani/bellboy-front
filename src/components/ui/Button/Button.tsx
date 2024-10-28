@@ -1,5 +1,5 @@
 import React from "react";
-import { PlusIcon, MinusIcon } from "lucide-react";
+import { PlusIcon, MinusIcon, Loader2 } from "lucide-react";
 import { BackArrowIcon, EditIcon, GPSIcon, LeftArrowIcon, TrashIcon } from "@/icons/Icons";
 
 const variantStyles = {
@@ -40,6 +40,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   iconOnly?: boolean;
   children?: React.ReactNode;
   onXsIsText?: boolean;
+  loading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -52,12 +53,17 @@ const Button: React.FC<ButtonProps> = ({
   className = "",
   disabled = false,
   onXsIsText = false,
+  loading = false,
   ...props
 }) => {
   const variantClass = variantStyles[variant][isError ? "error" : "default"];
   const sizeClass = iconOnly ? iconSizeStyles[size] : sizeStyles[size];
 
   const getIcon = () => {
+    if (loading) {
+      return <Loader2 className="w-5 h-5 animate-spin" />;
+    }
+
     switch (icon) {
       case "plus":
         return <PlusIcon className="w-5 h-5" />;
@@ -65,7 +71,6 @@ const Button: React.FC<ButtonProps> = ({
         return <MinusIcon className="w-5 h-5" />;
       case "trash":
         return <TrashIcon />;
-      // <Image width={25} height={25} src={"/images/icons/trash.svg"} alt="trash icon" />;
       case "right":
         return <BackArrowIcon className="w-5 h-5" />;
       case "left":
@@ -82,19 +87,19 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={`inline-flex items-center justify-center rounded-full font-bold transition-colors select-none ${variantClass} ${sizeClass} ${className}`}
-      disabled={disabled}
+      disabled={disabled || loading}
       {...props}
     >
       {!iconOnly && children && (
         <span
           className={`${onXsIsText ? "block" : "hidden"}  md:block ${icon ? "ml-2" : "text-sm "} ${
-            disabled ? "!text-slate-600" : "text-black"
-          } !text-base`}
+            disabled || loading ? "!text-slate-600" : "text-black"
+          }${isError && "!text-red-600"} !text-base`}
         >
           {children}
         </span>
       )}
-      {icon && getIcon()}
+      {(icon || loading) && getIcon()}
     </button>
   );
 };

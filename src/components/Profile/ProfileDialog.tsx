@@ -1,28 +1,56 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import moment from "jalali-moment";
 import { Input } from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import { PhoneNumberDisplay } from "./PhoneNumberDisplay";
 import { PhoneNumberEditDialog } from "./PhoneNumberEditDialog";
 import { DialogProps, FormData } from "./ProfileTypes";
+import { ProfileData } from "@/app/profile/(main)/ProfileMainPageClient";
 
-export const ProfileDialog: React.FC<DialogProps> = ({ isOpen, onClose }) => {
+interface ExtendedDialogProps extends DialogProps {
+  profileData: ProfileData;
+}
+
+export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, profileData }) => {
   const [formData, setFormData] = useState<FormData>({
-    firstName: "علیرضا",
-    lastName: "میر حیدری",
+    firstName: "",
+    lastName: "",
     phoneNumber: "09123456789",
-    birthDate: "1371/07/04",
+    birthDate: "",
   });
   const [showPhoneEdit, setShowPhoneEdit] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  useEffect(() => {
+    if (profileData) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        birthDate: profileData.birthDate
+          ? moment(profileData.birthDate).locale("fa").format("YYYY-MM-DD")
+          : "",
+      }));
+    }
+  }, [profileData]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    // Convert Jalali date back to Gregorian before submitting
+    const submissionData = {
+      ...formData,
+      birthDate: formData.birthDate
+        ? moment.from(formData.birthDate, "fa", "YYYY-MM-DD").format("YYYY-MM-DD")
+        : "",
+    };
+    console.log("Form submitted:", submissionData);
     onClose();
   };
 

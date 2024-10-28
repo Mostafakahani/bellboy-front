@@ -6,7 +6,14 @@ import { useState, useEffect } from "react";
 import { demoProducts } from "./demoData";
 import MultiStepModal from "@/components/Stepper/MultiStepModalHeram/MultiStepModalHeram";
 import Layout from "@/components/mobile/Drawers/Layout";
+type CategoryType = "drawer" | "list";
 
+interface Category {
+  id: number;
+  name: string;
+  icon: string;
+  type: CategoryType;
+}
 const categorys = [
   { id: 1, name: "هرم مزه", icon: "/images/icons/heramMazeh.svg", type: "drawer" },
   { id: 2, name: "سینی مزه", icon: "/images/icons/siniMazeh.svg", type: "list" },
@@ -42,7 +49,14 @@ const HomePage: React.FC = () => {
 
     console.log("سبد خرید به‌روز شد:", cart);
   }, [cart]);
-
+  const handleCategoryClick = (category: any) => {
+    if (category.type === "drawer") {
+      setIsModalOpen(true);
+      setSelectedCategory(category);
+    } else {
+      setSelectedCategory(category);
+    }
+  };
   return (
     <>
       <MainHeader />
@@ -54,8 +68,8 @@ const HomePage: React.FC = () => {
           <div className="flex flex-row justify-center gap-5">
             {categorys.map((category) => (
               <div
-                className={`flex flex-col gap-5 items-center justify-between h-16 cursor-pointer p-3 rounded-lg ${
-                  selectedCategory?.id === category.id && "bg-primary-400"
+                className={`flex flex-col gap-5 items-center justify-between  w-[80px] h-[100px] cursor-pointer px-3 py-4 bg-white border-[3px] border-black rounded-t-full rounded-b-xl transition-all ${
+                  selectedCategory?.id === category.id ? "bg-green-200" : ""
                 }`}
                 onClick={() => {
                   if (category.type === "drawer") {
@@ -67,14 +81,16 @@ const HomePage: React.FC = () => {
                 }}
                 key={category.id}
               >
-                <Image
-                  src={category.icon}
-                  width={24}
-                  height={24}
-                  className="w-10 h-10"
-                  alt={category.name}
-                />
-                <span className="text-sm font-bold">{category.name}</span>
+                <div className="flex flex-col items-center justify-between gap-y-3">
+                  <Image
+                    src={category.icon}
+                    width={24}
+                    height={24}
+                    className="w-10 h-10"
+                    alt={category.name}
+                  />
+                  <span className="text-sm font-bold text-center text-nowrap">{category.name}</span>
+                </div>
               </div>
             ))}
           </div>

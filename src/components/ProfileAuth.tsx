@@ -1,134 +1,214 @@
 import React, { useState, ChangeEvent, FormEvent, useRef, KeyboardEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "./ui/Input/Input";
-// import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import Button from "./ui/Button/Button";
 import { Pencil } from "lucide-react";
+import { getCookie, setCookie } from "cookies-next";
+import { showSuccess } from "@/lib/toastService";
 
 type Step = "phone" | "otp" | "details";
 
 interface UserDetails {
-  name: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
 }
-
-// interface UserStatus {
-//   isRegistered: boolean;
-//   details?: UserDetails;
-// }
 
 const ProfileAuth: React.FC = () => {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(120); // 120 seconds = 2 minutes
+  const [loading, setLoading] = useState<boolean>(false);
 
   // State to track if the timer has finished
   const [isFinished, setIsFinished] = useState(false);
-  const inputRefs = [
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-  ];
+  const inputRefs = Array(4)
+    .fill(0)
+    .map(() => useRef<HTMLInputElement>(null));
 
-  const [userDetails, setUserDetails] = useState<UserDetails>({ name: "", lastname: "" });
+  const [userDetails, setUserDetails] = useState<UserDetails>({ firstName: "", lastName: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  // const authenticatedFetch = useAuthenticatedFetch(); // Use the hook
+  const authenticatedFetch = useAuthenticatedFetch(); // Use the hook
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (timeLeft > 0) {
-      // Set up the countdown
-      const timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-
-      // Clean up the timer on component unmount
-      return () => clearTimeout(timer);
+      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else {
-      // When the timer hits 0, set the finished state
       setIsFinished(true);
     }
+    return () => clearTimeout(timer);
   }, [timeLeft]);
+
+  const formatErrorMessage = (message: string | string[] | any): string => {
+    if (Array.isArray(message)) {
+      console.log({ message });
+      return message.join(" ");
+    }
+    return message?.toString() || "خطای ناشناخته رخ داده است";
+  };
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
+
   const handlePhoneSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (errorMessage) return;
-    setTimeLeft(120);
 
-    // const { data, error, isLoading } = await authenticatedFetch<ApiResponse>("/api/send-otp", {
-    //   method: "POST",
-    //   body: JSON.stringify({ phone }),
-    // });
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      setTimeLeft(120);
+      setIsFinished(false);
 
-    // if (isLoading) {
-    //   // Handle loading state if needed
-    // } else if (error) {
-    //   setErrorMessage("Failed to send OTP. Please try again.");
-    // } else if (data && data.success) {
-    setStep("otp");
-    // }
+      const { data, error, message, status } = await authenticatedFetch<ApiResponse>(
+        "/users/auth",
+        {
+          method: "POST",
+          body: JSON.stringify({ phone: phone.trim() }),
+        }
+      );
+      console.log({ data, error, message });
+      if (error) {
+        setLoading(false);
+        throw new Error(formatErrorMessage(message));
+      }
+
+      if (data?.statusCode && data.statusCode !== 200) {
+        throw new Error(formatErrorMessage(data.message));
+      }
+
+      if (status === "success") {
+        showSuccess(message);
+        setStep("otp");
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال کد تایید");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  interface CheckProfileApiResponse extends ApiResponse {
+    _id?: string;
+    birthDate?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  }
+
+  const handleCheckProfileData = async (): Promise<boolean> => {
+    try {
+      const { data, error, message } = await authenticatedFetch<CheckProfileApiResponse>(
+        "/users/profile",
+        {
+          method: "GET",
+        }
+      );
+
+      // if (error) {
+      //   throw new Error(formatErrorMessage(message));
+      // }
+
+      // if (data?.statusCode && data.statusCode !== 200) {
+      //   throw new Error(formatErrorMessage(data.message));
+      // }
+
+      // اگر firstName و lastName وجود داشت، یعنی پروفایل تکمیل شده
+      return !!(data?.firstName && data?.lastName);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "خطا در بررسی اطلاعات پروفایل");
+      return false;
+    }
   };
 
   const handleOtpSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const otpValue = otp.join("");
-    if (otpValue.length === 4) {
-      // const { data, error, isLoading } = await authenticatedFetch<UserStatus>("/api/verify-otp", {
-      //   method: "POST",
-      //   body: JSON.stringify({ phone, otp }),
-      // });
 
-      // if (isLoading) {
-      //   // Handle loading state if needed
-      // } else if (error) {
-      //   setErrorMessage("Invalid OTP. Please try again.");
-      // } else if (data) {
-      //   if (data.isRegistered) {
-      //     router.push("/dashboard");
-      //   } else {
-      setStep("details");
-      //   }
-      // }
-      // For demo purposes:
-      // const demoUserStatus: UserStatus = {
-      //   isRegistered: true,
-      // };
+    if (otpValue.length !== 4) {
+      setErrorMessage("لطفا کد 4 رقمی را کامل وارد کنید");
+      return;
+    }
 
-      // if (demoUserStatus.isRegistered) {
-      //   router.push("/dashboard");
-      // } else {
-      //   setStep("details");
-      // }
-      console.log("OTP submitted:", otpValue);
-    } else {
-      setErrorMessage("Please enter a valid 4-digit code");
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      const { data, error, message, status } = await authenticatedFetch<ApiResponse>("/users/otp", {
+        method: "POST",
+        body: JSON.stringify({ phone, otp: otpValue }),
+      });
+
+      if (error) {
+        throw new Error(formatErrorMessage(message));
+      }
+
+      if (data?.statusCode && data.statusCode !== 200) {
+        throw new Error(formatErrorMessage(data.message));
+      }
+
+      if (data?.token && status === "success") {
+        setCookie("auth_token", data.token);
+        showSuccess(message);
+
+        // چک کردن وضعیت پروفایل
+        const isProfileComplete = await handleCheckProfileData();
+
+        if (isProfileComplete) {
+          router.push("/profile");
+        } else {
+          setStep("details");
+        }
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در تایید کد");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setLoading(false);
     }
   };
-
   const handleDetailsSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // const { data, error, isLoading } = await authenticatedFetch<ApiResponse>(
-    //   "/api/submit-details",
-    //   {
-    //     method: "POST",
-    //     body: JSON.stringify(userDetails),
-    //   }
-    // );
+    try {
+      setLoading(true);
+      setErrorMessage("");
 
-    // if (isLoading) {
-    //   // Handle loading state if needed
-    // } else if (error) {
-    //   setErrorMessage("Failed to submit user details. Please try again.");
-    // } else if (data && data.success) {
-    router.push("/dashboard");
-    // }
+      const { data, error, message, status } = await authenticatedFetch<ApiResponse>(
+        "/users/profile",
+        {
+          method: "PATCH",
+          body: JSON.stringify(userDetails),
+        }
+      );
+
+      if (error) {
+        throw new Error(formatErrorMessage(message));
+      }
+
+      if (data?.statusCode && data.statusCode !== 200) {
+        throw new Error(formatErrorMessage(data.message));
+      }
+
+      if (status === "success") {
+        showSuccess("اطلاعات شما با موفقیت ثبت شد");
+        router.push("/profile");
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در ثبت اطلاعات");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePhoneChange = (
@@ -164,7 +244,42 @@ const ProfileAuth: React.FC = () => {
       }
     }
   };
+  const handleResendCode = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    try {
+      setLoading(true);
+      setTimeLeft(120);
+      setIsFinished(false);
 
+      const { data, error, message, status } = await authenticatedFetch<ApiResponse>(
+        "/users/auth",
+        {
+          method: "POST",
+          body: JSON.stringify({ phone: phone.trim() }),
+        }
+      );
+
+      if (error) {
+        throw new Error(formatErrorMessage(message));
+      }
+
+      if (data?.statusCode && data.statusCode !== 200) {
+        throw new Error(formatErrorMessage(data.message));
+      }
+
+      if (status === "success") {
+        showSuccess(message);
+        setOtp(["", "", "", ""]); // پاک کردن کد قبلی
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال کد تایید");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleKeyDown = (
     index: number,
     e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -216,6 +331,7 @@ const ProfileAuth: React.FC = () => {
               variant="primary"
               disabled={!!errorMessage || phone.length !== 11}
               onXsIsText
+              loading={loading}
             >
               ثبت و ادامه
             </Button>
@@ -232,10 +348,7 @@ const ProfileAuth: React.FC = () => {
                 </div>
               ) : (
                 <div>
-                  <button
-                    className="text-blue-500/90 font-bold text-sm"
-                    onClick={() => handlePhoneSubmit}
-                  >
+                  <button className="text-blue-500/90 font-bold text-sm" onClick={handleResendCode}>
                     ارسال مجدد کد
                   </button>
                 </div>
@@ -269,6 +382,7 @@ const ProfileAuth: React.FC = () => {
               className="w-full"
               disabled={otp.join("").length !== 4}
               onXsIsText
+              loading={loading}
             >
               ادامه
             </Button>
@@ -289,25 +403,26 @@ const ProfileAuth: React.FC = () => {
             <Input
               label="نام"
               type="text"
-              name="name"
+              name="firstName"
               autoFocus
-              value={userDetails.name}
+              value={userDetails.firstName}
               onChange={handleUserDetailsChange}
               required
             />
             <Input
               label="نام خانوادگی"
               type="text"
-              name="lastname"
-              value={userDetails.lastname}
+              name="lastName"
+              value={userDetails.lastName}
               onChange={handleUserDetailsChange}
               required
             />
             <Button
               type="submit"
               className="w-full"
-              disabled={!userDetails.name || !userDetails.lastname}
+              disabled={!userDetails.firstName || !userDetails.lastName}
               onXsIsText
+              loading={loading}
             >
               ثبت
             </Button>
