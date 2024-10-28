@@ -1,10 +1,16 @@
+export enum AddressFormMode {
+  CREATE = "CREATE",
+  EDIT = "EDIT",
+}
 export interface Address {
-  id?: string;
+  _id?: string;
   title: string;
   province: string;
   city: string;
-  street: string;
-  postalCode: string;
+  address: string;
+  plaque: string;
+  x?: number;
+  y?: number;
 }
 
 export interface Province {

@@ -6,8 +6,8 @@ export interface Address {
   street: string;
   postalCode: string;
   location?: {
-    lat: number;
-    lng: number;
+    y: number;
+    x: number;
   };
 }
 
@@ -21,8 +21,8 @@ export interface City {
 }
 
 export interface Location {
-  lat: number;
-  lng: number;
+  y: number;
+  x: number;
 }
 
 export interface CircularArea {

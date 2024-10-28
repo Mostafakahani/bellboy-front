@@ -5,9 +5,9 @@ import "leaflet/dist/leaflet.css";
 import Button from "../ui/Button/Button";
 import { Input } from "../ui/Input/Input";
 
-interface Location {
-  lat: number;
-  lng: number;
+export interface Location {
+  x: number;
+  y: number;
 }
 
 interface MapModalProps {
@@ -28,7 +28,7 @@ interface SearchResult {
   boundingbox?: [string, string, string, string];
 }
 
-const defaultCenter: Location = { lat: 32.4279, lng: 53.688 };
+const defaultCenter: Location = { x: 32.4279, y: 53.688 };
 const defaultZoom = 6;
 const iranBounds: L.LatLngBoundsExpression = [
   [25.064, 44.036],
@@ -36,14 +36,15 @@ const iranBounds: L.LatLngBoundsExpression = [
 ];
 
 const predefinedAreas: CircularArea[] = [
-  { center: { lat: 35.7219, lng: 51.3347 }, radius: 50000, color: "#ff0000" },
-  { center: { lat: 32.6539, lng: 51.666 }, radius: 30000, color: "#00ff00" },
+  { center: { x: 35.7219, y: 51.3347 }, radius: 50000, color: "#ff0000" },
+  { center: { x: 32.6539, y: 51.666 }, radius: 30000, color: "#00ff00" },
 ];
 
 const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialLocation }) => {
   const [currentLocation, setCurrentLocation] = useState<Location>(
     initialLocation || defaultCenter
   );
+  console.log({ initialLocation });
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Array<{ name: string; location: Location }>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -53,8 +54,8 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
   const handleLocationSelect = () => {
     const isInServiceArea = predefinedAreas.some(
       (area) =>
-        L.latLng(currentLocation.lat, currentLocation.lng).distanceTo(
-          L.latLng(area.center.lat, area.center.lng)
+        L.latLng(currentLocation.x, currentLocation.y).distanceTo(
+          L.latLng(area.center.x, area.center.y)
         ) <= area.radius
     );
     onLocationSelect(currentLocation, isInServiceArea);
@@ -77,7 +78,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
       const data = await response.json();
       const filteredSuggestions: SearchResult[] = data.map((item: any) => ({
         name: item.display_name,
-        location: { lat: parseFloat(item.lat), lng: parseFloat(item.lon) },
+        location: { x: parseFloat(item.lat), y: parseFloat(item.lon) },
         boundingbox: item.boundingbox,
       }));
       setSuggestions(filteredSuggestions);
@@ -112,7 +113,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
         const bounds = L.latLngBounds(southWest, northEast);
         mapRef.current.fitBounds(bounds);
       } else {
-        mapRef.current.setView(result.location, 13);
+        mapRef.current.setView([result.location.x, result.location.y], 13);
       }
     }
     setSuggestions([]);
@@ -131,14 +132,14 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
+          x: position.coords.latitude,
+          y: position.coords.longitude,
         };
 
-        if (L.latLngBounds(iranBounds).contains(L.latLng(newLocation.lat, newLocation.lng))) {
+        if (L.latLngBounds(iranBounds).contains(L.latLng(newLocation.x, newLocation.y))) {
           setCurrentLocation(newLocation);
           if (mapRef.current) {
-            mapRef.current.flyTo(newLocation, 13);
+            mapRef.current.flyTo([newLocation.x, newLocation.y], 13);
           }
         } else {
           setError("موقعیت شما خارج از مرزهای ایران است.");
@@ -170,10 +171,10 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
   const LocationMarker: React.FC = () => {
     const map = useMapEvents({
       click(e) {
-        const newLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
-        if (L.latLngBounds(iranBounds).contains(e.latlng)) {
+        const newLocation = { x: e.latlng.lat, y: e.latlng.lng };
+        if (L.latLngBounds(iranBounds).contains([newLocation.x, newLocation.y])) {
           setCurrentLocation(newLocation);
-          map.flyTo(e.latlng, map.getZoom());
+          map.flyTo([newLocation.x, newLocation.y], map.getZoom());
         } else {
           setError("لطفاً مکانی درون مرزهای ایران انتخاب کنید.");
         }
@@ -181,12 +182,12 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
     });
 
     useEffect(() => {
-      map.flyTo(currentLocation, map.getZoom());
+      map.flyTo([currentLocation.x, currentLocation.y], map.getZoom());
     }, [currentLocation, map]);
 
     return (
       <Marker
-        position={currentLocation}
+        position={[currentLocation.x, currentLocation.y]}
         icon={L.icon({
           iconUrl: "/images/icons/leaf-orange.png",
           iconSize: [25, 41],
@@ -267,7 +268,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
 
         <div className="flex-grow relative rounded-xl p-4">
           <MapContainer
-            center={defaultCenter}
+            center={[defaultCenter.x, defaultCenter.y]}
             zoom={defaultZoom}
             className="!rounded-xl"
             style={{ height: "100%", width: "100%", borderRadius: "32px" }}
@@ -286,7 +287,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
             {predefinedAreas.map((area, index) => (
               <Circle
                 key={index}
-                center={area.center}
+                center={[area.center.x, area.center.y]}
                 radius={area.radius}
                 pathOptions={{ color: area.color, fillColor: area.color, fillOpacity: 0.2 }}
               />

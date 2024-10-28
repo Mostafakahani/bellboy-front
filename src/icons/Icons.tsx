@@ -337,7 +337,10 @@ export const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-export const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
+export const TrashIcon = ({
+  color = "#FF0000",
+  ...props
+}: React.SVGProps<SVGSVGElement> & { color?: string }) => (
   <svg
     width="24"
     height="25"
@@ -348,35 +351,35 @@ export const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <path
       d="M21 6.49609C17.67 6.16609 14.32 5.99609 10.98 5.99609C8.99622 5.99628 7.01371 6.09641 5.04 6.29609L3 6.49609"
-      stroke="#FF0000"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M8.5 5.48563L8.72 4.17562C8.88 3.22562 9 2.51562 10.69 2.51562H13.31C15 2.51562 15.13 3.26562 15.28 4.18562L15.5 5.48563"
-      stroke="#FF0000"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M18.8504 9.65625L18.2004 19.7262C18.0904 21.2962 18.0004 22.5162 15.2104 22.5162H8.79039C6.00039 22.5162 5.91039 21.2962 5.80039 19.7262L5.15039 9.65625"
-      stroke="#FF0000"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M10.3301 17.0156H13.6601"
-      stroke="#FF0000"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M9.5 13.0156H14.5"
-      stroke="#FF0000"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"

@@ -1,38 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Address, Province } from "./types";
+import { Address, AddressFormMode, Province } from "./types";
 import { Input } from "@/components/ui/Input/Input";
 import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button/Button";
+
 const IranMap = dynamic(() => import("@/components/Map/IranMap"), {
   ssr: false,
 });
+
+interface Location {
+  x: number;
+  y: number;
+}
+
 interface AddressModalProps {
   isOpen: boolean;
   address: Address | null;
   provinces: Province[];
+  mode: AddressFormMode;
   onSave: (address: Address) => void;
   onClose: () => void;
 }
 
-interface Location {
-  lat: number;
-  lng: number;
+// آپدیت اینترفیس Address برای داشتن location
+interface ExtendedAddress extends Omit<Address, "x" | "y"> {
+  location: Location;
 }
 
 const AddressModal: React.FC<AddressModalProps> = ({
   isOpen,
   address,
   provinces,
+  mode,
   onSave,
   onClose,
 }) => {
-  const [formData, setFormData] = useState<Address & { location?: Location }>({
+  const [formData, setFormData] = useState<ExtendedAddress>({
     title: "",
     province: "",
     city: "",
-    street: "",
-    postalCode: "",
+    address: "",
+    plaque: "",
+    location: { x: 35, y: 51 },
   });
 
   const [isFormValid, setIsFormValid] = useState(false);
@@ -40,23 +50,33 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
   useEffect(() => {
     if (address) {
-      setFormData(address);
+      // تبدیل داده‌های قدیمی به فرمت جدید
+      setFormData({
+        ...address,
+        location: {
+          x: address.x || 35,
+          y: address.y || 51,
+        },
+      });
     } else {
       setFormData({
         title: "",
         province: "",
         city: "",
-        street: "",
-        postalCode: "",
+        address: "",
+        plaque: "",
+        location: { x: 35, y: 51 },
       });
     }
   }, [address, isOpen]);
 
   useEffect(() => {
-    const isValid =
-      Object.values(formData).every(
-        (value) => value !== null && (typeof value === "string" ? value.trim() !== "" : true)
-      ) && formData.location !== undefined;
+    const isValid = Object.entries(formData).every(([key, value]) => {
+      if (key === "location") {
+        return value.x !== 0 || value.y !== 0;
+      }
+      return typeof value === "string" ? value.trim() !== "" : true;
+    });
     setIsFormValid(isValid);
   }, [formData]);
 
@@ -81,7 +101,13 @@ const AddressModal: React.FC<AddressModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      onSave(formData);
+      // تبدیل فرمت جدید به فرمت مورد نیاز API
+      const submitData: Address = {
+        ...formData,
+        x: formData.location.x,
+        y: formData.location.y,
+      };
+      onSave(submitData);
     }
   };
 
@@ -104,7 +130,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
       <div className="fixed bottom-0 left-0 right-0 h-[95vh] bg-white p-6 w-full overflow-y-auto max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">
-            {address ? "ویرایش موقعیت" : "افزودن موقعیت جدید"}
+            {mode === AddressFormMode.EDIT ? "ویرایش موقعیت" : "افزودن موقعیت جدید"}
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
@@ -122,9 +148,14 @@ const AddressModal: React.FC<AddressModalProps> = ({
                   alt="gps"
                   quality={100}
                 />
-                <p className="font-bold text-sm"> موقعیت مکانی</p>
+                <p className="font-bold text-sm">موقعیت مکانی</p>
               </div>
-              <Button variant="tertiary" onClick={() => setShowMap(true)} icon="edit"></Button>
+              <Button
+                variant="tertiary"
+                type="button"
+                onClick={() => setShowMap(true)}
+                icon="edit"
+              ></Button>
             </div>
             <div className="mb-4">
               <Input
@@ -152,8 +183,8 @@ const AddressModal: React.FC<AddressModalProps> = ({
               <Input
                 type="text"
                 label="آدرس دقیق"
-                name="street"
-                value={formData.street}
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
                 required
               />
@@ -162,8 +193,8 @@ const AddressModal: React.FC<AddressModalProps> = ({
               <Input
                 type="text"
                 label="پلاک"
-                name="postalCode"
-                value={formData.postalCode}
+                name="plaque"
+                value={formData.plaque}
                 onChange={handleChange}
                 required
               />
@@ -179,11 +210,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
               />
             </div>
 
-            {formData.location && (
+            {(formData.location.x !== 0 || formData.location.y !== 0) && (
               <div className="mb-4">
                 <p>
-                  مختصات انتخاب شده: {formData.location.lat.toFixed(6)},{" "}
-                  {formData.location.lng.toFixed(6)}
+                  مختصات انتخاب شده: {formData.location.y.toFixed(6)},{" "}
+                  {formData.location.x.toFixed(6)}
                 </p>
               </div>
             )}
