@@ -38,12 +38,12 @@ const convertIsoToJalali = (isoDate: string): string => {
 };
 
 // اعتبارسنجی فرمت ISO
-const isValidIsoFormat = (date: string): boolean => {
-  if (!date) return true; // اگر تاریخ خالی باشد، معتبر است
-  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!isoFormatRegex.test(date)) return false;
-  return moment(date, "YYYY-MM-DD", true).isValid();
-};
+// const isValidIsoFormat = (date: string): boolean => {
+//   if (!date) return true; // اگر تاریخ خالی باشد، معتبر است
+//   const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+//   if (!isoFormatRegex.test(date)) return false;
+//   return moment(date, "YYYY-MM-DD", true).isValid();
+// };
 
 export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, profileData }) => {
   const [formData, setFormData] = useState<FormData>({

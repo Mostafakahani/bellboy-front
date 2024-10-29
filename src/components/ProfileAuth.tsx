@@ -4,7 +4,7 @@ import { Input } from "./ui/Input/Input";
 import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import Button from "./ui/Button/Button";
 import { Pencil } from "lucide-react";
-import { getCookie, setCookie } from "cookies-next";
+import { setCookie } from "cookies-next";
 import { showSuccess } from "@/lib/toastService";
 
 type Step = "phone" | "otp" | "details";
@@ -23,9 +23,12 @@ const ProfileAuth: React.FC = () => {
 
   // State to track if the timer has finished
   const [isFinished, setIsFinished] = useState(false);
-  const inputRefs = Array(4)
-    .fill(0)
-    .map(() => useRef<HTMLInputElement>(null));
+  const inputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
 
   const [userDetails, setUserDetails] = useState<UserDetails>({ firstName: "", lastName: "" });
   const [errorMessage, setErrorMessage] = useState("");
@@ -105,12 +108,9 @@ const ProfileAuth: React.FC = () => {
 
   const handleCheckProfileData = async (): Promise<boolean> => {
     try {
-      const { data, error, message } = await authenticatedFetch<CheckProfileApiResponse>(
-        "/users/profile",
-        {
-          method: "GET",
-        }
-      );
+      const { data } = await authenticatedFetch<CheckProfileApiResponse>("/users/profile", {
+        method: "GET",
+      });
 
       // if (error) {
       //   throw new Error(formatErrorMessage(message));

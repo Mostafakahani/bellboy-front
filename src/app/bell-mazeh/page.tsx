@@ -9,14 +9,8 @@ import Layout from "@/components/mobile/Drawers/Layout";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
 import { Loader2, PlusIcon } from "lucide-react";
 import { TrashIcon } from "@/icons/Icons";
-type CategoryType = "drawer" | "list";
+import Button from "@/components/ui/Button/Button";
 
-interface Category {
-  id: number;
-  name: string;
-  icon: string;
-  type: CategoryType;
-}
 const categorys = [
   { id: 1, name: "هرم مزه", icon: "/images/icons/heramMazeh.svg", type: "drawer" },
   { id: 2, name: "سینی مزه", icon: "/images/icons/siniMazeh.svg", type: "list" },
@@ -70,14 +64,7 @@ const HomePage: React.FC = () => {
 
     console.log("سبد خرید به‌روز شد:", cart);
   }, [cart]);
-  const handleCategoryClick = (category: any) => {
-    if (category.type === "drawer") {
-      setIsModalOpen(true);
-      setSelectedCategory(category);
-    } else {
-      setSelectedCategory(category);
-    }
-  };
+
   return (
     <>
       <MainHeader />
@@ -124,10 +111,10 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* نمایش محصولات */}
-          <div className="mt-16 flex flex-wrap gap-4 justify-center">
+          <div className="mt-16 mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-y-4 justify-items-center	">
             {selectedCategory && selectedCategory.type === "list"
               ? demoProducts.map((product) => (
-                  <div className="flex flex-col gap-3" key={product.id}>
+                  <div className="flex flex-col gap-3 w-[160px]" key={product.id}>
                     <Image
                       className="rounded-xl w-40 h-40 object-cover"
                       src={product.imageUrls[0]}
@@ -135,15 +122,22 @@ const HomePage: React.FC = () => {
                       height={150}
                       alt={product.name}
                     />
-                    <span className="text-sm">{product.name}</span>
-                    <span className="text-sm">{product.description}</span>
-                    <span className="text-sm">{product.price}</span>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm font-bold">{product.name}</span>
+                      <span className="text-xs line-clamp-1 w-full">{product.description}</span>
+                      <div className="text-left flex flex-col gap-1">
+                        <span className="text-xs">تومان</span>
+                        <span className="text-sm font-bold">
+                          {product.price.toLocaleString("fa-IR")}
+                        </span>
+                      </div>
+                    </div>
                     <div className="absolute">
                       <div className="relative left-0 top-24 flex items-center gap-2">
                         <button
                           className={`relative right-[6rem] flex items-center justify-center border-[3px] border-black w-[50px] h-[50px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
                             cart.find((cartItem) => cartItem.id === product.id)
-                              ? "bg-primary-400 w-[110px] !right-[2.2rem]"
+                              ? "bg-primary-400 !w-[110px] !right-[2.2rem]"
                               : "bg-white"
                           }`}
                           onClick={() => {
@@ -183,19 +177,23 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* نمایش سبد خرید */}
-          {selectedCategory && selectedCategory.type === "list" && (
-            <div className="mt-16">
-              <h2 className="text-xl font-bold">سبد خرید</h2>
-              {cart.length === 0 ? (
-                <p>سبد خرید شما خالی است</p>
-              ) : (
-                cart.map((item) => (
-                  <div key={item.id} className="flex flex-row justify-between">
-                    <span>{item.name}</span>
-                    <span>{item.quantity}</span>
-                  </div>
-                ))
-              )}
+          {selectedCategory && selectedCategory.type === "list" && cart.length !== 0 && (
+            <div className="mt-16 mb-8 w-full flex flex-col gap-y-3 px-3">
+              <div className="w-full flex flex-row justify-between">
+                <p>مبلغ {cart.length} کالا</p>
+                <p>
+                  <span className="font-bold ml-1">
+                    {cart.reduce((total, item) => total + item.price, 0).toLocaleString("fa-IR")}
+                  </span>
+                  تومان
+                </p>
+              </div>
+
+              <div className="w-full">
+                <Button className="w-full" variant="primary" onXsIsText>
+                  تکمیل سفارش
+                </Button>
+              </div>
             </div>
           )}
           {selectedCategory && selectedCategory.type === "drawer" && (
@@ -212,58 +210,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-{
-  /* {cart.find((cartItem) => cartItem.id === product.id) ? (
-                            <div className="flex items-center gap-2 justify-end">
-                              {(cart.find((cartItem) => cartItem.id === product.id)?.quantity ||
-                                0) > 1 ? (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDecreaseQuantity(product.id);
-                                  }}
-                                  className="bg-red-500 w-[30px] h-[30px] text-white rounded-full flex items-center justify-center"
-                                >
-                                  -
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveFromCart(product.id);
-                                  }}
-                                  className="bg-red-500 text-white p-2 rounded-lg"
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    className="w-6 h-6"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951A52.662 52.662 0 0112 4c.257 0 .511.001.765.003 1.603.051 2.816 1.387 2.816 2.951zm-6.136-1.452a51.196 51.196 0 013.273-.512 3.753 3.753 0 00-3.386-2.372Zm-2.911-.095a3 3 0 00-2.966 3.48l1.061 14.246a2.25 2.25 0 002.22 2.023h6.533a2.25 2.25 0 002.22-2.023l1.061-14.246a3 3 0 00-2.966-3.48l-.255.015a49.sdfsdf.001A52.662 52.662 0 0112 4c.257 0 .511.001.765.003-2.501-.001-5.201 0-8.066.095Z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </button>
-                              )}
-                              <span className="px-2">
-                                {cart.find((cartItem) => cartItem.id === product.id)?.quantity || 0}
-                              </span>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addToCart(product);
-                                }}
-                                className="bg-green-500 w-[30px] h-[30px] text-white rounded-full flex items-center justify-center"
-                              >
-                                +
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="text-black">
-                              <PlusIcon />
-                            </div>
-                          )} */
-}

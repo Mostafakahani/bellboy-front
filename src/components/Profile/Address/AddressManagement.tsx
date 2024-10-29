@@ -31,7 +31,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
   const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
   const [clickEditButton, setClickEditButton] = useState<boolean>(false);
   const authenticatedFetch = useAuthenticatedFetch();
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchProvinces();
@@ -74,7 +74,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
 
   const handleSaveAddress = async (address: Address) => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
 
       const baseAddressData = {
         province: address.province,
@@ -137,7 +137,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 

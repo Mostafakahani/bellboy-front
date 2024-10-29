@@ -26,6 +26,7 @@ import { ItemExprience } from "@/components/ui/Slider/ProfileSlider";
 import MainSlider from "@/components/ui/Slider/ProfileSlider";
 import OfficeLocations from "@/components/ui/OfficeLocations";
 import Footer from "@/components/mobile/Footer/Footer";
+import Link from "next/link";
 interface Item {
   icon: JSX.Element;
   label: string;
@@ -158,9 +159,11 @@ export default function Home() {
               ))}
             </div>
             <div className="flex flex-col justify-start items-center my-8">
-              <Button onXsIsText icon="left">
-                مشاهده
-              </Button>
+              <Link href={"/bell-mazeh"}>
+                <Button onXsIsText icon="left">
+                  مشاهده
+                </Button>
+              </Link>
             </div>
             <div className="flex justify-center items-center">
               <Image
@@ -186,9 +189,11 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col justify-start items-center my-8">
-              <Button onXsIsText icon="left">
-                مشاهده
-              </Button>
+              <Link href={"/bell-mazeh"}>
+                <Button onXsIsText icon="left">
+                  مشاهده
+                </Button>
+              </Link>
             </div>
             <div className="flex justify-center items-center">
               <Image
@@ -251,9 +256,11 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col justify-start items-center my-8">
-              <Button onXsIsText icon="left">
-                مشاهده
-              </Button>
+              <Link href={"/bell-service"}>
+                <Button onXsIsText icon="left">
+                  مشاهده
+                </Button>
+              </Link>
             </div>
             <div className="flex justify-center items-center">
               {/* <LineIcon className="w-full" /> */}
