@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import DesktopMessage from "./DesktopMessage";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Layout from "@/components/mobile/Drawers/Layout";
 const yekanBakhLight = localFont({
   src: "./fonts/YekanBakhFaNum-Light.woff2",
   variable: "--font-yekanBakh-light",
@@ -56,7 +57,9 @@ export default function RootLayout({
             },
           }}
         />
-        <DesktopMessage  allowDesktop={true}>{children}</DesktopMessage>
+        <DesktopMessage allowDesktop={true}>
+          <Layout>{children}</Layout>
+        </DesktopMessage>
       </body>
     </html>
   );
