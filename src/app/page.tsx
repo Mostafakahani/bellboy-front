@@ -2,7 +2,7 @@
 import BellTypoGraphy from "@/components/BellTypoGraphy";
 import MainHeader from "@/components/mobile/Header/MainHeader";
 import Button from "@/components/ui/Button/Button";
-import { useWindowSize } from "@/hooks/useWindowSize";
+// import { useWindowSize } from "@/hooks/useWindowSize";
 import { OneLineIcon } from "@/icons/Icons";
 import {
   AnimalsEatIcon,
@@ -65,14 +65,14 @@ const Exprience: ItemExprience[] = [
   },
 ];
 export default function Home() {
-  const { width } = useWindowSize();
-  const isMobile = width ? width < 1024 : false;
+  // const { width } = useWindowSize();
+  // const isMobile = width ? width < 1024 : false;
 
-  if (isMobile) {
+  // if (isMobile) {
     return (
       <>
         <MainHeader noBorder={true} />
-        <div className="mt-32">
+        <div className="mt-32 flex flex-col items-center">
           <div className="max-w-3xl">
             <div className="relative -top-8 w-full flex flex-col justify-start items-center">
               <div className="relative w-full max-w-[300px]">
@@ -336,7 +336,7 @@ export default function Home() {
             <div className="my-16 flex flex-row flex-nowrap gap-0 justify-start overflow-x-auto">
               <MainSlider exprienceData={Exprience} />
             </div>
-            <div className="flex justify-center items-center">
+            <div className="relative flex justify-center items-center md:top-[-30px]">
               {/* <LineIcon className="w-full" /> */}
               <Image
                 width={1080}
@@ -348,7 +348,7 @@ export default function Home() {
               />
             </div>
           </div>
-          <div className="relative -top-9 sm:top-[-80px] w-full bg-gray-50 pt-10">
+          <div className="max-w-3xl relative -top-9 sm:top-[-80px] w-full bg-gray-50 pt-10">
             <div className="w-full flex flex-col justify-start items-center">
               <span className="text-4xl relative inline-block mr-1">
                 <span className="relative z-10">شعبه های ما</span>
@@ -357,7 +357,7 @@ export default function Home() {
             </div>
             <OfficeLocations />
           </div>
-          <div className="flex justify-center items-center relative -top-16 sm:top-[-80px]">
+          <div className="max-w-3xl flex justify-center items-center relative -top-16 sm:top-[-80px] md:top-[-120px]">
             <Image
               width={1080}
               height={150}
@@ -367,7 +367,7 @@ export default function Home() {
               loading="eager"
             />
           </div>
-          <div className="mb-20">
+          <div className="mb-20 max-w-3xl">
             <div className="w-full flex flex-col justify-start items-center mt-10">
               <span className="text-2xl relative inline-block mr-1">
                 <span className="relative z-10 font-bold">مریم هستم</span>
@@ -382,17 +382,20 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <div className="w-full flex items-center flex-col">
+
         <Footer />
+        </div>
       </>
     );
   }
 
-  return (
-    <>
-      <div className="mt-20">is windows</div>
-    </>
-  );
-}
+  // return (
+  //   <>
+  //     <div className="mt-20">is windows</div>
+  //   </>
+  // );
+// }
 // const ThemeSelectorCheckBox = ({ darkMode, setDarkMode }: any) => {
 //   return (
 //     <section className="mb-6">

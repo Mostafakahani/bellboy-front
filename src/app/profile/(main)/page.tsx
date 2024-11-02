@@ -6,7 +6,9 @@ async function getProfileData() {
   const token = cookies().get("auth_token")?.value;
 
   if (!token) {
-    redirect("/login");
+    // logout();
+
+    redirect("/api/auth/logout");
   }
 
   try {
@@ -20,7 +22,8 @@ async function getProfileData() {
     });
 
     if (response.status === 401) {
-      redirect("/login");
+      // logout();
+      redirect("/api/auth/logout");
     }
 
     if (!response.ok) {

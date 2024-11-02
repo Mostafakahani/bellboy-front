@@ -56,7 +56,7 @@ export default function RootLayout({
             },
           }}
         />
-        <DesktopMessage>{children}</DesktopMessage>
+        <DesktopMessage  allowDesktop={true}>{children}</DesktopMessage>
       </body>
     </html>
   );

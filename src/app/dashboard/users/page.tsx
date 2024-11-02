@@ -72,7 +72,7 @@ export default function UsersPage() {
         <div className="w-full flex flex-row justify-between items-center mb-4 px-4">
           <p className="text-2xl font-bold">کاربران</p>
           <div className="w-1/3">
-            <button className="w-full py-3 rounded-xl border border-gray-300 outline-none hover:bg-gray-300 transition-all focus:outline-none ">
+            <button className="w-full text-sm py-3 rounded-xl border border-gray-300 outline-none hover:bg-gray-300 transition-all focus:outline-none ">
               افزودن کاربر
             </button>
           </div>

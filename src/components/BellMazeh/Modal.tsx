@@ -7,9 +7,17 @@ interface ModalProps {
   children: React.ReactNode;
   title?: string;
   haveBorder?: boolean;
+  customStyle?: string;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, haveBorder }) => {
+export const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  children,
+  title,
+  haveBorder,
+  customStyle,
+}) => {
   const [shouldRender, setShouldRender] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -58,13 +66,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, 
       }`}
       onClick={onClose}
     >
-      <div 
+      <div
         className={`absolute inset-0 bg-black transition-opacity duration-300 ${
           isAnimating ? "opacity-50" : "opacity-0"
         }`}
       />
       <div
-        className={`bg-white border-2 ${
+        className={`bg-white border-0 ${
           haveBorder ? "border-black rounded-2xl" : ""
         } w-full max-w-sm h-full overflow-y-auto relative transition-all duration-300 ease-out ${
           isAnimating ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"
@@ -78,7 +86,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, 
               <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
             </button>
           </div>
-          <div className="w-full mt-8 sm:mt-10">{children}</div>
+          <div className={`w-full ${customStyle ? customStyle : "mt-8"} sm:mt-10`}>{children}</div>
         </div>
       </div>
     </div>

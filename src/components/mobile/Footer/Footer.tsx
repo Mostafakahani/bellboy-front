@@ -11,8 +11,8 @@ import Link from "next/link";
 const Footer = () => {
   return (
     <footer className="flex flex-col items-center bg-black text-white px-8 text-center w-full relative bottom-0 h-[110vh]">
-      <div className="w-full flex flex-col gap-16">
-        <div className="w-full flex flex-col gap-8 mt-16">
+      <div className="w-full max-w-3xl  flex flex-col justify-center items-center gap-16">
+        <div className="w-full md:max-w-lg flex flex-col gap-8 mt-16">
           <p className="text-md font-light">ما را دنبال کنید</p>
           <div className="w-full flex flex-row justify-between items-center gap-3">
             <InstagramIcon />
@@ -59,12 +59,12 @@ const Footer = () => {
             alt=""
           /> */}
         </div>
-        <div className="text-sm font-light">
+        {/* <div className="text-sm font-light">
           <p>© کلیه حقوق برای بل‌بوی محفوظ است</p>
           <p>
             طراحی شده توسط <span className="text-blue-500">استودیو نیوا</span>
           </p>
-        </div>
+        </div> */}
       </div>
     </footer>
   );
