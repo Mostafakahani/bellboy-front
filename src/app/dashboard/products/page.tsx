@@ -58,7 +58,7 @@ export default function ProductPage() {
   return (
     <div>
       <DashboardHeader />
-      <div className="">
+      <div className="flex justify-center flex-col items-center">
         <div className="w-full flex flex-row justify-between items-center mb-4 px-4">
           <p className="text-2xl font-bold">کالاها</p>
           <div className="w-1/3">
@@ -70,7 +70,7 @@ export default function ProductPage() {
           </div>
         </div>
         {isLoading ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <Loader2 className="w-5 h-5 animate-spin text-center" />
         ) : (
           <ResponsiveTableProduct data={productData} />
         )}

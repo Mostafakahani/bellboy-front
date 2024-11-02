@@ -4,6 +4,8 @@ import { DashboardModal } from "./DashboardModal";
 import { DashboardInput } from "./DashboardInput";
 import { Modal } from "../BellMazeh/Modal";
 import DashboardButton from "../ui/Button/DashboardButton";
+import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+import { showSuccess } from "@/lib/toastService";
 
 interface DataItem {
   _id: string;
@@ -14,6 +16,7 @@ interface DataItem {
   photo: string;
   description: string;
   price: number;
+  disable?: boolean;
   globalDiscount: number;
   file: any[];
 }
@@ -23,8 +26,11 @@ interface ResponsiveTableProductProps {
 }
 
 const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data }) => {
+  // const router = useRouter();
+
   const { width } = useWindowSize();
   const isMobile = width ? width < 1024 : false;
+  const authenticatedFetch = useAuthenticatedFetch();
 
   const [selectedUser, setSelectedUser] = useState<DataItem>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +45,21 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data })
     setIsModalOpen(true);
   };
   const closeModal = () => setIsModalOpen(false);
+  const disableProduct = async (productId: string | unknown) => {
+    try {
+      const { message, status } = await authenticatedFetch(`/product/${productId}`, {
+        method: "POST",
+      });
+      if (status === "success") {
+        showSuccess(message);
+      }
+      closeModal();
+      // router.reload();
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (isMobile) {
     return (
@@ -95,7 +116,19 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data })
                     />
 
                     <DashboardInput label="تخفیف" value={10} />
-                    <p>24,000</p>
+                    {selectedUser?.price && selectedUser?.globalDiscount ? (
+                      <div className="flex flex-col items-end justify-center">
+                        <span className="text-gray-400 line-through text-sm">
+                          {Number(selectedUser?.price).toLocaleString()}
+                        </span>
+                        <span className="text-sm">
+                          {Math.round(
+                            Number(selectedUser?.price) *
+                              (1 - Number(selectedUser?.globalDiscount) / 100)
+                          ).toLocaleString()}{" "}
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className="mx-4 border-b h-2 border-gray-300"></div>
@@ -138,12 +171,16 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data })
                     </p>
                     <div className="flex flex-row gap-x-4 items-center">
                       <DashboardButton
-                        className="border-[1.5px] border-red-500 !h-[3rem] w-full"
+                        className={`border-[1.5px]!h-[3rem] w-full ${
+                          selectedUser?.disable ? "" : "border-red-500 "
+                        }`}
                         variant="tertiary"
                         isError
                         onXsIsText
+                        onClick={() => disableProduct(selectedUser?._id)}
+                        type="button"
                       >
-                        حذف
+                        {selectedUser?.disable ? "فعال کردن" : "غیر فعال کردن"}
                       </DashboardButton>
                       <DashboardButton className="w-full !h-[3rem]" onXsIsText>
                         ویرایش

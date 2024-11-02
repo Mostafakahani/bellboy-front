@@ -82,7 +82,7 @@ export const Modal: React.FC<ModalProps> = ({
         <div className="bg-white w-full h-full overflow-auto relative">
           <div className="flex justify-between items-center mt-4 sm:mt-6 px-4">
             <h5 className="font-black text-lg sm:text-xl">{title || "بل سرویس"}</h5>
-            <button onClick={onClose} className="p-2">
+            <button onClick={onClose} type="button" className="p-2">
               <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
             </button>
           </div>
