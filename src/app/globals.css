@@ -85,3 +85,12 @@ html {
   background-color: #555;
   /* رنگ هنگام هاور روی اسکرول بار */
 }
+
+::placeholder {
+  color: rgb(173, 173, 173) !important;
+  opacity: 1; /* Firefox */
+}
+
+::-ms-input-placeholder { /* Edge 12 -18 */
+  color: rgb(173, 173, 173) !important;
+}

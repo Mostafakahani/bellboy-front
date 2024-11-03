@@ -127,19 +127,43 @@ const CreateProductForm = () => {
     const isSelected = selectedChildCategories.some((c) => c._id === childCategory._id);
 
     if (isSelected) {
-      // Remove if already selected
-      setSelectedChildCategories((prev) => prev.filter((c) => c._id !== childCategory._id));
-      setFormData((prev) => ({
-        ...prev,
-        id_categories: prev.id_categories.filter((id) => id !== childCategory._id),
-      }));
+      // Remove child category
+      const updatedSelectedChildren = selectedChildCategories.filter(
+        (c) => c._id !== childCategory._id
+      );
+      setSelectedChildCategories(updatedSelectedChildren);
+
+      // If this was the last child category, also remove the parent
+      if (updatedSelectedChildren.length === 0 && selectedParentCategory) {
+        setFormData((prev) => ({
+          ...prev,
+          id_categories: [],
+        }));
+      } else {
+        // Otherwise just remove this child category
+        setFormData((prev) => ({
+          ...prev,
+          id_categories: prev.id_categories.filter((id) => id !== childCategory._id),
+        }));
+      }
     } else {
-      // Add if not selected
-      setSelectedChildCategories((prev) => [...prev, childCategory]);
-      setFormData((prev) => ({
-        ...prev,
-        id_categories: [...prev.id_categories, childCategory._id],
-      }));
+      // Add child category
+      const updatedSelectedChildren = [...selectedChildCategories, childCategory];
+      setSelectedChildCategories(updatedSelectedChildren);
+
+      // If this is the first child being added, also add the parent
+      if (selectedChildCategories.length === 0 && selectedParentCategory) {
+        setFormData((prev) => ({
+          ...prev,
+          id_categories: [selectedParentCategory._id, childCategory._id],
+        }));
+      } else {
+        // Otherwise just add this child category
+        setFormData((prev) => ({
+          ...prev,
+          id_categories: [...prev.id_categories, childCategory._id],
+        }));
+      }
     }
   };
 

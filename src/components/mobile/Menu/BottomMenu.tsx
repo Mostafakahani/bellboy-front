@@ -49,8 +49,9 @@ const menuConfigs: MenuConfig = {
       iconActive: "/images/icons/shop-active.svg",
       iconInactive: "/images/icons/shop.svg",
       label: "سبدخرید",
-      href: "/s",
-      action: "link",
+      href: "/cart",
+      action: "drawer",
+      drawerId: "cartDrawer",
     },
     {
       iconActive: "/images/icons/user-active.svg",
