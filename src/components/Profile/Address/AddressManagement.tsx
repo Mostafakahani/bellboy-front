@@ -13,16 +13,17 @@ interface AddressManagementProps {
   onAddressChange: (addresses: Address[], selectedAddress: Address | null) => void;
   title?: string;
 }
+
 interface UpdateAddressApiResponse extends ApiResponse {
   _id?: string;
 }
+
 const AddressManagement: React.FC<AddressManagementProps> = ({
   initialAddresses,
   onAddressChange,
   title = "آدرس‌ها",
 }) => {
   const [formMode, setFormMode] = useState<AddressFormMode>(AddressFormMode.CREATE);
-
   const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -31,7 +32,6 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
   const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
   const [clickEditButton, setClickEditButton] = useState<boolean>(false);
   const authenticatedFetch = useAuthenticatedFetch();
-  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchProvinces();
@@ -64,6 +64,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
     setSelectedAddress(null);
     setFormMode(AddressFormMode.CREATE);
   };
+
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
       console.log({ message });
@@ -74,8 +75,6 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
 
   const handleSaveAddress = async (address: Address) => {
     try {
-      // setIsLoading(true);
-
       const baseAddressData = {
         province: address.province,
         city: address.city,
@@ -89,13 +88,11 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
       let apiResponse;
 
       if (formMode === AddressFormMode.CREATE) {
-        // ارسال درخواست برای ایجاد آدرس جدید
         apiResponse = await authenticatedFetch<UpdateAddressApiResponse>("/address", {
           method: "POST",
           body: JSON.stringify(baseAddressData),
         });
       } else {
-        // ارسال درخواست برای ویرایش آدرس موجود
         apiResponse = await authenticatedFetch<UpdateAddressApiResponse>(
           `/address/${address._id}`,
           {
@@ -112,7 +109,6 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
       }
 
       if (status === "success") {
-        // بروزرسانی state های مربوط به آدرس‌ها
         let updatedAddresses: Address[];
         if (formMode === AddressFormMode.EDIT) {
           updatedAddresses = addresses.map((a) =>
@@ -121,6 +117,8 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
         } else {
           const newAddress = {
             ...baseAddressData,
+            active: false,
+            addressCode: Date.now().toString(),
             _id: data?._id || Date.now().toString(),
           };
           updatedAddresses = [...addresses, newAddress];
@@ -136,8 +134,6 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
       }
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
-    } finally {
-      // setIsLoading(false);
     }
   };
 

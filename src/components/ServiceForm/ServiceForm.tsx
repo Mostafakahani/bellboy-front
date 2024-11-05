@@ -1,10 +1,10 @@
-import { TimeSlot } from "@/app/bell-clean/page";
 import { formatCurrency } from "@/utils/formatCurrency";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import CheckMarkInput from "../ui/Input/CheckMarkInput";
 import { Address } from "../Profile/Address/types";
 import { LineIcon } from "@/icons/Icons";
+import { TimeSlot } from "../DateTimeSelector";
 
 interface Service {
   id: string;

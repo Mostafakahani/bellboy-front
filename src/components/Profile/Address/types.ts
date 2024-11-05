@@ -9,8 +9,10 @@ export interface Address {
   city: string;
   address: string;
   plaque: string;
+  addressCode: string;
   x?: number;
   y?: number;
+  active: boolean;
 }
 
 export interface Province {

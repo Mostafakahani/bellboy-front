@@ -36,7 +36,7 @@ const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, curr
                 className={`ml-1 w-[34px] h-6 flex items-center justify-center rounded-full text-xs
     ${
       isCompleted
-        ? "bg-primary-600 border-2 border-black transition-all duration-300 ease-in-out"
+        ? "bg-primary-500 border-2 border-black transition-all duration-300 ease-in-out"
         : isCurrent
         ? "bg-black text-white transition-all duration-300 ease-in-out shadow-[-15px_0_0_4px_white]"
         : "bg-white border-2 border-black transition-all duration-300 ease-in-out"
@@ -95,7 +95,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col justify-between min-h-[80vh]">
+    <div className="max-w-2xl mx-auto flex flex-col justify-between min-h-[85vh]">
       <div className="w-full h-full">
         <div className="w-full overflow-y-auto">
           <Stepper steps={steps} currentStep={currentStep} />
@@ -108,7 +108,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           })}
         </div>
       </div>
-      <div className="mt-8 flex justify-between gap-7 mx-4">
+      <div className="mt-8 mb-4 flex justify-between gap-7 mx-4">
         <Button
           icon="right"
           variant="secondary"

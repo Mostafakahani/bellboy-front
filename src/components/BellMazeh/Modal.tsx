@@ -74,7 +74,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         className={`bg-white border-0 ${
           haveBorder ? "border-black rounded-2xl" : ""
-        } w-full max-w-sm h-full overflow-y-auto relative transition-all duration-300 ease-out ${
+        } w-full max-w-md h-full overflow-y-auto relative transition-all duration-300 ease-out ${
           isAnimating ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}

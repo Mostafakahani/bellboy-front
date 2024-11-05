@@ -23,9 +23,16 @@ interface AddressModalProps {
   onClose: () => void;
 }
 
-// آپدیت اینترفیس Address برای داشتن location
-interface ExtendedAddress extends Omit<Address, "x" | "y"> {
+// Updated ExtendedAddress interface with all required properties
+interface ExtendedAddress {
+  title: string;
+  province: string;
+  city: string;
+  address: string;
+  plaque: string;
   location: Location;
+  addressCode: string; // Added missing required property
+  active: boolean; // Added missing required property
 }
 
 const AddressModal: React.FC<AddressModalProps> = ({
@@ -43,6 +50,8 @@ const AddressModal: React.FC<AddressModalProps> = ({
     address: "",
     plaque: "",
     location: { x: 35, y: 51 },
+    addressCode: "", // Initialize with default value
+    active: true, // Initialize with default value
   });
 
   const [isFormValid, setIsFormValid] = useState(false);
@@ -50,13 +59,14 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
   useEffect(() => {
     if (address) {
-      // تبدیل داده‌های قدیمی به فرمت جدید
       setFormData({
         ...address,
         location: {
           x: address.x || 35,
           y: address.y || 51,
         },
+        addressCode: address.addressCode || "",
+        active: address.active ?? true,
       });
     } else {
       setFormData({
@@ -66,6 +76,8 @@ const AddressModal: React.FC<AddressModalProps> = ({
         address: "",
         plaque: "",
         location: { x: 35, y: 51 },
+        addressCode: "",
+        active: true,
       });
     }
   }, [address, isOpen]);
@@ -74,6 +86,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
     const isValid = Object.entries(formData).every(([key, value]) => {
       if (key === "location") {
         return value.x !== 0 || value.y !== 0;
+      }
+      if (key === "active" || key === "addressCode") {
+        return true; // These fields don't affect form validity
       }
       return typeof value === "string" ? value.trim() !== "" : true;
     });
@@ -101,11 +116,12 @@ const AddressModal: React.FC<AddressModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      // تبدیل فرمت جدید به فرمت مورد نیاز API
       const submitData: Address = {
         ...formData,
         x: formData.location.x,
         y: formData.location.y,
+        addressCode: formData.addressCode,
+        active: formData.active,
       };
       onSave(submitData);
     }

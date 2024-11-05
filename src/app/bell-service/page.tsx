@@ -6,7 +6,7 @@ import { Address } from "@/components/Profile/Address/types";
 import AddressManagement from "@/components/Profile/Address/AddressManagement";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input/Input";
-import DateTimeSelector from "@/components/DateTimeSelector";
+import DateTimeSelector, { TimeSlot } from "@/components/DateTimeSelector";
 import HandType from "@/components/HandType";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
 import { LineIcon } from "@/icons/Icons";
@@ -59,17 +59,6 @@ const Modal: React.FC<{ isOpen: boolean; onClose: () => void; children: React.Re
   );
 };
 
-type TimeSlot = {
-  start: string;
-  end: string;
-};
-
-type DaySchedule = {
-  date: string;
-  dayName: string;
-  timeSlots: TimeSlot[];
-};
-
 export default function Page() {
   const [formData, setFormData] = useState<{
     addresses: Address[];
@@ -84,28 +73,6 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
 
-  // Example data for a week schedule
-  const demoWeekSchedule: DaySchedule[] = [
-    {
-      date: "۱۲ مهر",
-      dayName: "شنبه",
-      timeSlots: [
-        { start: "۸", end: "۱۲" },
-        { start: "۱۳", end: "۱۷" },
-        { start: "۱۸", end: "۲۲" },
-      ],
-    },
-    {
-      date: "۱۳ مهر",
-      dayName: "یکشنبه",
-      timeSlots: [
-        { start: "۸", end: "۱۲" },
-        { start: "۱۳", end: "۱۷" },
-        { start: "۱۸", end: "۲۲" },
-      ],
-    },
-  ];
-
   const handleFormChange = (newData: any) => {
     setFormData({ ...formData, ...newData });
   };
@@ -115,8 +82,14 @@ export default function Page() {
   };
 
   const handleDateTimeSelect = (date: string, time: TimeSlot) => {
-    console.log(`Selected: ${date}, ${time.start}-${time.end}`);
-    setSelectedTime(time);
+    setFormData((prev) => ({
+      ...prev,
+      selectedDateTime: {
+        date,
+        time,
+        timeSlotId: time._id,
+      },
+    }));
   };
 
   // Fix: Use a function to return whether the step is complete
@@ -138,7 +111,6 @@ export default function Page() {
       label: "زمان",
       content: (
         <DateTimeSelector
-          weekSchedule={demoWeekSchedule}
           selectedTime={selectedTime}
           setSelectedTime={setSelectedTime}
           onSelect={handleDateTimeSelect}

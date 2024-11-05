@@ -11,15 +11,15 @@ import BannerSlider from "@/components/ui/Slider/BannerSlider";
 import { Modal } from "../BellMazeh/Modal";
 import MultiStepForm from "../Stepper/Stepper";
 import { LocationForm } from "../Location/LocationForm";
-import { ServiceForm } from "../ServiceForm/ServiceForm";
-import DateTimeSelector from "../DateTimeSelector";
+import DateTimeSelector, { TimeSlot } from "../DateTimeSelector";
 import FactorDetails from "../Factor/FactorDetails";
 
 import { useCartOperations } from "@/hooks/useCartOperations";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { CartItem, CategoryType, ProductType } from "@/hooks/cartType";
-import { TimeSlot } from "@/app/bell-clean/page";
 import { Address } from "../Profile/Address/types";
+import { showError } from "@/lib/toastService";
+import CartForm from "../Profile/Cart/CartForm";
 
 // Types
 interface ClientShopProps {
@@ -35,51 +35,18 @@ interface FormData {
   paymentComplete: boolean;
 }
 
-type DaySchedule = {
-  date: string;
-  dayName: string;
-  timeSlots: TimeSlot[];
-};
-
 // Constants
 const BANNER_IMAGES = [
   { url: "/images/shop/banner1.jpg", alt: "توضیحات تصویر اول" },
   { url: "/images/shop/banner2.jpg", alt: "توضیحات تصویر دوم" },
 ];
 
-const DEMO_WEEK_SCHEDULE: DaySchedule[] = [
-  {
-    date: "۱۲ مهر",
-    dayName: "شنبه",
-    timeSlots: [
-      { start: "۸", end: "۱۲" },
-      { start: "۱۳", end: "۱۷" },
-      { start: "۱۸", end: "۲۲" },
-    ],
-  },
-  {
-    date: "۱۳ مهر",
-    dayName: "یکشنبه",
-    timeSlots: [
-      { start: "۸", end: "۱۲" },
-      { start: "۱۳", end: "۱۷" },
-      { start: "۱۸", end: "۲۲" },
-    ],
-  },
-];
-
-const DEMO_ORDER_SUMMARY = {
-  products: [
-    { name: "پکیج استاندارد نظافت داخلی", price: 400000 },
-    { name: "پکیج استاندارد نظافت خارجی", price: 300000 },
-    { name: "پکیج استاندارد نظافت خارجی", price: 300000 },
-  ],
-  shippingCost: 50000,
-};
-
 // Components
-const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void }> = () => {
-  return <FactorDetails orderSummary={DEMO_ORDER_SUMMARY} />;
+const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void }> = ({
+  formData,
+  onFormChange,
+}) => {
+  return <FactorDetails formData={formData} onFormChange={onFormChange} />;
 };
 
 export default function ClientShop({ initialCategories, initialProducts }: ClientShopProps) {
@@ -92,9 +59,11 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   );
   const [products, setProducts] = useState(initialProducts);
   const [cart, setCart] = useState<CartItem[]>([]);
+
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  // const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState<FormData>({
     addresses: [],
@@ -104,6 +73,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     paymentComplete: false,
   });
 
+  // const handleContinue = (selectedAddress: string, deliveryId: string) => {
+  //   // Handle the continuation logic here
+  //   console.log({ isInitialLoading });
+  //   console.log("Selected Address:", selectedAddress);
+  //   console.log("Delivery ID:", deliveryId);
+  // };
   // Handlers
   const handleFormChange = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
@@ -112,7 +87,11 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   const handleDateTimeSelect = (date: string, time: TimeSlot) => {
     setFormData((prev) => ({
       ...prev,
-      selectedDateTime: { date, time },
+      selectedDateTime: {
+        date,
+        time,
+        timeSlotId: time._id,
+      },
     }));
   };
 
@@ -155,22 +134,34 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   const steps = [
     {
       id: 1,
-      label: "موقعیت",
-      content: <LocationForm formData={formData} onFormChange={handleFormChange} />,
-      isComplete: () => formData.selectedAddress !== null,
+      label: "سبدخرید",
+      content: (
+        <CartForm
+          fetchCart={fetchCart}
+          setCart={setCart}
+          cartData={cart}
+          isLoading={false}
+          loadingItems={loadingItems}
+          onUpdateQuantity={updateCartItemQuantity}
+          onRemoveItem={removeFromCart}
+          // onContinue={handleContinue}
+        />
+      ),
+      isComplete: () => cart.length !== 0,
     },
     {
       id: 2,
-      label: "سرویس",
-      content: <ServiceForm formData={formData} onFormChange={handleFormChange} />,
-      isComplete: () => formData.selectedServices.length > 0,
+      label: "موقعیت",
+      content: (
+        <LocationForm formData={formData} isLoading={isLoading} onFormChange={handleFormChange} />
+      ),
+      isComplete: () => formData.selectedAddress !== null,
     },
     {
       id: 3,
       label: "زمان",
       content: (
         <DateTimeSelector
-          weekSchedule={DEMO_WEEK_SCHEDULE}
           selectedTime={selectedTime}
           setSelectedTime={setSelectedTime}
           onSelect={handleDateTimeSelect}
@@ -178,6 +169,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       ),
       isComplete: () => formData.selectedDateTime !== null && selectedTime !== null,
     },
+
     {
       id: 4,
       label: "پرداخت",
@@ -188,19 +180,71 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
   // Effects
   useEffect(() => {
-    const initializeCart = async () => {
-      setIsInitialLoading(true);
+    const initializeData = async () => {
+      // setIsInitialLoading(true);
       try {
-        await fetchCart();
+        await Promise.all([
+          fetchCart(),
+          // fetchAddresses(), // اضافه کردن فراخوانی آدرس‌ها در شروع
+        ]);
       } finally {
-        setIsInitialLoading(false);
-        console.log(isInitialLoading);
+        // setIsInitialLoading(false);
       }
     };
 
-    initializeCart();
+    initializeData();
   }, []);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      fetchAddresses();
+    }
+  }, [isModalOpen]);
+  const formatErrorMessage = (message: string | string[] | any): string => {
+    if (Array.isArray(message)) {
+      console.log({ message });
+      return message.join(" ");
+    }
+    return message?.toString() || "خطای ناشناخته رخ داده است";
+  };
+  const fetchAddresses = async () => {
+    try {
+      setIsLoading(true);
+
+      const { data, error, message, status } = await authenticatedFetch("/address", {
+        method: "GET",
+      });
+
+      if (error) {
+        setIsLoading(false);
+        throw new Error(formatErrorMessage(message));
+      }
+
+      // if (data?.statusCode && data.statusCode !== 200) {
+      //   setIsLoading(false);
+      //   throw new Error(formatErrorMessage(data.message));
+      // }
+
+      if (status === "success") {
+        // showSuccess(message);
+        setIsLoading(false);
+      }
+      //  else {
+      //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
+      // }
+      console.log(data);
+      setFormData((prev) => ({
+        ...prev,
+        addresses: data as Address[],
+      }));
+
+      // handleFormChange({ addresses: data?.data });
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   // Render helpers
   const renderProductControls = (product: ProductType) => {
     const cartItem = Array.isArray(cart)
@@ -282,6 +326,9 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
   return (
     <>
+      {/* <Button onXsIsText className="fixed z-[9999999999999999999]" onClick={log}>
+        LOG
+      </Button> */}
       <MainHeader />
       <div className="mt-20 overflow-y-auto">
         <BellTypoGraphy english="Bell Shop" farsi="بل شاپ" />
@@ -376,7 +423,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
+      >
         <MultiStepForm
           steps={steps}
           formData={formData}

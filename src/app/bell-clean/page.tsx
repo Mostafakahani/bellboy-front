@@ -3,36 +3,18 @@ import React, { useState } from "react";
 import MultiStepForm from "@/components/Stepper/Stepper";
 import Button from "@/components/ui/Button/Button";
 import { Address } from "@/components/Profile/Address/types";
-import DateTimeSelector from "@/components/DateTimeSelector";
+import DateTimeSelector, { TimeSlot } from "@/components/DateTimeSelector";
 import FactorDetails from "@/components/Factor/FactorDetails";
 import { LocationForm } from "@/components/Location/LocationForm";
 import { ServiceForm } from "@/components/ServiceForm/ServiceForm";
 import { Modal } from "@/components/BellMazeh/Modal";
 
-interface FactorFormProps {
-  formData: any; // You might want to define a more specific type here
-  onFormChange: (newData: any) => void;
-}
-
-const FactorForm: React.FC<FactorFormProps> = () => {
-  const orderSummary = {
-    products: [
-      { name: "پکیج استاندارد نظافت داخلی", price: 400000 },
-      { name: "پکیج استاندارد نظافت خارجی", price: 300000 },
-      { name: "پکیج استاندارد نظافت خارجی", price: 300000 },
-      // You can add more products here as needed
-    ],
-    shippingCost: 50000,
-  };
-  // const handleApplyDiscount = (code: string) => {
-  //   // Implement discount logic here
-  //   console.log(`Applying discount code: ${code}`);
-  //   // Update orderSummary and formData as needed
-  // };
-
-  return <FactorDetails orderSummary={orderSummary} />;
+const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void }> = ({
+  formData,
+  onFormChange,
+}) => {
+  return <FactorDetails formData={formData} onFormChange={onFormChange} />;
 };
-
 // export const Modal: React.FC<{
 //   isOpen: boolean;
 //   onClose: () => void;
@@ -55,17 +37,6 @@ const FactorForm: React.FC<FactorFormProps> = () => {
 //   );
 // };
 
-export type TimeSlot = {
-  start: string;
-  end: string;
-};
-
-type DaySchedule = {
-  date: string;
-  dayName: string;
-  timeSlots: TimeSlot[];
-};
-
 export default function BellCleanPage() {
   const [formData, setFormData] = useState({
     addresses: [] as Address[],
@@ -76,36 +47,18 @@ export default function BellCleanPage() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
-
-  // Sample data for a week
-  const demoWeekSchedule: DaySchedule[] = [
-    {
-      date: "۱۲ مهر",
-      dayName: "شنبه",
-      timeSlots: [
-        { start: "۸", end: "۱۲" },
-        { start: "۱۳", end: "۱۷" },
-        { start: "۱۸", end: "۲۲" },
-      ],
-    },
-    {
-      date: "۱۳ مهر",
-      dayName: "یکشنبه",
-      timeSlots: [
-        { start: "۸", end: "۱۲" },
-        { start: "۱۳", end: "۱۷" },
-        { start: "۱۸", end: "۲۲" },
-      ],
-    },
-  ];
+  const isLoading = true;
 
   const handleDateTimeSelect = (date: string, time: TimeSlot) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      selectedDateTime: { date, time },
+    setFormData((prev) => ({
+      ...prev,
+      selectedDateTime: {
+        date,
+        time,
+        timeSlotId: time._id,
+      },
     }));
   };
-
   const handleFormChange = (newData: Partial<typeof formData>) => {
     setFormData((prevData) => ({ ...prevData, ...newData }));
   };
@@ -113,7 +66,9 @@ export default function BellCleanPage() {
     {
       id: 1,
       label: "موقعیت",
-      content: <LocationForm formData={formData} onFormChange={handleFormChange} />,
+      content: (
+        <LocationForm isLoading={isLoading} formData={formData} onFormChange={handleFormChange} />
+      ),
       isComplete: () => formData.selectedAddress !== null,
     },
     {
@@ -127,7 +82,6 @@ export default function BellCleanPage() {
       label: "زمان",
       content: (
         <DateTimeSelector
-          weekSchedule={demoWeekSchedule}
           selectedTime={selectedTime}
           setSelectedTime={setSelectedTime}
           onSelect={handleDateTimeSelect}

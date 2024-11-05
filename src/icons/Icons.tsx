@@ -3,8 +3,8 @@ import React from "react";
 export const LineIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="375"
-    height="76"
-    viewBox="0 0 375 76"
+    height="50"
+    viewBox="0 0 375 50"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
@@ -18,6 +18,35 @@ export const LineIcon = (props: React.SVGProps<SVGSVGElement>) => (
       d="M-0.000822811 43.4443C75.08 41.8543 185.002 38.3789 375 42.6393"
       stroke="black"
       strokeWidth="2"
+    />
+  </svg>
+);
+export const ClockIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M18 13C18 16.864 14.864 20 11 20C7.136 20 4 16.864 4 13C4 9.136 7.136 6 11 6C14.864 6 18 9.136 18 13Z"
+      fill="white"
+    />
+    <path
+      d="M20 12C20 16.416 16.416 20 12 20C7.584 20 4 16.416 4 12C4 7.584 7.584 4 12 4C16.416 4 20 7.584 20 12Z"
+      stroke="black"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M15 14L12.7206 12.5528C12.3235 12.3025 12 11.7001 12 11.2073V8"
+      stroke="black"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
