@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+"use client";
+import { Fragment, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import Image from "next/image";
 
 interface ModalProps {
@@ -15,33 +17,14 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
   title,
-  haveBorder,
+  haveBorder = false,
   customStyle,
 }) => {
-  const [shouldRender, setShouldRender] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useLayoutEffect(() => {
-    if (isOpen) {
-      setShouldRender(true);
-    }
-  }, [isOpen]);
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsAnimating(true);
-        });
-      });
     } else {
-      setIsAnimating(false);
-      const timer = setTimeout(() => {
-        setShouldRender(false);
-        document.body.style.overflow = "unset";
-      }, 300); // match this with your animation duration
-      return () => clearTimeout(timer);
+      document.body.style.overflow = "unset";
     }
 
     const handleEscape = (event: KeyboardEvent) => {
@@ -51,44 +34,70 @@ export const Modal: React.FC<ModalProps> = ({
     };
 
     document.addEventListener("keydown", handleEscape);
-
     return () => {
+      document.body.style.overflow = "unset";
       document.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen, onClose]);
 
-  if (!shouldRender) return null;
-
   return (
-    <div
-      className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ease-out ${
-        isAnimating ? "opacity-100" : "opacity-0"
-      }`}
-      onClick={onClose}
-    >
-      <div
-        className={`absolute inset-0 bg-black transition-opacity duration-300 ${
-          isAnimating ? "opacity-50" : "opacity-0"
-        }`}
-      />
-      <div
-        className={`bg-white border-0 ${
-          haveBorder ? "border-black rounded-2xl" : ""
-        } w-full max-w-md h-full overflow-y-auto relative transition-all duration-300 ease-out ${
-          isAnimating ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bg-white w-full h-full overflow-auto relative">
-          <div className="flex justify-between items-center mt-4 sm:mt-6 px-4">
-            <h5 className="font-black text-lg sm:text-xl">{title || "بل سرویس"}</h5>
-            <button onClick={onClose} type="button" className="p-2">
-              <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
-            </button>
+    <Transition show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose} dir="rtl">
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center sm:p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel
+                className={`
+                  w-full transform overflow-hidden bg-white transition-all
+                  ${haveBorder ? "border border-black" : ""}
+                  /* موبایل: تمام صفحه */
+                  h-screen
+                  /* دسکتاپ: محدود به md و گرد گوشه */
+                  sm:h-auto sm:max-w-md sm:rounded-2xl
+                  ${haveBorder ? "sm:border sm:border-black" : ""}
+                `}
+              >
+                <div className="bg-white w-full h-full overflow-auto">
+                  <div className="sticky z-[999999999999999999999999999999999999999999] top-0 bg-white flex justify-between items-center mt-4 sm:mt-6 px-4 pb-4 border-b">
+                    <Dialog.Title className="font-black text-lg sm:text-xl">
+                      {title || "بل سرویس"}
+                    </Dialog.Title>
+                    <button
+                      onClick={onClose}
+                      type="button"
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label="بستن"
+                    >
+                      <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
+                    </button>
+                  </div>
+                  <div className={`w-full ${customStyle || "mt-8 sm:mt-10"}`}>{children}</div>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-          <div className={`w-full ${customStyle ? customStyle : "mt-8"} sm:mt-10`}>{children}</div>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </Transition>
   );
 };

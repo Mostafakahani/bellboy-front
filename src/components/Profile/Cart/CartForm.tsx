@@ -142,84 +142,86 @@ export const CartForm: React.FC<CartProps> = ({
   // };
 
   return (
-    <div className="container mx-auto py-4 px-4">
-      <h1 className="text-lg font-bold mb-6">لیست محصولات سبد خرید شما</h1>
+    <div className="container mx-auto py-4 px-4 flex flex-col justify-between min-h-[70vh]">
+      <div>
+        <h1 className="text-md text-right font-bold mb-6">لیست محصولات سبد خرید شما</h1>
 
-      <div className="space-y-4">
-        {cartData.map((item) => {
-          const isDeleting = itemsToDelete[item._id];
-          // const timeLeft = getTimeLeft(item._id);
-          const showResetButton = isDeleting && item.quantity === 1;
+        <div className="space-y-4">
+          {cartData.map((item) => {
+            const isDeleting = itemsToDelete[item._id];
+            // const timeLeft = getTimeLeft(item._id);
+            const showResetButton = isDeleting && item.quantity === 1;
 
-          return (
-            <div key={item._id} className="border-2 border-black rounded-xl">
-              <div className="flex justify-between items-center transition-all">
-                {showResetButton ? (
-                  <div className="flex flex-col justify-center items-center gap-2 bg-gray-100 w-full p-4 rounded-xl transition-all">
-                    <div className="w-full px-4 py-1 flex flex-col items-center gap-4">
-                      <span className="text-md font-medium">این محصول از سبد خرید حذف شد</span>
-                      <button
-                        className="flex items-center justify-center font-bold rounded-lg transition-all duration-300"
-                        onClick={() => cancelDeletion(item._id)}
-                      >
-                        <RotateCcw size={16} className="ml-2" />
-                        بازگردانی
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex w-full justify-between items-center p-4 transition-all">
-                    <div className="flex-1">
-                      <h3 className="text-md font-semibold">{item.productId.title}</h3>
-                      <div className="flex flex-col items-start gap-2 mt-2">
-                        <span className="text-md">{formatPrice(item.productId.price)} تومان</span>
-                        {item.productId.globalDiscount > 0 && (
-                          <div className="flex flex-row gap-x-2 items-center">
-                            <span className="line-through text-gray-400">
-                              {formatPrice(
-                                item.productId.price * (1 + item.productId.globalDiscount / 100)
-                              )}
-                            </span>
-                            <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
-                              %{item.productId.globalDiscount}
-                            </span>
-                          </div>
-                        )}
+            return (
+              <div key={item._id} className="border-2 border-black rounded-xl">
+                <div className="flex justify-between items-center transition-all">
+                  {showResetButton ? (
+                    <div className="flex flex-col justify-center items-center gap-2 bg-gray-100 w-full p-4 rounded-xl transition-all">
+                      <div className="w-full px-4 py-1 flex flex-col items-center gap-4">
+                        <span className="text-md font-medium">این محصول از سبد خرید حذف شد</span>
+                        <button
+                          className="flex items-center justify-center font-bold rounded-lg transition-all duration-300"
+                          onClick={() => cancelDeletion(item._id)}
+                        >
+                          <RotateCcw size={16} className="ml-2" />
+                          بازگردانی
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="relative flex items-center border-2 border-black rounded-full bg-white w-[110px] h-[50px] justify-between px-3">
-                        <Plus
-                          size={20}
-                          className={`text-black cursor-pointer ${
-                            loadingItems[item._id] ? "opacity-50" : ""
-                          }`}
-                          onClick={() =>
-                            handleQuantityChange(item._id, item.quantity + 1, item.quantity)
-                          }
-                        />
-                        <span className="font-bold text-lg text-black w-6 text-center">
-                          {loadingItems[item._id] ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : (
-                            item.quantity
+                  ) : (
+                    <div className="flex w-full justify-between items-center p-4 transition-all">
+                      <div className="flex-1">
+                        <h3 className="text-md text-right font-semibold">{item.productId.title}</h3>
+                        <div className="flex flex-col items-start gap-2 mt-2">
+                          <span className="text-md">{formatPrice(item.productId.price)} تومان</span>
+                          {item.productId.globalDiscount > 0 && (
+                            <div className="flex flex-row gap-x-2 items-center">
+                              <span className="line-through text-gray-400">
+                                {formatPrice(
+                                  item.productId.price * (1 + item.productId.globalDiscount / 100)
+                                )}
+                              </span>
+                              <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
+                                %{item.productId.globalDiscount}
+                              </span>
+                            </div>
                           )}
-                        </span>
-                        <Trash2
-                          size={20}
-                          className={`text-black cursor-pointer ${
-                            loadingItems[item._id] ? "opacity-50" : ""
-                          }`}
-                          onClick={() => handleRemoveItem(item._id)}
-                        />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="relative flex items-center border-2 border-black rounded-full bg-white w-[110px] h-[50px] justify-between px-3">
+                          <Plus
+                            size={20}
+                            className={`text-black cursor-pointer ${
+                              loadingItems[item._id] ? "opacity-50" : ""
+                            }`}
+                            onClick={() =>
+                              handleQuantityChange(item._id, item.quantity + 1, item.quantity)
+                            }
+                          />
+                          <span className="font-bold text-lg text-black w-6 text-center">
+                            {loadingItems[item._id] ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              item.quantity
+                            )}
+                          </span>
+                          <Trash2
+                            size={20}
+                            className={`text-black cursor-pointer ${
+                              loadingItems[item._id] ? "opacity-50" : ""
+                            }`}
+                            onClick={() => handleRemoveItem(item._id)}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {cartData.length > 0 && (

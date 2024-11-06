@@ -14,12 +14,13 @@ import { LocationForm } from "../Location/LocationForm";
 import DateTimeSelector, { TimeSlot } from "../DateTimeSelector";
 import FactorDetails from "../Factor/FactorDetails";
 
-import { useCartOperations } from "@/hooks/useCartOperations";
+import { ensureCartArray, useCartOperations } from "@/hooks/useCartOperations";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { CartItem, CategoryType, ProductType } from "@/hooks/cartType";
 import { Address } from "../Profile/Address/types";
 import { showError } from "@/lib/toastService";
 import CartForm from "../Profile/Cart/CartForm";
+import { getCookie } from "cookies-next";
 
 // Types
 interface ClientShopProps {
@@ -119,12 +120,29 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
   // Data fetching
   const fetchCart = async () => {
+    const token = getCookie("auth_token");
+
+    if (!token) return;
     try {
-      const { data } = await authenticatedFetch("/cart");
-      setCart(Array.isArray(data) ? data : []);
+      const response = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + "/cart", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
+      });
+
+      // if (!response.ok) {
+      //   throw new Error("Failed to fetch profile data");
+      // }
+
+      const data = await response.json();
+      console.log(data);
+      setCart(ensureCartArray(data));
     } catch (error) {
       console.error("Error fetching cart:", error);
-      setCart([]);
+      setCart([]); // Set empty array on error
     }
   };
 

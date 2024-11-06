@@ -99,7 +99,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
       <div className="w-full h-full">
         <div className="w-full overflow-y-auto">
           <Stepper steps={steps} currentStep={currentStep} />
-          <div className="w-full border-b-2 border-black absolute top-36 left-0"></div>
+          {/* <div className="w-full border-b-2 border-black absolute top-36 left-0"></div> */}
         </div>
         <div className="">
           {React.cloneElement(steps[currentStep - 1].content as React.ReactElement, {

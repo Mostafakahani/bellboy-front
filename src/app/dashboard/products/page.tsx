@@ -1,5 +1,5 @@
 "use client";
-import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import DashboardHeaderCreateCategory from "@/components/Dashboard/DashboardHeaderCreateCategory";
 import ResponsiveTableProduct from "@/components/Dashboard/ResponsiveTableProduct";
 import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { showError } from "@/lib/toastService";
@@ -57,7 +57,7 @@ export default function ProductPage() {
   };
   return (
     <div>
-      <DashboardHeader />
+      <DashboardHeaderCreateCategory />
       <div className="flex justify-center flex-col items-center">
         <div className="w-full flex flex-row justify-between items-center mb-4 px-4">
           <p className="text-2xl font-bold">کالاها</p>

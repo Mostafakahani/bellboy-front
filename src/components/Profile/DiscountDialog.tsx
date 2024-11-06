@@ -3,6 +3,7 @@ import Button from "../ui/Button/Button";
 import { Input } from "../ui/Input/Input";
 
 interface DiscountDialogProps {
+  isLoading: boolean;
   isOpen: boolean;
   onClose: () => void;
   onSubmit?: () => void;
@@ -12,6 +13,7 @@ interface DiscountDialogProps {
 }
 
 const DiscountDialog: React.FC<DiscountDialogProps> = ({
+  isLoading,
   isOpen,
   onClose,
   onSubmit,
@@ -48,11 +50,17 @@ const DiscountDialog: React.FC<DiscountDialogProps> = ({
             <Input
               onChange={(e) => onChange?.(e.target.value)}
               placeholder="بنویسید"
-              style={{ textAlign: "center" }}
+              style={{ textAlign: "center", direction: "ltr" }}
             />
           </div>
           <div className="w-full flex flex-col items-center gap-5 mt-2">
-            <Button variant="primary" className="text-sm w-full" onXsIsText onClick={onSubmit}>
+            <Button
+              variant="primary"
+              className="text-sm w-full"
+              onXsIsText
+              onClick={onSubmit}
+              loading={isLoading}
+            >
               {buttonMessage}
             </Button>
             <Button variant="tertiary" className="text-sm" onXsIsText onClick={onClose}>

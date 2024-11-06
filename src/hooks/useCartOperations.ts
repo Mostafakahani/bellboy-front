@@ -2,6 +2,7 @@ import { useState } from "react";
 import { showError, showSuccess } from "@/lib/toastService";
 import { ApiResponse, useAuthenticatedFetch } from "./useAuthenticatedFetch";
 import { CartItem } from "./cartType";
+import { getCookie } from "cookies-next";
 
 interface CartOperationsHook {
   loading?: boolean;
@@ -34,17 +35,25 @@ export const useCartOperations = (
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
 
-  // Helper function to ensure we're always working with an array
-  const ensureCartArray = (data: any): CartItem[] => {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    if (data.cart && Array.isArray(data.cart)) return data.cart;
-    return [];
-  };
-
   const fetchCart = async () => {
+    const token = getCookie("auth_token");
+
+    if (!token) return;
     try {
-      const { data } = await authenticatedFetch<ApiResponse>("/cart");
+      const response = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + "/cart", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
+      });
+
+      // if (!response.ok) {
+      //   throw new Error("Failed to fetch profile data");
+      // }
+
+      const data = await response.json();
       setCart(ensureCartArray(data));
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -53,6 +62,12 @@ export const useCartOperations = (
   };
 
   const addToCart = async (productId: string) => {
+    const token = getCookie("auth_token");
+
+    if (!token) {
+      showError("برای انجام این عملیات باید وارد حساب خود شده باشید");
+      return;
+    }
     setItemLoading(productId, true);
     try {
       const response = await authenticatedFetch<ApiResponse>("/cart", {
@@ -72,6 +87,12 @@ export const useCartOperations = (
   };
 
   const removeFromCart = async (cartId: string) => {
+    const token = getCookie("auth_token");
+
+    if (!token) {
+      showError("برای انجام این عملیات باید وارد حساب خود شده باشید");
+      return;
+    }
     setItemLoading(cartId, true);
     try {
       const response = await authenticatedFetch<ApiResponse>(`/cart/${cartId}`, {
@@ -94,6 +115,12 @@ export const useCartOperations = (
     newQuantity: number,
     currentQuantity: number
   ) => {
+    const token = getCookie("auth_token");
+
+    if (!token) {
+      showError("برای انجام این عملیات باید وارد حساب خود شده باشید");
+      return;
+    }
     setItemLoading(cartId, true);
     try {
       if (currentQuantity === 1 && newQuantity < currentQuantity) {
@@ -130,3 +157,10 @@ export const useCartOperations = (
     fetchCart,
   };
 };
+// Helper function to ensure we're always working with an array
+export function ensureCartArray(data: any): CartItem[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (data.cart && Array.isArray(data.cart)) return data.cart;
+  return [];
+}
