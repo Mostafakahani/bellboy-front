@@ -5,6 +5,7 @@ import BottomMenu from "../Menu/BottomMenu";
 import SettingsDrawer from "./SettingsDrawer";
 import ServicesDrawer from "./ServicesDrawer";
 import CartDrawer from "./CartDrawer";
+import DashboardDrawer from "./DashboardDrawer";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -31,6 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <AccountDrawer isOpen={activeDrawer === "account"} onClose={handleCloseDrawer} /> */}
       <SettingsDrawer isOpen={activeDrawer === "settings"} onClose={handleCloseDrawer} />
       <ServicesDrawer isOpen={activeDrawer === "bellService"} onClose={handleCloseDrawer} />
+      <DashboardDrawer isOpen={activeDrawer === "dashboard"} onClose={handleCloseDrawer} />
       <CartDrawer isOpen={activeDrawer === "cartDrawer"} onClose={handleCloseDrawer} />
       {/* <ProfileDrawer isOpen={activeDrawer === "profile"} onClose={handleCloseDrawer} />
       <ProductsDrawer isOpen={activeDrawer === "products"} onClose={handleCloseDrawer} />

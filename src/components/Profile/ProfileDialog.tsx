@@ -196,6 +196,7 @@ export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, 
               />
               <PhoneNumberDisplay phoneNumber={formData.phoneNumber} onEdit={handlePhoneEdit} />
               <DatePickerDemo
+                label="تاریخ تولد"
                 value={displayDate} // نمایش تاریخ شمسی
                 onChange={handleDateChange}
                 readOnly={false}

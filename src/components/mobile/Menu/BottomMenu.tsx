@@ -93,10 +93,10 @@ const menuConfigs: MenuConfig = {
     {
       iconActive: "/images/icons/home-active.svg",
       iconInactive: "/images/icons/home.svg",
-      label: "حساب من",
-      href: "/dashboard/profile",
+      label: "داشبورد",
+      href: "/dashboard/main",
       action: "drawer",
-      drawerId: "profile",
+      drawerId: "dashboard",
     },
   ],
   adminPanel: [
