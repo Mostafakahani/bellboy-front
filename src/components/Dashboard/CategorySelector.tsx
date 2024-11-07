@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Dropdown } from "./Dropdown"; // استفاده از کامپوننت Dropdown که ارائه کردید
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+import { useEffect, useState } from "react";
+import { Dropdown } from "./Dropdown";
 
-interface Category {
+export interface Category {
   _id: string;
   name: string;
   path: string;
@@ -12,69 +12,87 @@ interface Category {
 
 interface CategorySelectorProps {
   onCategorySelect: (parentId: string, childId: string) => void;
-  //   disabled?: boolean;
+  selectedParentId?: string;
+  selectedChildId?: string;
 }
 
-const CategorySelector: React.FC<CategorySelectorProps> = ({ onCategorySelect }) => {
+const CategorySelector: React.FC<CategorySelectorProps> = ({
+  onCategorySelect,
+  selectedParentId,
+  selectedChildId,
+}) => {
   const authenticatedFetch = useAuthenticatedFetch();
   const [parentCategories, setParentCategories] = useState<Category[] | any>([]);
   const [childCategories, setChildCategories] = useState<Category[]>([]);
-  const [selectedParentId, setSelectedParentId] = useState("");
-  const [selectedChildId, setSelectedChildId] = useState("");
+  const [localSelectedParentId, setLocalSelectedParentId] = useState(selectedParentId || "");
+  const [localSelectedChildId, setLocalSelectedChildId] = useState(selectedChildId || "");
   const [selectedPath, setSelectedPath] = useState("");
+  const [isLoadingParents, setIsLoadingParents] = useState(true);
+  const [isLoadingChildren, setIsLoadingChildren] = useState(false);
 
-  // دریافت دسته‌بندی‌های اصلی در لود اولیه
   useEffect(() => {
     fetchParentCategories();
   }, []);
 
-  // دریافت زیردسته‌ها وقتی دسته اصلی انتخاب می‌شود
   useEffect(() => {
-    if (selectedParentId) {
-      fetchChildCategories(selectedParentId);
+    if (localSelectedParentId) {
+      fetchChildCategories(localSelectedParentId);
     }
-  }, [selectedParentId]);
+  }, [localSelectedParentId]);
+
+  useEffect(() => {
+    if (selectedParentId && selectedChildId) {
+      setLocalSelectedParentId(selectedParentId);
+      setLocalSelectedChildId(selectedChildId);
+      onCategorySelect(selectedParentId, selectedChildId);
+    }
+  }, [selectedParentId, selectedChildId, onCategorySelect]);
 
   const fetchParentCategories = async () => {
+    setIsLoadingParents(true);
     try {
       const { data } = await authenticatedFetch<Category[]>("/category");
       const parents = data?.filter((category: Category) => category.isParent);
       setParentCategories(parents);
     } catch (error) {
       console.log(error);
-
       setParentCategories([]);
+    } finally {
+      setIsLoadingParents(false);
     }
   };
 
   const fetchChildCategories = async (parentId: string) => {
+    setIsLoadingChildren(true);
     try {
       const { data } = await authenticatedFetch<Category[]>(`/category/${parentId}`);
       setChildCategories(data || []);
     } catch (error) {
       console.log(error);
-
       setChildCategories([]);
+    } finally {
+      setIsLoadingChildren(false);
     }
   };
 
   const handleParentChange = (value: string) => {
-    setSelectedParentId(value);
-    setSelectedChildId(""); // ریست کردن انتخاب زیردسته
-    setSelectedPath(""); // ریست کردن مسیر
+    setLocalSelectedParentId(value);
+    setLocalSelectedChildId("");
+    setSelectedPath("");
     onCategorySelect(value, "");
   };
 
   const handleChildChange = (value: string) => {
-    setSelectedChildId(value);
+    setLocalSelectedChildId(value);
     const selectedChild = childCategories.find((cat) => cat._id === value);
     if (selectedChild) {
       setSelectedPath(selectedChild.path);
     }
-    onCategorySelect(selectedParentId, value);
+    onCategorySelect(localSelectedParentId, value);
   };
-  if (!parentCategories) return;
-  // تبدیل دسته‌بندی‌ها به فرمت مورد نیاز Dropdown
+
+  if (!parentCategories && !isLoadingParents) return null;
+
   const parentOptions = parentCategories.map((category: any) => ({
     value: category._id,
     label: category.name,
@@ -88,18 +106,20 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ onCategorySelect })
   return (
     <div className="space-y-4">
       <Dropdown
-        label="دسته‌بندی اصلی"
+        label="سرویس"
         options={parentOptions}
-        value={selectedParentId}
+        value={localSelectedParentId}
         onChange={handleParentChange}
+        isLoading={isLoadingParents}
       />
 
-      {selectedParentId && (
+      {localSelectedParentId && (
         <Dropdown
-          label="زیر دسته"
+          label="دسته بندی"
           options={childOptions}
-          value={selectedChildId}
+          value={localSelectedChildId}
           onChange={handleChildChange}
+          isLoading={isLoadingChildren}
         />
       )}
 

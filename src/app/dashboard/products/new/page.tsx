@@ -5,32 +5,38 @@ import DashboardButton from "@/components/ui/Button/DashboardButton";
 // import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { showError, showSuccess } from "@/lib/toastService";
 import { Switch } from "@/components/ui/Input/Switch";
-import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import FileUploaderComponent, { FileData } from "@/components/FileUploader/FileUploader";
 import { getCookie } from "cookies-next";
-import CategorySelector from "@/components/Dashboard/CategorySelector";
+import CategorySelector, { Category } from "@/components/Dashboard/CategorySelector";
+import DashboardHeaderCreateCategory from "@/components/Dashboard/DashboardHeaderCreateCategory";
+import { useRouter } from "next/navigation";
 
 // Interfaces
 export interface ProductFormData {
+  _id?: string;
   title: string;
   description: string;
-  price: string;
-  stock: string;
-  id_categories: string[];
+  price: number;
+  stock: number;
+  id_categories: Category[] | any[];
   TastingTray: boolean;
   globalDiscount: string;
-  selectedFiles: FileData[];
+  selectedFiles?: FileData[];
+  active: boolean;
+  id_stores?: any[];
+  __v?: any;
 }
 
 const initialFormData: ProductFormData = {
   title: "",
   description: "",
-  price: "",
-  stock: "",
+  price: 0,
+  stock: 0,
   id_categories: [],
   TastingTray: false,
   globalDiscount: "",
   selectedFiles: [],
+  active: true,
 };
 
 const CreateProductForm = () => {
@@ -42,6 +48,7 @@ const CreateProductForm = () => {
   // const [selectedChildCategories, setSelectedChildCategories] = useState<Category[]>([]);
 
   // State management
+  const router = useRouter();
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   // const [loading, setLoading] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -50,11 +57,12 @@ const CreateProductForm = () => {
   // File handling
   const handleFileSelect = (files: FileData[]) => {
     setFormData((prev) => {
-      const existingFileIds = prev.selectedFiles.map((file) => file._id);
+      const existingFileIds = prev?.id_stores?.map((file) => file._id) || [];
       const newFiles = files.filter((file) => !existingFileIds.includes(file._id));
+
       return {
         ...prev,
-        selectedFiles: [...prev.selectedFiles, ...newFiles],
+        id_stores: [...(prev?.id_stores || []), ...newFiles],
       };
     });
     setIsGalleryOpen(false);
@@ -63,7 +71,7 @@ const CreateProductForm = () => {
   const handleRemoveFile = (fileId: string) => {
     setFormData((prev) => ({
       ...prev,
-      selectedFiles: prev.selectedFiles.filter((file) => file._id !== fileId),
+      id_stores: prev.id_stores?.filter((file) => file._id !== fileId),
     }));
   };
 
@@ -110,12 +118,12 @@ const CreateProductForm = () => {
   const validateForm = () => {
     if (!formData.title.trim()) throw new Error("عنوان کالا الزامی است");
     if (!formData.description.trim()) throw new Error("توضیحات کالا الزامی است");
-    if (!formData.price.trim()) throw new Error("قیمت کالا الزامی است");
-    if (!formData.stock.trim()) throw new Error("موجودی کالا الزامی است");
+    if (!formData.price) throw new Error("قیمت کالا الزامی است");
+    if (!formData.stock) throw new Error("موجودی کالا الزامی است");
     if (!formData.TastingTray && formData.id_categories.length === 0) {
       throw new Error("انتخاب حداقل یک دسته‌بندی الزامی است");
     }
-    if (formData.selectedFiles.length === 0) {
+    if (formData.id_stores?.length === 0) {
       throw new Error("انتخاب حداقل یک تصویر الزامی است");
     }
   };
@@ -132,28 +140,14 @@ const CreateProductForm = () => {
 
     try {
       validateForm();
-      const form = new FormData();
-
-      // Add form fields
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "id_categories" && value.length > 0) {
-          form.append(key, JSON.stringify(value));
-        } else if (key === "selectedFiles") {
-          const fileIds = value.map((file: FileData) => file._id);
-          form.append("id_stores", JSON.stringify(fileIds));
-        } else if (key === "globalDiscount" && value) {
-          form.append(key, value);
-        } else if (key !== "selectedFiles") {
-          form.append(key, String(value));
-        }
-      });
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/product`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: form,
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
@@ -161,6 +155,7 @@ const CreateProductForm = () => {
       if (data.status === "success") {
         showSuccess("محصول با موفقیت ایجاد شد");
         setFormData(initialFormData);
+        router.push("/dashboard/products");
       } else {
         throw new Error(data.message || "خطا در ایجاد محصول");
       }
@@ -170,7 +165,6 @@ const CreateProductForm = () => {
       setIsSubmitting(false);
     }
   };
-
   const handleCategorySelect = (parentId: string, childId: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -180,11 +174,11 @@ const CreateProductForm = () => {
 
   return (
     <>
-      <DashboardHeader />
+      <DashboardHeaderCreateCategory />
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 lg:p-8 bg-gray-100">
         <div className="space-y-4 max-w-4xl mx-auto">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Tasting Tray</span>
+            <span className="text-sm font-medium">سینی مزه</span>
             <Switch
               checked={formData.TastingTray}
               onCheckedChange={handleTastingTrayChange}
@@ -224,16 +218,14 @@ const CreateProductForm = () => {
             disabled={isSubmitting}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+          <div className="grid grid-cols-1 gap-4 items-end">
             <DashboardInput
               label="قیمت (تومان)"
-              value={
-                formData?.price ? Number(formData.price.replace(/\D/g, "")).toLocaleString() : ""
-              }
+              value={formData?.price ? Number(formData.price) : 0}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  price: e.target.value.replace(/\D/g, ""),
+                  price: (e.target.value || 0) as number,
                 }))
               }
               type="text"
@@ -285,11 +277,11 @@ const CreateProductForm = () => {
               isOpenModal={isGalleryOpen}
               setIsOpenModal={setIsGalleryOpen}
               onFileSelect={handleFileSelect}
-              initialSelectedFiles={formData.selectedFiles}
+              initialSelectedFiles={formData.id_stores}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {formData.selectedFiles.map((file) => (
+            <div className="grid grid-cols-1 gap-4">
+              {formData.id_stores?.map((file) => (
                 <div
                   key={file._id}
                   className="flex gap-4 items-center justify-between bg-white p-3 rounded-lg shadow-sm"

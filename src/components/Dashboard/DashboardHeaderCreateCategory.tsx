@@ -7,6 +7,7 @@ import { Dropdown } from "./Dropdown";
 import { ProductFormData } from "@/app/dashboard/products/new/page";
 import FileUploaderComponent, { FileData } from "../FileUploader/FileUploader";
 import { ChevronDownIcon, ChevronUpIcon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { showError } from "@/lib/toastService";
 // types.ts
 interface Category {
   _id: string;
@@ -23,12 +24,13 @@ interface Category {
 const initialFormData: ProductFormData = {
   title: "",
   description: "",
-  price: "",
-  stock: "",
+  price: 0,
+  stock: 0,
   id_categories: [],
   TastingTray: false,
   globalDiscount: "",
   selectedFiles: [],
+  active: true,
 };
 interface Store {
   _id: string;
@@ -92,9 +94,9 @@ export default function DashboardHeaderCreateCategory() {
     setFormData((prev) => ({
       ...prev,
       selectedFiles: [
-        ...prev.selectedFiles,
+        ...(prev.selectedFiles || []),
         ...files.filter(
-          (file) => !prev.selectedFiles.some((existing) => existing._id === file._id)
+          (file) => !prev.selectedFiles?.some((existing) => existing._id === file._id)
         ),
       ],
     }));
@@ -104,12 +106,12 @@ export default function DashboardHeaderCreateCategory() {
   const handleRemoveFile = (fileId: string) => {
     setFormData((prev) => ({
       ...prev,
-      selectedFiles: prev.selectedFiles.filter((file) => file._id !== fileId),
+      selectedFiles: prev.selectedFiles?.filter((file) => file._id !== fileId),
     }));
   };
 
   const handleCreateParentCategory = async () => {
-    if (formData.selectedFiles.length === 0) {
+    if (formData.selectedFiles?.length === 0) {
       setError("انتخاب یک تصویر الزامی است");
       return;
     }
@@ -123,7 +125,7 @@ export default function DashboardHeaderCreateCategory() {
           name: parentCatName,
           path: parentCatPath,
           isParent: true,
-          id_store: formData.selectedFiles[0]._id,
+          id_store: formData.selectedFiles ? formData.selectedFiles[0]._id : null,
         }),
       });
       setParentCatName("");
@@ -351,24 +353,24 @@ export default function DashboardHeaderCreateCategory() {
   const renderCategoriesList = () => (
     <div className="mt-6">
       <h3 className="text-lg font-bold mb-4">لیست دسته‌بندی‌ها</h3>
-      {parentCategories.map((category) => (
-        <div key={category._id} className="mb-4">
-          {renderCategoryItem(category)}
-          {expandedCategory === category._id && (
-            <div className="pr-6 mt-2">
-              {loading ? (
-                <div className="p-2 text-center">در حال بارگذاری...</div>
-              ) : (
-                categoryChildren[category._id]?.map((child) => (
+      {loading ? (
+        <div className="p-4 text-center">در حال بارگذاری...</div> // Loading indicator
+      ) : (
+        parentCategories.map((category) => (
+          <div key={category._id} className="mb-4">
+            {renderCategoryItem(category)}
+            {expandedCategory === category._id && (
+              <div className="pr-6 mt-2">
+                {categoryChildren[category._id]?.map((child) => (
                   <div key={child._id} className="mb-2">
                     {renderCategoryItem(child, true)}
                   </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
-      ))}
+                ))}
+              </div>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 
@@ -419,8 +421,18 @@ export default function DashboardHeaderCreateCategory() {
               <DashboardInput
                 label="مسیر دسته بندی"
                 value={parentCatPath}
-                onChange={(e) => setParentCatPath(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const isValid = /^[a-zA-Z]+$/.test(value); // فقط حروف انگلیسی بدون فاصله
+
+                  if (!isValid) {
+                    showError("لطفاً فقط از حروف انگلیسی بدون فاصله استفاده کنید.");
+                  } else {
+                    setParentCatPath(value);
+                  }
+                }}
               />
+
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <p className="text-sm font-medium">تصاویر محصول</p>
@@ -441,8 +453,8 @@ export default function DashboardHeaderCreateCategory() {
                   initialSelectedFiles={formData.selectedFiles}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {formData.selectedFiles[0] && (
+                <div className="grid grid-cols-1 gap-4">
+                  {formData?.selectedFiles && formData.selectedFiles.length > 0 && (
                     <div className="flex gap-4 items-center justify-between bg-white p-3 rounded-lg shadow-sm">
                       <div className="bg-gray-200 rounded-lg w-12 h-12 overflow-hidden">
                         <img
@@ -461,7 +473,11 @@ export default function DashboardHeaderCreateCategory() {
                         variant="tertiary"
                         className="border-[1.5px] border-red-500 rounded-2xl !px-3 !py-6"
                         icon="trash"
-                        onClick={() => handleRemoveFile(formData.selectedFiles[0]._id)}
+                        onClick={() => {
+                          if (formData?.selectedFiles && formData.selectedFiles.length > 0) {
+                            handleRemoveFile(formData.selectedFiles[0]._id);
+                          }
+                        }}
                         disabled={loading}
                       />
                     </div>
@@ -501,8 +517,18 @@ export default function DashboardHeaderCreateCategory() {
               <DashboardInput
                 label="مسیر زیر دسته بندی"
                 value={childCatPath}
-                onChange={(e) => setChildCatPath(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const isValid = /^[a-zA-Z]+$/.test(value); // فقط حروف انگلیسی بدون فاصله
+
+                  if (!isValid) {
+                    showError("لطفاً فقط از حروف انگلیسی بدون فاصله استفاده کنید.");
+                  } else {
+                    setChildCatPath(value);
+                  }
+                }}
               />
+
               <DashboardButton onClick={handleCreateChildCategory} disabled={loading} onXsIsText>
                 ثبت زیر دسته بندی
               </DashboardButton>

@@ -1,4 +1,5 @@
 "use client";
+import { Tab } from "@headlessui/react";
 import DashboardHeaderCreateCategory from "@/components/Dashboard/DashboardHeaderCreateCategory";
 import ResponsiveTableProduct from "@/components/Dashboard/ResponsiveTableProduct";
 import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
@@ -10,51 +11,60 @@ import React, { useEffect, useState } from "react";
 export default function ProductPage() {
   const authenticatedFetch = useAuthenticatedFetch();
   const [productData, setProductData] = useState<any>();
+  const [productTastingTray, setProductTastingTrayData] = useState<any>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchAddresses();
+    fetchProducts();
   }, []);
+
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
-      console.log({ message });
       return message.join(" ");
     }
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
-  const fetchAddresses = async () => {
+
+  const fetchProducts = async () => {
     try {
       setIsLoading(true);
 
-      const { data, error, message, status } = await authenticatedFetch<ApiResponse>("/product", {
-        method: "GET",
-      });
+      const [productResponse, tastingTrayResponse] = await Promise.all([
+        authenticatedFetch<ApiResponse>("/product", { method: "GET" }),
+        authenticatedFetch<ApiResponse>("/product/tasting-tray", { method: "GET" }),
+      ]);
 
-      if (error) {
-        setIsLoading(false);
-        throw new Error(formatErrorMessage(message));
+      const {
+        data: productData,
+        error: productError,
+        message: productMessage,
+        // status: productStatus,
+      } = productResponse;
+      const {
+        data: tastingTrayData,
+        error: tastingTrayError,
+        message: tastingTrayMessage,
+        // status: tastingTrayStatus,
+      } = tastingTrayResponse;
+
+      if (productError || tastingTrayError) {
+        throw new Error(formatErrorMessage(productError ? productMessage : tastingTrayMessage));
       }
+      console.log(tastingTrayResponse.data);
 
-      // if (data?.statusCode && data.statusCode !== 200) {
-      //   setIsLoading(false);
-      //   throw new Error(formatErrorMessage(data.message));
+      // if (productStatus === "success" && tastingTrayStatus === "success") {
+      setProductData(productData);
+      setProductTastingTrayData(tastingTrayData);
+      // } else {
+      //   throw new Error("خطا در ارسال اطلاعات");
       // }
-
-      if (status === "success") {
-        // showSuccess(message);
-        setIsLoading(false);
-      }
-      //  else {
-      //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      // }
-      console.log(data);
-      setProductData(data);
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div>
       <DashboardHeaderCreateCategory />
@@ -63,7 +73,7 @@ export default function ProductPage() {
           <p className="text-2xl font-bold">کالاها</p>
           <div className="w-1/3">
             <Link href={"/dashboard/products/new"}>
-              <button className="w-full text-sm py-3 rounded-xl border border-gray-300 outline-none hover:bg-gray-300 transition-all focus:outline-none ">
+              <button className="w-full text-sm py-3 rounded-xl border border-gray-300 outline-none hover:bg-gray-300 transition-all focus:outline-none">
                 افزودن کالا
               </button>
             </Link>
@@ -72,7 +82,36 @@ export default function ProductPage() {
         {isLoading ? (
           <Loader2 className="w-5 h-5 animate-spin text-center" />
         ) : (
-          <ResponsiveTableProduct data={productData} />
+          <Tab.Group className={"w-full"}>
+            <Tab.List className="w-full flex space-x-1 p-1">
+              <Tab
+                className={({ selected }) =>
+                  `w-full py-2.5 text-sm leading-5 font-bold rounded-lg focus:ring-0 active:ring-0 ${
+                    selected ? "bg-white shadow" : "text-gray-400 hover:bg-white"
+                  }`
+                }
+              >
+                محصولات
+              </Tab>
+              <Tab
+                className={({ selected }) =>
+                  `w-full py-2.5 text-sm leading-5 font-bold rounded-lg focus:ring-0 active:ring-0 ${
+                    selected ? "bg-white shadow" : "text-gray-400 hover:bg-white"
+                  }`
+                }
+              >
+                سینی چشیدن
+              </Tab>
+            </Tab.List>
+            <Tab.Panels className="w-full mt-2">
+              <Tab.Panel>
+                <ResponsiveTableProduct fetchProducts={fetchProducts} data={productData} />
+              </Tab.Panel>
+              <Tab.Panel>
+                <ResponsiveTableProduct fetchProducts={fetchProducts} data={productTastingTray} />
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
         )}
       </div>
     </div>

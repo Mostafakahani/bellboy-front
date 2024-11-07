@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Loader2 } from "lucide-react";
 
 interface SelectOption {
   value: string;
@@ -11,9 +11,16 @@ interface Props {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  isLoading?: boolean;
 }
 
-export const Dropdown: React.FC<Props> = ({ options, label, value, onChange }) => {
+export const Dropdown: React.FC<Props> = ({
+  options,
+  label,
+  value,
+  onChange,
+  isLoading = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -48,11 +55,19 @@ export const Dropdown: React.FC<Props> = ({ options, label, value, onChange }) =
           type="text"
           readOnly
           value={options.find((opt) => opt.value === value)?.label || ""}
-          className="w-full px-3 py-3 border border-gray-300 rounded-xl cursor-pointer"
-          onClick={() => setIsOpen(!isOpen)}
+          className={`w-full px-3 py-3 border border-gray-300 rounded-xl cursor-pointer ${
+            isLoading ? "bg-gray-50" : ""
+          }`}
+          onClick={() => !isLoading && setIsOpen(!isOpen)}
           placeholder="انتخاب دسته بندی"
+          disabled={isLoading}
         />
-        {isOpen && (
+        {isLoading ? (
+          <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+        ) : (
+          <ChevronDownIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        )}
+        {isOpen && !isLoading && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
             <input
               type="text"
@@ -71,10 +86,12 @@ export const Dropdown: React.FC<Props> = ({ options, label, value, onChange }) =
                   {option.label}
                 </li>
               ))}
+              {filteredOptions.length === 0 && (
+                <li className="px-4 py-3 text-gray-500 text-right">موردی یافت نشد</li>
+              )}
             </ul>
           </div>
         )}
-        <ChevronDownIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
       </div>
     </div>
   );

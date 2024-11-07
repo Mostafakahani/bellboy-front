@@ -101,6 +101,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     try {
       const { data } = await authenticatedFetch(`/product/cat/${category._id}`);
       setProducts(Array.isArray(data) ? data : []);
+      console.warn(data);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
@@ -365,7 +366,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             >
               <div className="flex flex-col items-center justify-between gap-y-3 py-1">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${category.id_store.location}`}
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${category?.id_store?.location}`}
                   width={24}
                   height={24}
                   className="w-10 h-10"
@@ -383,7 +384,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
               <div className="flex flex-col gap-3 w-[160px]" key={product._id}>
                 <Image
                   className="rounded-xl w-40 h-40 object-cover"
-                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${product.id_stores[0].location}`}
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${product.id_stores[0]?.location}`}
                   width={150}
                   height={150}
                   alt={product.title}
