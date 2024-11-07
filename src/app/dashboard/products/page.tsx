@@ -100,7 +100,7 @@ export default function ProductPage() {
                   }`
                 }
               >
-                سینی چشیدن
+                سینی مزه
               </Tab>
             </Tab.List>
             <Tab.Panels className="w-full mt-2">

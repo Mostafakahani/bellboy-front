@@ -8,6 +8,7 @@ import { ProductFormData } from "@/app/dashboard/products/new/page";
 import FileUploaderComponent, { FileData } from "../FileUploader/FileUploader";
 import { ChevronDownIcon, ChevronUpIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { showError } from "@/lib/toastService";
+import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 // types.ts
 interface Category {
   _id: string;
@@ -60,6 +61,7 @@ export default function DashboardHeaderCreateCategory() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const authenticatedFetch = useAuthenticatedFetch();
 
   // Form states
   const [parentCatName, setParentCatName] = useState("");
@@ -102,7 +104,13 @@ export default function DashboardHeaderCreateCategory() {
     }));
     setIsGalleryOpen(false);
   };
-
+  const formatErrorMessage = (message: string | string[] | any): string => {
+    if (Array.isArray(message)) {
+      console.log({ message });
+      return message.join(" ");
+    }
+    return message?.toString() || "خطای ناشناخته رخ داده است";
+  };
   const handleRemoveFile = (fileId: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -118,9 +126,8 @@ export default function DashboardHeaderCreateCategory() {
 
     try {
       setLoading(true);
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category`, {
+      const { error, message, status } = await authenticatedFetch<ApiResponse>("/category", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: parentCatName,
           path: parentCatPath,
@@ -128,41 +135,51 @@ export default function DashboardHeaderCreateCategory() {
           id_store: formData.selectedFiles ? formData.selectedFiles[0]._id : null,
         }),
       });
-      setParentCatName("");
-      setParentCatPath("");
-      setIsCreateParentCat(false);
-      setFormData(initialFormData);
-      fetchCategoriesData();
-    } catch (err) {
-      console.log(err);
 
-      setError("خطا در ایجاد دسته‌بندی");
+      if (error) {
+        setLoading(false);
+        throw new Error(formatErrorMessage(message));
+      }
+      if (status === "success") {
+        setParentCatName("");
+        setParentCatPath("");
+        setIsCreateParentCat(false);
+        setFormData(initialFormData);
+        fetchCategoriesData();
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
       setLoading(false);
     }
   };
-
   const handleCreateChildCategory = async () => {
     if (!selectedParentCat) return;
 
     try {
-      setLoading(true);
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${selectedParentCat}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: childCatName,
-          path: childCatPath,
-        }),
-      });
-      setChildCatName("");
-      setChildCatPath("");
-      setSelectedParentCat("");
-      fetchCategoryChildren(selectedParentCat);
-    } catch (err) {
-      console.log(err);
+      const { error, message, status } = await authenticatedFetch<ApiResponse>(
+        "/category/" + selectedParentCat,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: childCatName,
+            path: childCatPath,
+          }),
+        }
+      );
 
-      setError("خطا در ایجاد زیر دسته‌بندی");
+      if (error) {
+        setLoading(false);
+        throw new Error(formatErrorMessage(message));
+      }
+      if (status === "success") {
+        setChildCatName("");
+        setChildCatPath("");
+        setSelectedParentCat("");
+        fetchCategoryChildren(selectedParentCat);
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
       setLoading(false);
     }
