@@ -205,7 +205,7 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data, f
           <p className="text-[#898F96] font-light text-xs">شناسه کالا / عنوان / دسته‌بندی </p>
           <p className="text-[#898F96] font-light text-xs">قیمت (تومان)</p>
         </div>
-        <ul className="overflow-x-hidden relative">
+        <ul className="overflow-x-hidden relative flex flex-col-reverse">
           {Array.isArray(data) && data.length > 0 ? (
             data.map((item, index) => (
               <li key={index} className="bg-white relative" onClick={() => openModal(item)}>

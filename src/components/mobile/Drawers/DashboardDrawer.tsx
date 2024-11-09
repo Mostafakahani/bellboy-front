@@ -34,12 +34,18 @@ const DashboardDrawer: React.FC<DashboardDrawerProps> = ({ isOpen, onClose }) =>
       arabic: "کد های تخفیف",
       link: "/dashboard/discounts",
     },
-    // {
-    //   icon: "/images/icons/bellClean.svg",
-    //   name: "Bell Clean",
-    //   arabic: "بِل کلین",
-    //   link: "/bell-clean",
-    // },
+    {
+      icon: "/images/icons/bellClean.svg",
+      name: "Create Clean",
+      arabic: "ساختن کلین",
+      link: "/dashboard/clean/create",
+    },
+    {
+      icon: "/images/icons/bellClean.svg",
+      name: "Create Plan Clean",
+      arabic: "ساختن پلن کلین",
+      link: "/dashboard/clean/plan-clean",
+    },
     // {
     //   icon: "/images/icons/bellService.svg",
     //   name: "Bell Service",

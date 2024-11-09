@@ -6,9 +6,10 @@ import DashboardButton from "../ui/Button/DashboardButton";
 import { Dropdown } from "./Dropdown";
 import { ProductFormData } from "@/app/dashboard/products/new/page";
 import FileUploaderComponent, { FileData } from "../FileUploader/FileUploader";
-import { ChevronDownIcon, ChevronUpIcon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { showError } from "@/lib/toastService";
 import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+import { getCookie } from "cookies-next";
 // types.ts
 interface Category {
   _id: string;
@@ -44,10 +45,35 @@ interface Store {
   __v: number;
 }
 
+interface Store extends FileData {
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+interface Category {
+  _id: string;
+  name: string;
+  isParent: boolean;
+  path: string;
+  IsShow: boolean;
+  layer: number;
+  id_parent?: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 interface ParentCategory extends Category {
   id_store: Store;
 }
 
+interface EditCategoryFormData {
+  id_store: FileData[];
+}
+const initialEditFormData: EditCategoryFormData = {
+  id_store: [], // مقدار اولیه به صورت آرایه خالی
+};
 export default function DashboardHeaderCreateCategory() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [isCreateParentCat, setIsCreateParentCat] = useState(false);
@@ -58,10 +84,12 @@ export default function DashboardHeaderCreateCategory() {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [categoryChildren, setCategoryChildren] = useState<{ [key: string]: Category[] }>({});
   const [isDeletingCategory, setIsDeletingCategory] = useState<string | null>(null);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isGalleryOpenEdit, setIsGalleryOpenEdit] = useState(false);
   const authenticatedFetch = useAuthenticatedFetch();
+  const [editFormData, setEditFormData] = useState<EditCategoryFormData>(initialEditFormData);
 
   // Form states
   const [parentCatName, setParentCatName] = useState("");
@@ -83,6 +111,10 @@ export default function DashboardHeaderCreateCategory() {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category`);
       const data = await response.json();
+      if (data.error) {
+        setLoading(false);
+        throw new Error(formatErrorMessage(data.message));
+      }
       setParentCategories(data.filter((cat: Category) => cat.isParent));
       setLoading(false);
     } catch (err) {
@@ -91,7 +123,40 @@ export default function DashboardHeaderCreateCategory() {
       setLoading(false);
     }
   };
+  const handleFileSelectEdit = (files: FileData[]) => {
+    if (files.length > 0) {
+      setEditFormData({
+        id_store: [files[0]],
+      });
+    }
+    setIsGalleryOpenEdit(false);
+  };
+  // 3. تابع handleRemoveFileEdit رو اصلاح می‌کنیم
+  const handleRemoveFileEdit = () => {
+    setEditFormData({
+      id_store: [],
+    });
+  };
 
+  // Updated useEffect for handling editing
+  useEffect(() => {
+    if (editingCategory?.id_store) {
+      // Ensure the id_store has all required FileData properties
+      const fileData: FileData = {
+        _id: editingCategory.id_store._id,
+        name: editingCategory.id_store.name,
+        size: editingCategory.id_store.size,
+        type: editingCategory.id_store.type, // This was the missing property
+        location: editingCategory.id_store.location,
+      };
+
+      setEditFormData({
+        id_store: [fileData],
+      });
+    } else {
+      setEditFormData(initialEditFormData);
+    }
+  }, [editingCategory]);
   const handleFileSelect = (files: FileData[]) => {
     setFormData((prev) => ({
       ...prev,
@@ -190,6 +255,10 @@ export default function DashboardHeaderCreateCategory() {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${parentId}`);
       const data = await response.json();
+      if (data.error) {
+        setLoading(false);
+        throw new Error(formatErrorMessage(data.message));
+      }
       setCategoryChildren((prev) => ({ ...prev, [parentId]: data }));
     } catch (err) {
       console.log(err);
@@ -212,15 +281,21 @@ export default function DashboardHeaderCreateCategory() {
   const handleUpdateCategory = async (category: Category) => {
     try {
       setLoading(true);
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${category._id}`, {
+      const updateData = {
+        name: category.name,
+        path: category.path,
+        IsShow: true,
+        ...(category.isParent &&
+          editFormData.id_store.length > 0 && {
+            id_store: editFormData.id_store[0]._id,
+          }),
+      };
+
+      await authenticatedFetch(`/category/${category._id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: category.name,
-          path: category.path,
-          IsShow: category.IsShow,
-        }),
+        body: JSON.stringify(updateData),
       });
+
       setEditingCategory(null);
       fetchCategoriesData();
       if (!category.isParent) {
@@ -228,48 +303,59 @@ export default function DashboardHeaderCreateCategory() {
       }
     } catch (err) {
       console.log(err);
-
       setError("خطا در بروزرسانی دسته‌بندی");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleVisibility = async (category: Category) => {
-    try {
-      setLoading(true);
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${category._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          IsShow: !category.IsShow,
-        }),
-      });
-      fetchCategoriesData();
-      if (!category.isParent && category.id_parent) {
-        fetchCategoryChildren(category.id_parent);
-      }
-    } catch (err) {
-      console.log(err);
+  // const handleToggleVisibility = async (category: Category) => {
+  //   try {
+  //     setLoading(true);
+  //     await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${category._id}`, {
+  //       method: "PATCH",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         IsShow: !category.IsShow,
+  //       }),
+  //     });
+  //     fetchCategoriesData();
+  //     if (!category.isParent && category.id_parent) {
+  //       fetchCategoryChildren(category.id_parent);
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
 
-      setError("خطا در تغییر وضعیت نمایش");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setError("خطا در تغییر وضعیت نمایش");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleDeleteCategory = async (categoryId: string, parentId?: string) => {
     try {
+      const token = getCookie("auth_token");
+      if (!token) return;
       setIsDeletingCategory(categoryId);
 
       if (parentId) {
         await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${categoryId}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
         fetchCategoryChildren(parentId);
       } else {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${categoryId}`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${categoryId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
         const children = await response.json();
 
@@ -280,6 +366,10 @@ export default function DashboardHeaderCreateCategory() {
 
         await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/category/${categoryId}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
         fetchCategoriesData();
       }
@@ -293,27 +383,83 @@ export default function DashboardHeaderCreateCategory() {
   };
 
   const renderEditForm = () => (
-    <div className="flex w-full gap-x-2 items-center">
-      <DashboardInput
-        value={editingCategory?.name || ""}
-        onChange={(e) => setEditingCategory({ ...editingCategory!, name: e.target.value })}
-        className="w-40"
-      />
-      <DashboardInput
-        value={editingCategory?.path || ""}
-        onChange={(e) => setEditingCategory({ ...editingCategory!, path: e.target.value })}
-        className="w-40"
-      />
-      <DashboardButton
-        variant="primary"
-        onClick={() => handleUpdateCategory(editingCategory!)}
-        disabled={loading}
-      >
-        ذخیره
-      </DashboardButton>
-      <DashboardButton variant="tertiary" onClick={() => setEditingCategory(null)}>
-        انصراف
-      </DashboardButton>
+    <div className="w-full flex flex-col gap-x-2 items-center">
+      <div className="w-full flex flex-row gap-2">
+        <DashboardInput
+          value={editingCategory?.name || ""}
+          onChange={(e) => setEditingCategory({ ...editingCategory!, name: e.target.value })}
+          className="w-40"
+        />
+        <DashboardInput
+          value={editingCategory?.path || ""}
+          onChange={(e) => setEditingCategory({ ...editingCategory!, path: e.target.value })}
+          className="w-40"
+        />
+      </div>
+
+      {editingCategory?.isParent && (
+        <div className="w-full">
+          <div className="w-full space-y-4">
+            <div className="w-full flex justify-between items-center">
+              <p className="text-sm font-medium">تصویر دسته‌بندی</p>
+              <DashboardButton
+                onXsIsText
+                type="button"
+                variant="secondary"
+                onClick={() => setIsGalleryOpenEdit(true)}
+              >
+                انتخاب تصویر
+              </DashboardButton>
+            </div>
+
+            <FileUploaderComponent
+              isOpenModal={isGalleryOpenEdit}
+              setIsOpenModal={setIsGalleryOpenEdit}
+              onFileSelect={handleFileSelectEdit}
+              initialSelectedFiles={editFormData.id_store}
+            />
+
+            <div className="grid grid-cols-1 gap-4">
+              {editFormData.id_store.length > 0 && (
+                <div className="flex gap-4 items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                  <div className="bg-gray-200 rounded-lg w-12 h-12 overflow-hidden">
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${editFormData.id_store[0].location}`}
+                      alt={editFormData.id_store[0].name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-right line-clamp-1">{editFormData.id_store[0].name}</p>
+                    <span className="text-gray-400 text-xs">{editFormData.id_store[0].size}</span>
+                  </div>
+                  <DashboardButton
+                    variant="tertiary"
+                    className="border-[1.5px] border-red-500 rounded-2xl !px-3 !py-6"
+                    icon="trash"
+                    onClick={() => handleRemoveFileEdit()}
+                    disabled={loading}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full flex flex-row gap-2 justify-between">
+        <DashboardButton onXsIsText variant="tertiary" onClick={() => setEditingCategory(null)}>
+          انصراف
+        </DashboardButton>
+        <DashboardButton
+          onXsIsText
+          variant="primary"
+          onClick={() => handleUpdateCategory(editingCategory!)}
+          disabled={loading}
+        >
+          ذخیره
+        </DashboardButton>
+      </div>
     </div>
   );
 
@@ -339,7 +485,7 @@ export default function DashboardHeaderCreateCategory() {
             <span>{category.name}</span>
           </div>
           <div className="flex gap-x-2">
-            <button
+            {/* <button
               onClick={() => handleToggleVisibility(category)}
               className={category.IsShow ? "text-green-600" : "text-gray-400"}
             >
@@ -348,7 +494,7 @@ export default function DashboardHeaderCreateCategory() {
               ) : (
                 <EyeOffIcon className="h-5 w-5" />
               )}
-            </button>
+            </button> */}
             <button onClick={() => setEditingCategory(category)} className="text-blue-600">
               <EditIcon className="h-5 w-5" />
             </button>

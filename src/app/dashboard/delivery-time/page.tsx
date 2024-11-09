@@ -19,17 +19,19 @@ interface DeliveryItem extends FormData {
   _id: string;
 }
 
+const DEFAULT_FORM_STATE: FormData = {
+  date: "",
+  startHour: "00:00",
+  endHour: "01:00",
+  type: "",
+};
+
 const DeliveryTimeForm = () => {
   const authenticatedFetch = useAuthenticatedFetch();
 
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState("");
-  const [formData, setFormData] = useState<FormData>({
-    date: "",
-    startHour: "00:00",
-    endHour: "01:00",
-    type: "",
-  });
+  const [formData, setFormData] = useState<FormData>(DEFAULT_FORM_STATE);
 
   const [deliveryList, setDeliveryList] = useState<DeliveryItem[]>([]);
 
@@ -43,6 +45,11 @@ const DeliveryTimeForm = () => {
   const handleDateChange = (value: string | null) => {
     handleFormChange("date", value || "");
   };
+
+  const resetForm = () => {
+    setFormData(DEFAULT_FORM_STATE);
+  };
+
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
       console.log({ message });
@@ -50,6 +57,7 @@ const DeliveryTimeForm = () => {
     }
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -64,22 +72,14 @@ const DeliveryTimeForm = () => {
         throw new Error(formatErrorMessage(message));
       }
 
-      // if (data?.statusCode && data.statusCode !== 200) {
-      //   setLoading(false);
-      //   throw new Error(formatErrorMessage(data.message));
-      // }
-
       if (status === "success") {
         showSuccess(message);
         setLoading(false);
         fetchListDeliveryTime();
+        resetForm(); // Reset form after successful submission
       }
-      //  else {
-      //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      // }
-      console.log(data);
 
-      // handleFormChange({ addresses: data?.data });
+      console.log(data);
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
@@ -100,22 +100,13 @@ const DeliveryTimeForm = () => {
         throw new Error(formatErrorMessage(message));
       }
 
-      // if (data?.statusCode && data.statusCode !== 200) {
-      //   setLoading(false);
-      //   throw new Error(formatErrorMessage(data.message));
-      // }
-
       if (status === "success") {
         showSuccess(message);
         setLoading(false);
         fetchListDeliveryTime();
       }
-      //  else {
-      //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      // }
-      console.log(data);
 
-      // handleFormChange({ addresses: data?.data });
+      console.log(data);
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
@@ -123,17 +114,6 @@ const DeliveryTimeForm = () => {
     }
   };
 
-  //   const handleEdit = (id: string) => {
-  //     const itemToEdit = deliveryList.find((item) => item.id === id);
-  //     if (itemToEdit) {
-  //       setFormData({
-  //         date: itemToEdit.date,
-  //         startHour: itemToEdit.startHour,
-  //         endHour: itemToEdit.endHour,
-  //         type: itemToEdit.type,
-  //       });
-  //     }
-  //   };
   const fetchListDeliveryTime = async () => {
     if (!type) return;
     try {
@@ -148,24 +128,15 @@ const DeliveryTimeForm = () => {
         throw new Error(formatErrorMessage(message));
       }
 
-      // if (data?.statusCode && data.statusCode !== 200) {
-      //   setLoading(false);
-      //   throw new Error(formatErrorMessage(data.message));
-      // }
       setDeliveryList(Array.isArray(data) ? data : []);
       setLoading(false);
-
-      //  else {
-      //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      // }
-
-      // handleFormChange({ addresses: data?.data });
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
       setLoading(false);
     }
   };
+
   const options = [
     { _id: "shop", name: "shop" },
     { _id: "service", name: "service" },
@@ -174,9 +145,11 @@ const DeliveryTimeForm = () => {
     value: category._id,
     label: category.name,
   }));
+
   useEffect(() => {
     fetchListDeliveryTime();
   }, [type]);
+
   return (
     <>
       <DashboardHeader />
@@ -199,6 +172,8 @@ const DeliveryTimeForm = () => {
                 id="startHour"
                 value={formData.startHour}
                 onChange={(e) => handleFormChange("startHour", e.target.value)}
+                className="[&::-webkit-calendar-picker-indicator]:bg-none"
+                step="60"
               />
             </div>
             <div>
@@ -208,6 +183,8 @@ const DeliveryTimeForm = () => {
                 id="endHour"
                 value={formData.endHour}
                 onChange={(e) => handleFormChange("endHour", e.target.value)}
+                className="[&::-webkit-calendar-picker-indicator]:bg-none"
+                step="60"
               />
             </div>
           </div>
@@ -220,7 +197,6 @@ const DeliveryTimeForm = () => {
                 handleFormChange("type", e);
                 setType(e);
               }}
-              // isLoading={'isLoadingParents'}
             />
           </div>
           <div className="w-full flex flex-row justify-end">
@@ -242,7 +218,13 @@ const DeliveryTimeForm = () => {
             </tr>
           </thead>
           {loading ? (
-            <h4>در حال بارگزاری</h4>
+            <tbody>
+              <tr>
+                <td colSpan={5} className="text-center p-4">
+                  <h4>در حال بارگزاری</h4>
+                </td>
+              </tr>
+            </tbody>
           ) : (
             <tbody>
               {deliveryList.map((item) => (
@@ -253,12 +235,6 @@ const DeliveryTimeForm = () => {
                   <td className="p-2 border text-center text-sm text-nowrap">{item.type}</td>
                   <td className="p-2 border text-center text-sm text-nowrap">
                     <div className="flex space-x-2 justify-center">
-                      {/* <button
-                    onClick={() => handleEdit(item.id)}
-                    className="text-blue-500 hover:text-blue-600"
-                  >
-                    Edit
-                  </button> */}
                       <button
                         onClick={() => handleDelete(item._id)}
                         className="text-red-500 hover:text-red-600 text-center"

@@ -45,7 +45,7 @@ const ResponsiveTableOrders: React.FC<ResponsiveTableOrdersProps> = ({ data }) =
           <p className="text-[#898F96] font-light text-xs">شناسه / زمان تحویل / سفارش‌ دهنده </p>
           <p className="text-[#898F96] font-light text-xs">وضعیت </p>
         </div>
-        <ul className="overflow-x-hidden relative">
+        <ul className="overflow-x-hidden relative flex flex-col-reverse">
           {data.map((item, index) => (
             <li key={index} className="bg-white relative" onClick={() => openModal(item)}>
               <div className="absolute top-0 left-0 right-0 border-t border-gray-300"></div>

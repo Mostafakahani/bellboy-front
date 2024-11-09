@@ -2,8 +2,8 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { InputRadio } from "./ui/Input/Radio";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
+import moment from "jalali-moment";
 
-// API response type
 interface DeliveryTimeSlot {
   _id: string;
   date: string;
@@ -12,7 +12,6 @@ interface DeliveryTimeSlot {
   type: string;
 }
 
-// Component types
 export type TimeSlot = {
   _id: string;
   start: string;
@@ -37,44 +36,63 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   onSelect,
 }) => {
   const authenticatedFetch = useAuthenticatedFetch();
-
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [weekSchedule, setWeekSchedule] = useState<DaySchedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Function to convert API date to Persian day name
   const getPersianDayName = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    const days = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه", "شنبه"];
-    return days[date.getDay()];
+    const jalaliDate = moment(dateStr).locale("fa");
+    return jalaliDate.format("dddd");
   };
 
-  // Function to format date to Persian format
   const formatPersianDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    // You might want to use a proper Persian date formatter library here
-    return date.toLocaleDateString("fa-IR");
+    const jalaliDate = moment(dateStr).locale("fa");
+    return jalaliDate.format("D MMMM");
   };
 
-  // Transform API data to component format
+  const isTimeSlotValid = (date: string, startHour: string): boolean => {
+    const now = moment();
+    const slotDateTime = moment(date)
+      .hours(parseInt(startHour.split(":")[0]))
+      .minutes(parseInt(startHour.split(":")[1]));
+    return slotDateTime.isAfter(now);
+  };
+
+  const sortTimeSlots = (slots: TimeSlot[]): TimeSlot[] => {
+    return slots.sort((a, b) => {
+      const timeA = a.start.split(":").map(Number);
+      const timeB = b.start.split(":").map(Number);
+      return timeA[0] * 60 + (timeA[1] || 0) - (timeB[0] * 60 + (timeB[1] || 0));
+    });
+  };
+
   const transformApiData = (apiData: DeliveryTimeSlot[]): DaySchedule[] => {
+    // const now = moment();
+
     const groupedByDate = apiData.reduce((acc: { [key: string]: TimeSlot[] }, slot) => {
-      if (!acc[slot.date]) {
-        acc[slot.date] = [];
+      // Only process if the slot is in the future
+      if (isTimeSlotValid(slot.date, slot.startHour)) {
+        if (!acc[slot.date]) {
+          acc[slot.date] = [];
+        }
+        acc[slot.date].push({
+          _id: slot._id,
+          start: slot.startHour,
+          end: slot.endHour,
+        });
       }
-      acc[slot.date].push({
-        _id: slot._id,
-        start: slot.startHour.split(":")[0],
-        end: slot.endHour.split(":")[0],
-      });
       return acc;
     }, {});
 
-    return Object.entries(groupedByDate).map(([date, timeSlots]) => ({
-      date,
-      dayName: getPersianDayName(date),
-      timeSlots: timeSlots.sort((a, b) => Number(a.start) - Number(b.start)), // مرتب‌سازی بر اساس زمان شروع
-    }));
+    // Filter out dates with no valid time slots
+    return Object.entries(groupedByDate)
+      .filter(([_, timeSlots]) => timeSlots.length > 0) // eslint-disable-line @typescript-eslint/no-unused-vars
+      .map(([date, timeSlots]) => ({
+        date,
+        dayName: getPersianDayName(date),
+        timeSlots: sortTimeSlots(timeSlots),
+      }))
+      .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf());
   };
 
   const fetchDeliveryTimes = async () => {
@@ -83,18 +101,31 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
       const { data } = await authenticatedFetch("/delivery-time/shop");
       const transformedData = transformApiData(Array.isArray(data) ? data : []);
       setWeekSchedule(transformedData);
+
+      // Reset selection if the currently selected time is no longer valid
+      if (selectedTime && selectedDate) {
+        if (!isTimeSlotValid(selectedDate, selectedTime.start)) {
+          setSelectedTime(null);
+          setSelectedDate(null);
+        }
+      }
     } catch (error) {
       console.error("Error fetching delivery times:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     fetchDeliveryTimes();
+    // Refresh data every minute to keep the available times current
+    const intervalId = setInterval(fetchDeliveryTimes, 60000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
+    setSelectedTime(null);
   };
 
   const handleTimeSelect = (time: TimeSlot) => {
@@ -104,8 +135,26 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
     }
   };
 
+  const formatTimeSlot = (start: string, end: string) => {
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(":");
+      return minutes === "00" ? hours : `${hours}:${minutes}`;
+    };
+    return `ساعت ${formatTime(start)} تا ${formatTime(end)}`;
+  };
+
   if (isLoading) {
     return <div className="p-4">در حال بارگذاری...</div>;
+  }
+
+  if (weekSchedule.length === 0) {
+    return (
+      <div className="p-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-right">
+          در حال حاضر هیچ زمان آزادی برای رزرو وجود ندارد
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -142,7 +191,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
                       setDarkMode={() => handleTimeSelect(slot)}
                       className="ml-2"
                     />
-                    {`ساعت ${slot.start} تا ${slot.end}`}
+                    {formatTimeSlot(slot.start, slot.end)}
                   </button>
                 ))}
               </div>

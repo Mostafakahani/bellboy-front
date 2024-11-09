@@ -234,19 +234,19 @@ export default function FactorForm({ formData, onFormChange }: FactorFormProps) 
               ></div>
               <div className="flex justify-between items-center mb-2 first:pt-0 px-4 md:px-6 lg:px-8">
                 <div className="flex flex-col gap-2">
-                  <span className="text-md font-bold">{item.title}</span>
+                  <span className="text-md font-bold text-right">{item.title}</span>
                   <span className="text-xs bg-gray-200 rounded-full w-fit px-2 py-1">
                     {item.quantity}x
                   </span>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <span className="text-md">{formatCurrency(item.price)}</span>
+                  <span className="text-md text-left">{formatCurrency(item.price)}</span>
                   {item.globalDiscount > 0 && (
                     <div className="flex flex-row gap-x-2 items-center">
                       <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
                         %{item.globalDiscount}
                       </span>
-                      <span className="line-through text-gray-400 text-xs">
+                      <span className="line-through text-gray-400 text-xs text-nowrap">
                         {formatCurrency(item.price * (1 + item.globalDiscount / 100))}
                       </span>
                     </div>
@@ -295,7 +295,7 @@ export default function FactorForm({ formData, onFormChange }: FactorFormProps) 
             </div>
           ) : (
             <>
-              <p className="text-sm font-light">
+              <p className="text-sm font-light text-right">
                 اگر کد تخفیف بل‌بوی دارید
                 <br />
                 درکادر زیر وارد کنید

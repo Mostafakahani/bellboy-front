@@ -96,18 +96,22 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     }));
   };
 
+  // تغییر در handleCategoryChange
   const handleCategoryChange = async (category: CategoryType) => {
     setSelectedParentCategory(category);
+    setIsLoading(true);
     try {
       const { data } = await authenticatedFetch(`/product/cat/${category._id}`);
       setProducts(Array.isArray(data) ? data : []);
+      setIsLoading(false);
       console.warn(data);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
+    } finally {
+      setIsLoading(false);
     }
   };
-
   const handleCartOperations = {
     remove: async (cartId: string) => {
       await removeFromCart(cartId);
@@ -144,6 +148,8 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]); // Set empty array on error
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -352,36 +358,59 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       <div className="mt-20 overflow-y-auto">
         <BellTypoGraphy english="Bell Shop" farsi="بل شاپ" />
         <BannerSlider images={BANNER_IMAGES} activeDotColor="#000000" inactiveDotColor="#48FDBC" />
-
-        <div className="flex flex-row justify-center gap-5 mt-8">
-          {parentCategories.map((category) => (
-            <div
-              key={category._id}
-              className={`flex flex-col gap-5 items-center justify-between w-[80px] cursor-pointer px-3 p-2 pt-3 border-[3px] rounded-t-[50px] rounded-b-[20px] transition-all ${
-                category._id === selectedParentCategory?._id
-                  ? "bg-primary-400 border-black"
-                  : "border-transparent bg-white"
-              }`}
-              onClick={() => handleCategoryChange(category)}
-            >
-              <div className="flex flex-col items-center justify-between gap-y-3 py-1">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${category?.id_store?.location}`}
-                  width={24}
-                  height={24}
-                  className="w-10 h-10"
-                  alt={category.name}
-                />
-                <span className="text-sm font-bold text-center text-nowrap">{category.name}</span>
-              </div>
+        <div className="relative w-full mt-8">
+          <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4">
+            <div className="flex gap-5 px-4 min-w-max mx-auto">
+              {parentCategories.map((category) => (
+                <div
+                  key={category._id}
+                  className={`flex flex-col gap-5 items-center justify-between w-[80px] cursor-pointer px-3 p-2 pt-3 border-[3px] rounded-t-[50px] rounded-b-[20px] transition-all ${
+                    category._id === selectedParentCategory?._id
+                      ? "bg-primary-400 border-black"
+                      : "border-transparent bg-white"
+                  }`}
+                  onClick={() => handleCategoryChange(category)}
+                >
+                  <div className="flex flex-col items-center justify-between gap-y-3 py-1">
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${category?.id_store?.location}`}
+                      width={24}
+                      height={24}
+                      className="w-10 h-10"
+                      alt={category.name}
+                    />
+                    <span className="text-sm font-bold text-center text-nowrap">
+                      {category.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         <div className="mt-16 mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-y-4 justify-items-center">
-          {products.length > 0 ? (
+          {isLoading ? (
+            // Loading placeholders
+            Array.from({ length: 4 }).map((_, index) => (
+              <div
+                className="flex flex-col gap-3 w-[160px] min-h-[300px]"
+                key={`skeleton-${index}`}
+              >
+                <div className="rounded-xl w-40 h-40 bg-gray-200 animate-pulse" />
+                <div className="flex flex-col gap-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3 w-28 bg-gray-200 rounded animate-pulse" />
+                  <div className="text-left flex flex-col gap-1">
+                    <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : products.length > 0 ? (
             products.map((product) => (
-              <div className="flex flex-col gap-3 w-[160px]" key={product._id}>
+              <div className="flex flex-col gap-3 w-[160px] min-h-[300px]" key={product._id}>
                 <Image
                   className="rounded-xl w-40 h-40 object-cover"
                   src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${product.id_stores[0]?.location}`}
@@ -391,12 +420,35 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
                 />
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-bold">{product.title}</span>
-                  <span className="text-xs line-clamp-1">{product.description}</span>
+                  <span className="text-xs line-clamp-2">{product.description}</span>
+                  {product.stock == 2 ? (
+                    <span className="text-red-500 text-xs">2 موجودی باقیمانده</span>
+                  ) : product.stock == 1 ? (
+                    <span className="text-red-500 text-xs">1 موجودی باقیمانده</span>
+                  ) : null}
                   <div className="text-left flex flex-col gap-1">
                     <span className="text-xs">تومان</span>
-                    <span className="text-sm font-bold">
-                      {product.price.toLocaleString("fa-IR")}
-                    </span>
+                    {product.globalDiscount !== 0 ? (
+                      <>
+                        <span className="text-sm font-bold">
+                          {Math.round(
+                            Number(product.price) * (1 - Number(product.globalDiscount) / 100)
+                          ).toLocaleString()}
+                        </span>
+                        <div className="w-full flex flex-row justify-between items-center">
+                          <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
+                            %{product.globalDiscount}
+                          </span>
+                          <span className={`text-sm line-through`}>
+                            {product.price.toLocaleString("fa-IR")}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <span className={`text-sm font-bold`}>
+                        {product.price.toLocaleString("fa-IR")}
+                      </span>
+                    )}
                   </div>
                 </div>
 
