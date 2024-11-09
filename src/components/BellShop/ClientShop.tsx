@@ -102,7 +102,10 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     setIsLoading(true);
     try {
       const { data } = await authenticatedFetch(`/product/cat/${category._id}`);
-      setProducts(Array.isArray(data) ? data : []);
+      if (Array.isArray(data)) {
+        const reversedData = [...data].reverse();
+        setProducts(reversedData);
+      }
       setIsLoading(false);
       console.warn(data);
     } catch (error) {
