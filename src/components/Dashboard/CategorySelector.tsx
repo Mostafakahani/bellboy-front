@@ -106,7 +106,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
   return (
     <div className="space-y-4">
       <Dropdown
-        label="سرویس"
+        label="دسته بندی"
         options={parentOptions}
         value={localSelectedParentId}
         onChange={handleParentChange}
@@ -115,7 +115,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
       {localSelectedParentId && (
         <Dropdown
-          label="دسته بندی"
+          label="زیر دسته بندی"
           options={childOptions}
           value={localSelectedChildId}
           onChange={handleChildChange}

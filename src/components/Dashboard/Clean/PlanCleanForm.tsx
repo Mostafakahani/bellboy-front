@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, KeyboardEvent } from "react";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { DashboardInput } from "../DashboardInput";
 import DashboardButton from "@/components/ui/Button/DashboardButton";
 import { showError, showSuccess } from "@/lib/toastService";
 import { PlanClean } from "@/app/dashboard/clean/plan-clean/page";
 import EditPlanCleanModal from "./EditPlanCleanModal";
+
+interface ExtraField {
+  id: number;
+  title: string;
+  count: number;
+  data: string[];
+}
 
 interface PlanCleanFormProps {
   cleanList: PlanClean[] | any;
@@ -31,25 +38,59 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
   const [price, setPrice] = useState(0);
   const [open, setOpen] = useState(false);
   const [selectedSubPlan, setSelectedSubPlan] = useState<PlanClean>();
-  const [extraFields, setExtraFields] = useState<{ key: string; value: string }[]>([]);
+
+  // New state for extra fields
+  const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
+  const [currentWord, setCurrentWord] = useState("");
 
   const handleAddField = () => {
-    const newField = { key: `extraField${extraFields.length + 1}`, value: "" };
+    const newField: ExtraField = {
+      id: extraFields.length + 1,
+      title: "",
+      count: 0,
+      data: [],
+    };
     setExtraFields([...extraFields, newField]);
   };
 
-  const handleFieldChange = (index: number, value: string) => {
+  const handleFieldChange = (index: number, field: keyof ExtraField, value: string | number) => {
     const newFields = [...extraFields];
-    newFields[index].value = value;
+    newFields[index] = {
+      ...newFields[index],
+      [field]: field === "count" ? Number(value) : value,
+    };
     setExtraFields(newFields);
   };
+
+  const handleAddWord = (index: number, word: string) => {
+    if (!word.trim()) return;
+
+    const newFields = [...extraFields];
+    newFields[index].data.push(word.trim());
+    setExtraFields(newFields);
+    setCurrentWord("");
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddWord(index, currentWord);
+    }
+  };
+
+  const handleRemoveWord = (fieldIndex: number, wordIndex: number) => {
+    const newFields = [...extraFields];
+    newFields[fieldIndex].data.splice(wordIndex, 1);
+    setExtraFields(newFields);
+  };
+
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
-      console.log({ message });
       return message.join(" ");
     }
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
+
   const handleRemoveField = async (planId: string, cleanId: string) => {
     try {
       const { status, error, message } = await authenticatedFetch("/plan-clean/" + planId, {
@@ -66,6 +107,7 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     }
   };
+
   const handleSubmit = () => {
     if (!selectedClean) {
       showError("لطفا یک کلین را انتخاب کنید");
@@ -76,8 +118,10 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
       data: {
         title,
         data: extraFields.map((field) => ({
-          key: field.key,
-          value: field.value,
+          id: field.id,
+          title: field.title,
+          count: field.count,
+          data: field.data,
         })),
       },
       id_clean: selectedClean._id,
@@ -93,10 +137,12 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
 
     onSubmit(data);
   };
+
   const handleEditSuccess = () => {
     fetchCleanList();
     setOpen(false);
   };
+
   return (
     <div className="flex flex-col gap-3">
       <div className="p-4">
@@ -178,16 +224,60 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
               onClick={handleAddField}
             />
           </div>
+
           {extraFields.map((field, index) => (
-            <div key={index} className="w-full flex space-x-2 mb-2">
-              <DashboardInput
-                label={String(index + 1)}
-                type="text"
-                placeholder="مقدار"
-                value={field.value}
-                className="w-full"
-                onChange={(e) => handleFieldChange(index, e.target.value)}
-              />
+            <div key={field.id} className="border p-4 rounded-lg mb-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <DashboardInput
+                  label="عنوان"
+                  type="text"
+                  value={field.title}
+                  onChange={(e) => handleFieldChange(index, "title", e.target.value)}
+                />
+                <DashboardInput
+                  label="تعداد"
+                  type="number"
+                  value={field.count}
+                  onChange={(e) => handleFieldChange(index, "count", e.target.value)}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm mb-2">کلمات و توضیحات</label>
+                <div className="flex gap-2 mb-2">
+                  <DashboardInput
+                    type="text"
+                    value={currentWord}
+                    onChange={(e) => setCurrentWord(e.target.value)}
+                    onKeyPress={(e) => handleKeyPress(e as any, index)}
+                    placeholder="کلمه یا توضیح را وارد کنید و اینتر بزنید"
+                  />
+                  <DashboardButton
+                    variant="secondary"
+                    onXsIsText
+                    onClick={() => handleAddWord(index, currentWord)}
+                  >
+                    افزودن
+                  </DashboardButton>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {field.data.map((word, wordIndex) => (
+                    <div
+                      key={wordIndex}
+                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2"
+                    >
+                      <span>{word}</span>
+                      <button
+                        onClick={() => handleRemoveWord(index, wordIndex)}
+                        className="text-blue-800 hover:text-blue-900"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>

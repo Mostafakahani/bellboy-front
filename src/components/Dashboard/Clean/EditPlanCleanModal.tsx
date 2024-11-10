@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, KeyboardEvent } from "react";
 import { Modal } from "@/components/BellMazeh/Modal";
 import { DashboardInput } from "../DashboardInput";
 import DashboardButton from "@/components/ui/Button/DashboardButton";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { showError, showSuccess } from "@/lib/toastService";
 import { PlanClean } from "@/app/dashboard/clean/plan-clean/page";
+
+interface ExtraField {
+  id: number;
+  title: string;
+  count: number;
+  data: string[];
+}
 
 interface EditPlanCleanModalProps {
   isOpen: boolean;
@@ -23,7 +30,8 @@ const EditPlanCleanModal: React.FC<EditPlanCleanModalProps> = ({
   const [title, setTitle] = useState("");
   const [globalDiscount, setGlobalDiscount] = useState<number>(0);
   const [price, setPrice] = useState(0);
-  const [extraFields, setExtraFields] = useState<{ key: string; value: string }[]>([]);
+  const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
+  const [currentWord, setCurrentWord] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -31,32 +39,74 @@ const EditPlanCleanModal: React.FC<EditPlanCleanModalProps> = ({
       setTitle(selectedPlan.data.title);
       setGlobalDiscount(selectedPlan.globalDiscount);
       setPrice(selectedPlan.price);
-      // Convert the data object to array of key-value pairs
-      const fields = selectedPlan.data.data
-        ? Object.entries(selectedPlan.data.data).map(([key, value]) => ({
-            key,
-            value: String(value),
-          }))
-        : [];
-      setExtraFields(fields);
+
+      // Convert the existing data to new format
+      const fields = Array.isArray(selectedPlan.data.data) ? selectedPlan.data.data : [];
+
+      setExtraFields(
+        fields.map((field: any, index: number) => ({
+          id: field.id || index + 1,
+          title: field.title || "",
+          count: field.count || 0,
+          data: Array.isArray(field.data) ? field.data : [],
+        }))
+      );
     }
   }, [selectedPlan]);
 
   const handleAddField = () => {
-    const newField = { key: `extraField${extraFields.length + 1}`, value: "" };
+    const newField: ExtraField = {
+      id: extraFields.length + 1,
+      title: "",
+      count: 0,
+      data: [],
+    };
     setExtraFields([...extraFields, newField]);
   };
 
-  const handleFieldChange = (index: number, field: "key" | "value", value: string) => {
+  const handleFieldChange = (index: number, fieldName: keyof ExtraField, value: any) => {
     const newFields = [...extraFields];
-    newFields[index][field] = value;
+    if (fieldName === "count") {
+      newFields[index] = {
+        ...newFields[index],
+        [fieldName]: Number(value),
+      };
+    } else {
+      newFields[index] = {
+        ...newFields[index],
+        [fieldName]: value,
+      };
+    }
+    setExtraFields(newFields);
+  };
+
+  const handleAddWord = (index: number, word: string) => {
+    if (!word.trim()) return;
+
+    const newFields = [...extraFields];
+    newFields[index] = {
+      ...newFields[index],
+      data: [...newFields[index].data, word.trim()],
+    };
+    setExtraFields(newFields);
+    setCurrentWord("");
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddWord(index, currentWord);
+    }
+  };
+
+  const handleRemoveWord = (fieldIndex: number, wordIndex: number) => {
+    const newFields = [...extraFields];
+    newFields[fieldIndex].data = newFields[fieldIndex].data.filter((_, idx) => idx !== wordIndex);
     setExtraFields(newFields);
   };
 
   const handleRemoveField = (index: number) => {
-    const newFields = [...extraFields];
-    newFields.splice(index, 1);
-    setExtraFields(newFields);
+    setExtraFields(extraFields.filter((_, idx) => idx !== index));
   };
 
   const handleSubmit = async () => {
@@ -65,16 +115,15 @@ const EditPlanCleanModal: React.FC<EditPlanCleanModalProps> = ({
     try {
       setLoading(true);
 
-      // Convert extraFields array to object format
-      const dataObject = extraFields.reduce((acc, field) => {
-        acc[field.key] = field.value;
-        return acc;
-      }, {} as Record<string, string>);
-
       const updateData = {
         data: {
           title,
-          data: dataObject,
+          data: extraFields.map((field) => ({
+            id: field.id,
+            title: field.title,
+            count: field.count,
+            data: field.data,
+          })),
         },
         id_clean: selectedPlan.id_clean._id,
         globalDiscount,
@@ -145,29 +194,68 @@ const EditPlanCleanModal: React.FC<EditPlanCleanModalProps> = ({
             </div>
 
             {extraFields.map((field, index) => (
-              <div key={index} className="flex gap-2">
-                <DashboardInput
-                  label="کلید"
-                  type="text"
-                  value={field.key}
-                  onChange={(e) => handleFieldChange(index, "key", e.target.value)}
-                  className="flex-1"
-                />
-                <DashboardInput
-                  label="مقدار"
-                  type="text"
-                  value={field.value}
-                  onChange={(e) => handleFieldChange(index, "value", e.target.value)}
-                  className="flex-1"
-                />
-                <DashboardButton
-                  variant="secondary"
-                  isError
-                  icon="trash"
-                  onXsIsText
-                  className="mt-6"
-                  onClick={() => handleRemoveField(index)}
-                />
+              <div key={field.id} className="border p-4 rounded-lg mb-4">
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <DashboardInput
+                    label="عنوان"
+                    type="text"
+                    value={field.title}
+                    onChange={(e) => handleFieldChange(index, "title", e.target.value)}
+                  />
+                  <DashboardInput
+                    label="تعداد"
+                    type="number"
+                    value={field.count}
+                    onChange={(e) => handleFieldChange(index, "count", e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm mb-2">کلمات و توضیحات</label>
+                  <div className="flex gap-2 mb-2">
+                    <DashboardInput
+                      type="text"
+                      value={currentWord}
+                      onChange={(e) => setCurrentWord(e.target.value)}
+                      onKeyPress={(e) => handleKeyPress(e as any, index)}
+                      placeholder="کلمه یا توضیح را وارد کنید و اینتر بزنید"
+                    />
+                    <DashboardButton
+                      variant="secondary"
+                      onXsIsText
+                      onClick={() => handleAddWord(index, currentWord)}
+                    >
+                      افزودن
+                    </DashboardButton>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {field.data.map((word, wordIndex) => (
+                      <div
+                        key={wordIndex}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2"
+                      >
+                        <span>{word}</span>
+                        <button
+                          onClick={() => handleRemoveWord(index, wordIndex)}
+                          className="text-blue-800 hover:text-blue-900"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <DashboardButton
+                    variant="secondary"
+                    isError
+                    icon="trash"
+                    onXsIsText
+                    onClick={() => handleRemoveField(index)}
+                  />
+                </div>
               </div>
             ))}
           </div>

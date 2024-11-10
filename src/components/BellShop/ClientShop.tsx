@@ -21,6 +21,7 @@ import { Address } from "../Profile/Address/types";
 import { showError } from "@/lib/toastService";
 import CartForm from "../Profile/Cart/CartForm";
 import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 // Types
 interface ClientShopProps {
@@ -51,6 +52,7 @@ const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void
 };
 
 export default function ClientShop({ initialCategories, initialProducts }: ClientShopProps) {
+  const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
   // State
@@ -367,7 +369,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
               {parentCategories.map((category) => (
                 <div
                   key={category._id}
-                  className={`flex flex-col gap-5 items-center justify-between w-[80px] cursor-pointer px-3 p-2 pt-3 border-[3px] rounded-t-[50px] rounded-b-[20px] transition-all ${
+                  className={`flex flex-col gap-5 min-h-[110px] items-center justify-between w-[80px] cursor-pointer pt-3 border-[3px] rounded-t-[50px] rounded-b-[20px] transition-all ${
                     category._id === selectedParentCategory?._id
                       ? "bg-primary-400 border-black"
                       : "border-transparent bg-white"
@@ -382,9 +384,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
                       className="w-10 h-10"
                       alt={category.name}
                     />
-                    <span className="text-sm font-bold text-center text-nowrap">
-                      {category.name}
-                    </span>
+                    <span className="text-xs font-bold text-center">{category.name}</span>
                   </div>
                 </div>
               ))}
@@ -420,8 +420,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
                   width={150}
                   height={150}
                   alt={product.title}
+                  onClick={() => router.push("/bell-shop/" + product._id)}
                 />
-                <div className="flex flex-col gap-2">
+                <div
+                  className="flex flex-col gap-2"
+                  onClick={() => router.push("/bell-shop/" + product._id)}
+                >
                   <span className="text-sm font-bold">{product.title}</span>
                   <span className="text-xs line-clamp-2">{product.description}</span>
                   {product.stock == 2 ? (
@@ -455,7 +459,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
                   </div>
                 </div>
 
-                <div className="absolute">
+                <div className="absolute" onClick={() => null}>
                   <div className="relative left-0 top-24 flex items-center gap-2">
                     {renderProductControls(product)}
                   </div>

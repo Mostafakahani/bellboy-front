@@ -1,47 +1,70 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  // Check if the user is authenticated
-  // This is a placeholder. Replace with your actual authentication check
-  const isAuthenticated = checkAuthStatus(request);
-
-  // Get the pathname of the request (e.g. /, /profile, /profile/auth)
+  // دریافت مسیر درخواست
   const pathname = request.nextUrl.pathname;
 
-  // If the user is not authenticated and trying to access protected routes
-  if (
-    !isAuthenticated &&
-    pathname.startsWith("/profile") &&
-    !pathname.startsWith("/profile/auth")
-  ) {
-    return NextResponse.redirect(new URL("/profile/auth", request.url));
+  // بررسی وضعیت احراز هویت
+  const isAuthenticated = checkAuthStatus(request);
+
+  // بررسی اینکه آیا مسیر مربوط به داشبورد است
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+  // بررسی اینکه آیا مسیر مربوط به پروفایل است
+  const isProfileRoute = pathname.startsWith("/profile");
+  // بررسی اینکه آیا مسیر مربوط به صفحه ورود است
+  const isAuthRoute = pathname === "/profile/auth";
+
+  // اگر کاربر لاگین نکرده و سعی در دسترسی به صفحات محافظت شده دارد
+  if (!isAuthenticated && (isDashboardRoute || (isProfileRoute && !isAuthRoute))) {
+    // ذخیره مسیر فعلی برای ریدایرکت بعد از لاگین
+    const callbackUrl = encodeURIComponent(pathname);
+    return NextResponse.redirect(new URL(`/profile/auth?callbackUrl=${callbackUrl}`, request.url));
   }
 
-  // If the user is authenticated and trying to access /profile/auth
-  if (isAuthenticated && pathname === "/profile/auth") {
-    return NextResponse.redirect(new URL("/profile", request.url));
+  // اگر کاربر لاگین کرده و سعی در دسترسی به صفحه ورود دارد
+  if (isAuthenticated && isAuthRoute) {
+    // اگر callbackUrl وجود داشت به آن مسیر برگردد، در غیر این صورت به داشبورد
+    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+    return NextResponse.redirect(new URL(callbackUrl || "/dashboard", request.url));
   }
 
-  // Allow the request to continue
   return NextResponse.next();
 }
 
-// Add your protected routes here
+// تعریف مسیرهای محافظت شده
 export const config = {
   matcher: [
+    // مسیرهای پروفایل
     "/profile",
     "/profile/auth",
     "/profile/edit/:path*",
     "/profile/address/:path*",
     "/profile/orders/:path*",
+
+    // مسیرهای داشبورد
+    "/dashboard",
+    "/dashboard/products",
+    "/dashboard/products/:path*",
+    "/dashboard/orders",
+    "/dashboard/orders/:path*",
+    "/dashboard/categories",
+    "/dashboard/categories/:path*",
+    "/dashboard/users",
+    "/dashboard/users/:path*",
+    "/dashboard/settings",
+    "/dashboard/settings/:path*",
+    "/dashboard/clean",
+    "/dashboard/clean/:path*",
+    "/dashboard/delivery-time",
+    "/dashboard/delivery-time/:path*",
   ],
 };
 
-// This is a placeholder function. Replace with your actual auth check logic
 function checkAuthStatus(request: NextRequest): boolean {
-  // Example: Check for a session token in cookies
-  const sessionToken = request.cookies.get("auth_token") || false; /////////////////////////////// true for protection dev mode.
-  return !!sessionToken;
+  const token = request.cookies.get("auth_token");
+
+  // می‌توانید اینجا منطق پیچیده‌تری برای بررسی توکن اضافه کنید
+  // مثلاً بررسی اعتبار توکن، نقش کاربر و غیره
+  return !!token;
 }

@@ -23,6 +23,7 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
 
   const [title, setTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [price, setPrice] = useState<number>(0);
   const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
   const [formData, setFormData] = useState<any>({ selectedFile: [] });
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -101,7 +102,7 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
   return (
     <div className="flex flex-col gap-3">
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-4"> پکیج بل کلین</h2>
+        <h2 className="text-xl font-bold mb-4"> سرویس بل کلین</h2>
         <div className="mb-2">
           <DashboardInput
             type="text"
@@ -116,6 +117,20 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
             label="توضیحات کوتاه"
             value={shortDescription}
             onChange={(e) => setShortDescription(e.target.value)}
+          />
+        </div>
+        <div className="mb-2">
+          <DashboardInput
+            label="قیمت (تومان)"
+            value={price ? Number(price) : 0}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                setPrice((e.target.value || 0) as number);
+              }
+            }}
+            type="text"
+            // disabled={isSubmitting}
           />
         </div>
         <div className="mb-2">
@@ -206,7 +221,7 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
         </div>
       </div>
       <div className="p-4">
-        <p className="font-bold mb-7 text-lg">لیست پکیج بل کلین</p>
+        <p className="font-bold mb-7 text-lg">لیست سرویس بل کلین</p>
         {cleanData?.map((clean, index) => (
           <div key={index} className="mb-4">
             {loading ? (
