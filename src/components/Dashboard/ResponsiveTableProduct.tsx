@@ -218,11 +218,29 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data, f
                       {item?._id?.slice(5, 10)}
                     </p>
                     <h3 className="text-sm text-gray-700">{item.title}</h3>
-                    <p className="text-gray-500 text-xs mt-1">
-                      {/* {item.service}/{item.category} */}
+                    <p className="text-gray-500 text-xs mt-1 flex flex-row items-center">
+                      {Array.isArray(item.id_categories) &&
+                        item.id_categories.map((category, index) => {
+                          if (typeof category === "object" && category.isParent) {
+                            return (
+                              <div
+                                className="flex flex-row gap-x-3 text-xs items-center"
+                                key={String(category._id)}
+                              >
+                                بل شاپ / {String(category.name)} /
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div key={index} className="text-xs font-medium mr-1">
+                                {String(category.name)}
+                              </div>
+                            );
+                          }
+                        })}
                     </p>
                   </div>
-                  <p className="text-gray-700 text-sm">{item.price.toLocaleString()}</p>
+                  <p className="text-gray-700 text-sm">{item.price?.toLocaleString()}</p>
                 </div>
               </li>
             ))
@@ -277,22 +295,42 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data, f
                   />
                   <DashboardInput
                     label="موجودی"
-                    value={formData.stock}
-                    onChange={(e) => handleInputChange("stock", e.target.value)}
-                    type="number"
                     disabled={isSubmitting}
+                    value={formData.stock || ""}
+                    placeholder="مثال: ۵۰"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const isValid = /^\d*$/.test(value); // Check for only numeric characters
+
+                      if (!isValid) {
+                        showError("لطفاً فقط از اعداد استفاده کنید.");
+                      } else {
+                        handleInputChange("stock", value);
+                      }
+                    }}
+                    type="text"
                   />
                   <div className="flex flex-row gap-x-4 justify-between items-center">
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                       <DashboardInput
-                        label="قیمت (تومان)"
-                        value={formData?.price}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            price: (e.target.value || 0) as number,
-                          }))
+                        value={
+                          formData?.price
+                            ? formData.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            : ""
                         }
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/,/g, ""); // حذف کاماها
+                          const isValid = /^\d*$/.test(value); // بررسی فقط اعداد
+
+                          if (isValid) {
+                            setFormData((prev) => ({
+                              ...prev,
+                              price: value ? Number(value) : 0,
+                            }));
+                          } else {
+                            showError("لطفاً فقط از اعداد استفاده کنید.");
+                          }
+                        }}
                         type="text"
                         disabled={isSubmitting}
                       />

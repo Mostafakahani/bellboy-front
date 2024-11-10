@@ -16,8 +16,8 @@ export interface ProductFormData {
   _id?: string;
   title: string;
   description: string;
-  price: number;
-  stock: number;
+  price: number | null;
+  stock: number | null;
   id_categories: Category[] | any[];
   TastingTray: boolean;
   globalDiscount: string;
@@ -30,8 +30,8 @@ export interface ProductFormData {
 const initialFormData: ProductFormData = {
   title: "",
   description: "",
-  price: 0,
-  stock: 0,
+  price: null,
+  stock: null,
   id_categories: [],
   TastingTray: false,
   globalDiscount: "",
@@ -203,9 +203,19 @@ const CreateProductForm = () => {
 
             <DashboardInput
               label="موجودی"
-              value={formData.stock}
-              onChange={(e) => handleInputChange("stock", e.target.value)}
-              type="number"
+              value={formData.stock || ""}
+              placeholder="مثال: ۵۰"
+              onChange={(e) => {
+                const value = e.target.value;
+                const isValid = /^\d*$/.test(value); // Check for only numeric characters
+
+                if (!isValid) {
+                  showError("لطفاً فقط از اعداد استفاده کنید.");
+                } else {
+                  handleInputChange("stock", value);
+                }
+              }}
+              type="text"
               disabled={isSubmitting}
             />
           </div>
@@ -221,20 +231,32 @@ const CreateProductForm = () => {
           <div className="grid grid-cols-1 gap-4 items-end">
             <DashboardInput
               label="قیمت (تومان)"
-              value={formData?.price ? Number(formData.price) : 0}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  price: (e.target.value || 0) as number,
-                }))
+              placeholder="250,000"
+              value={
+                formData?.price
+                  ? formData.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  : ""
               }
+              onChange={(e) => {
+                const value = e.target.value.replace(/,/g, ""); // حذف کاماها
+                const isValid = /^\d*$/.test(value); // بررسی فقط اعداد
+
+                if (isValid) {
+                  setFormData((prev) => ({
+                    ...prev,
+                    price: value ? Number(value) : 0,
+                  }));
+                } else {
+                  showError("لطفاً فقط از اعداد استفاده کنید.");
+                }
+              }}
               type="text"
               disabled={isSubmitting}
             />
-
             <DashboardInput
               label="تخفیف (%)"
               value={formData.globalDiscount}
+              placeholder="50"
               onChange={(e) => {
                 let value = e.target.value.replace(/\D/g, "");
                 if (Number(value) > 100) value = "100";

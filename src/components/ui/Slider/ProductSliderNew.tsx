@@ -96,23 +96,25 @@ const ProductSlider = ({ images }: any) => {
         )} */}
 
         {/* Dots indicator */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-          {images.map(
-            (
-              _: any, // eslint-disable-line @typescript-eslint/no-unused-vars
-              index: any
-            ) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  currentSlide === index ? "bg-white" : "bg-white/50"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            )
-          )}
-        </div>
+        {images.length > 1 && ( // Only render if there is more than one image
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+            {images.map(
+              (
+                _: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+                index: any
+              ) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    currentSlide === index ? "bg-black" : "bg-primary-400"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              )
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

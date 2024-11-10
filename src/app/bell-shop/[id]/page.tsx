@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 export default async function ProductPage({ params }: { params: { id: string } }) {
   const data = await getProduct(params.id);
   const product = Array.isArray(data) ? data[0] : data;
-
+  console.log(product);
   if (!product) {
     notFound();
   }

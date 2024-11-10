@@ -7,13 +7,15 @@ import { Loader2, PlusIcon } from "lucide-react";
 import { CartItem, ProductType } from "@/hooks/cartType";
 import { ensureCartArray, useCartOperations } from "@/hooks/useCartOperations";
 import ProductSliderNew from "@/components/ui/Slider/ProductSliderNew";
-import { TrashIcon } from "@/icons/Icons";
+import { BackArrowIcon, LeftArrowIcon, TrashIcon } from "@/icons/Icons";
+import { useRouter } from "next/navigation";
 
 interface ProductDetailsProps {
   product: ProductType;
 }
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
+  const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -138,8 +140,34 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   };
 
   return (
-    <div className="p-4 mt-16 flex flex-col justify-between items-center min-h-screen">
-      <div className="flex flex-col gap-5">
+    <div className="p-4 mt-16 flex flex-col justify-between items-center min-h-[85vh]">
+      <div className="w-full mt-5 flex flex-row justify-between items-center">
+        <div className="w-full flex flex-row gap-x-3 text-sm items-center justify-start">
+          {Array.isArray(product.id_categories) &&
+            product.id_categories.map((category, index) => {
+              if (typeof category === "object" && category.isParent) {
+                return (
+                  <div
+                    className="flex flex-row gap-x-3 text-sm items-center"
+                    key={String(category._id)}
+                  >
+                    <span onClick={() => router.push("/bell-shop")}>بِل‌شاپ</span>
+                    <LeftArrowIcon />
+                    {category.name} <LeftArrowIcon />
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={index} className="font-medium">
+                    {String(category.name)}
+                  </div>
+                );
+              }
+            })}
+        </div>
+        <BackHandler fallbackUrl="/bell-shop" />
+      </div>
+      <div className="w-full flex flex-col items-center gap-5">
         <div className="w-[21rem] h-[21rem] bg-gray-200 rounded-xl">
           <ProductSliderNew
             images={product.id_stores.map((x) => ({
@@ -148,7 +176,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             }))}
           />
         </div>
-        <div className="bg-white flex flex-col gap-2">
+        <div className="w-full bg-white flex flex-col gap-2">
           <h1 className="text-lg text-right w-full font-bold">{product.title}</h1>
           <p className="text-gray-800 text-[13px] leading-5 font-light">{product.description}</p>
         </div>
@@ -158,7 +186,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           <span className="text-red-500 text-xs">1 موجودی باقیمانده</span>
         ) : null}
       </div>
-      <div className="w-full flex flex-row justify-between items-center">
+      <div className="w-full flex flex-row justify-between items-center mt-10">
         <div>{renderProductControls()}</div>
         <div className="text-left flex flex-col gap-1">
           {product.globalDiscount !== 0 ? (
@@ -188,3 +216,31 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     </div>
   );
 }
+
+interface BackHandlerProps {
+  fallbackUrl?: string;
+  className?: string;
+}
+
+const BackHandler = ({ fallbackUrl = "/", className = "" }: BackHandlerProps) => {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (typeof window !== "undefined") {
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.push(fallbackUrl);
+      }
+    }
+  };
+
+  return (
+    <div
+      onClick={handleBack}
+      className={`transform rotate-180 cursor-pointer hover:opacity-75 transition-opacity ${className}`}
+    >
+      <BackArrowIcon />
+    </div>
+  );
+};

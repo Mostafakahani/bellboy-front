@@ -22,7 +22,7 @@ export interface ProductType {
   price: number;
   stock: number;
   id_stores: StoreImage[];
-  id_categories: string[];
+  id_categories: CategoryType[];
   globalDiscount: number;
   disable: boolean;
 }

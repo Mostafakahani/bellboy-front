@@ -51,19 +51,6 @@ interface Store extends FileData {
   __v: number;
 }
 
-interface Category {
-  _id: string;
-  name: string;
-  isParent: boolean;
-  path: string;
-  IsShow: boolean;
-  layer: number;
-  id_parent?: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
 interface ParentCategory extends Category {
   id_store: Store;
 }
