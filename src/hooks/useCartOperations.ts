@@ -3,6 +3,7 @@ import { showError, showSuccess } from "@/lib/toastService";
 import { ApiResponse, useAuthenticatedFetch } from "./useAuthenticatedFetch";
 import { CartItem } from "./cartType";
 import { getCookie } from "cookies-next";
+import { saveState } from "@/utils/localStorage";
 
 interface CartOperationsHook {
   loading?: boolean;
@@ -55,6 +56,7 @@ export const useCartOperations = (
 
       const data = await response.json();
       setCart(ensureCartArray(data));
+      saveState("cart", ensureCartArray(data));
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]); // Set empty array on error

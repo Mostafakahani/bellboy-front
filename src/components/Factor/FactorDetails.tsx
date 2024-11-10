@@ -58,9 +58,10 @@ interface OrderData {
 interface FactorFormProps {
   formData: FormData;
   onFormChange: (newData: Partial<FormData>) => void;
+  type?: string;
 }
 
-export default function FactorForm({ formData, onFormChange }: FactorFormProps) {
+export default function FactorForm({ formData, onFormChange, type }: FactorFormProps) {
   const authenticatedFetch = useAuthenticatedFetch();
 
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
@@ -88,7 +89,7 @@ export default function FactorForm({ formData, onFormChange }: FactorFormProps) 
           body: JSON.stringify({
             delivery: formData.selectedDateTime.timeSlotId,
             address: formData.selectedAddress._id,
-            type: "shop",
+            type: type || "shop",
           }),
         });
 

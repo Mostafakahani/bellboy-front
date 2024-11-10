@@ -22,6 +22,7 @@ import { showError } from "@/lib/toastService";
 import CartForm from "../Profile/Cart/CartForm";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
+import { saveState } from "@/utils/localStorage";
 
 // Types
 interface ClientShopProps {
@@ -29,7 +30,7 @@ interface ClientShopProps {
   initialProducts: ProductType[];
 }
 
-interface FormData {
+export interface FormData {
   addresses: Address[];
   selectedAddress: Address | null;
   selectedServices: string[];
@@ -150,6 +151,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       const data = await response.json();
       console.log(data);
       setCart(ensureCartArray(data));
+      saveState("cart", ensureCartArray(data));
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]); // Set empty array on error
@@ -209,22 +211,78 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   ];
 
   // Effects
+  // برای اجرای درخواست اولیه هنگام تغییر modal
   useEffect(() => {
-    const initializeData = async () => {
-      // setIsInitialLoading(true);
+    const fetchInitialData = async () => {
       try {
         await Promise.all([
           fetchCart(),
-          // fetchAddresses(), // اضافه کردن فراخوانی آدرس‌ها در شروع
+          // fetchAddresses(),
         ]);
-      } finally {
-        // setIsInitialLoading(false);
+      } catch (error) {
+        console.error("Error in initial data fetch:", error);
       }
     };
 
-    initializeData();
-  }, []);
+    fetchInitialData();
+  }, [isModalOpen]);
 
+  // برای اجرای درخواست‌های دوره‌ای
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    const startInterval = () => {
+      // فقط اگر قبلاً interval وجود نداشته باشد، یکی جدید ایجاد کن
+      if (!interval && document.visibilityState === "visible" && navigator.onLine) {
+        interval = setInterval(async () => {
+          try {
+            await fetchCart();
+          } catch (error) {
+            console.error("Error fetching cart:", error);
+          }
+        }, 20000);
+      }
+    };
+
+    const stopInterval = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const handleOnlineStatus = () => {
+      if (navigator.onLine) {
+        startInterval();
+      } else {
+        stopInterval();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startInterval();
+      } else {
+        stopInterval();
+      }
+    };
+
+    // راه‌اندازی اولیه
+    startInterval();
+
+    // اضافه کردن event listeners
+    window.addEventListener("online", handleOnlineStatus);
+    window.addEventListener("offline", handleOnlineStatus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // cleanup
+    return () => {
+      stopInterval();
+      window.removeEventListener("online", handleOnlineStatus);
+      window.removeEventListener("offline", handleOnlineStatus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
   useEffect(() => {
     if (isModalOpen) {
       fetchAddresses();

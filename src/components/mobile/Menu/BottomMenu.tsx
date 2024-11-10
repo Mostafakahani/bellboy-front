@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
+import { loadState } from "@/utils/localStorage";
 
 interface MenuItem {
   icon?: React.ReactNode;
@@ -143,6 +144,26 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeConfig, setActiveConfig] = useState<MenuItem[]>(menuConfigs.main);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const cartItems = loadState("cart");
+        setCartItemsCount(cartItems.length);
+      } catch (error) {
+        console.log(error);
+        setCartItemsCount(0);
+      }
+    };
+
+    updateCartCount(); // Initial check
+
+    // Set up interval to run every 2 seconds (2000 milliseconds)
+    const interval = setInterval(updateCartCount, 2000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -190,6 +211,8 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
     >
       <ul className="flex justify-around items-center h-16 bg-black">
         {activeConfig.map((item) => {
+          const isCartItem = item.href === "/cart";
+
           // const IconComponent = iconComponents[item.icon as keyof typeof iconComponents];
           return (
             <li key={item.href} className="flex-1">
@@ -203,6 +226,11 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
                   >
                     <div className="relative h-[80px]">
                       <div className="flex flex-col items-center justify-center w-[70px] absolute top-[-10px] px-3 py-5 -left-9 bg-white border-[5px] border-black rounded-t-full">
+                        {/* {isCartItem && cartItemsCount > 0 && (
+                          <div className="absolute top-2 mr-[25px] bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {cartItemsCount}
+                          </div>
+                        )} */}
                         <Image
                           src={item.iconActive}
                           alt={item.label}
@@ -220,6 +248,11 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
                   <div
                     className={`transition-all duration-300 ease-in-out flex flex-col items-center justify-center`}
                   >
+                    {isCartItem && cartItemsCount > 0 && (
+                      <div className="absolute top-2 mr-[25px] bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartItemsCount}
+                      </div>
+                    )}
                     <Image
                       src={item.iconInactive}
                       alt={item.label}
