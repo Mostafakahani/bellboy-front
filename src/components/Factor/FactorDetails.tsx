@@ -6,6 +6,7 @@ import { ClockIcon, LineIcon } from "@/icons/Icons";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { getCookie } from "cookies-next";
 import { showError, showSuccess } from "@/lib/toastService";
+import { Product } from "@/hooks/cartType";
 
 interface FormData {
   addresses: any[];
@@ -18,19 +19,22 @@ interface FormData {
   paymentComplete: boolean;
 }
 
+interface OrderItem {
+  IsTastePyramids: boolean;
+  dataTastePyramids?: Product[];
+  id?: string;
+  title?: string;
+  price?: number;
+  quantity?: number;
+  globalDiscount?: number;
+}
+
 interface OrderData {
   status: string;
   message: string;
   data: {
     id_user: string;
-    data: Array<{
-      IsTastePyramids: boolean;
-      id: string;
-      title: string;
-      price: number;
-      quantity: number;
-      globalDiscount: number;
-    }>;
+    data: OrderItem[];
     price: number;
     date: string;
     startHour: string;
@@ -63,7 +67,6 @@ interface FactorFormProps {
 
 export default function FactorForm({ formData, onFormChange, type }: FactorFormProps) {
   const authenticatedFetch = useAuthenticatedFetch();
-
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [orderData, setOrderData] = useState<OrderData | null>();
@@ -77,6 +80,73 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
 
+  const handleApplyDiscount = async () => {
+    setIsLoading(true);
+    const token = getCookie("auth_token");
+    if (!orderData?.data._id) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/${orderData?.data._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+          body: JSON.stringify({ discount: discountCode }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        setIsDiscountModalOpen(false);
+        setOrderData(data);
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+      console.error("Error applying discount:", err);
+    } finally {
+      setIsDiscountModalOpen(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveDiscount = async () => {
+    setIsLoading(true);
+    const token = getCookie("auth_token");
+    if (!orderData?.data._id) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/remove-discount-order/${orderData?.data._id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        showSuccess(formatErrorMessage(data?.message));
+        setOrderData(data);
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+      console.error("Error removing discount:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     const createOrder = async () => {
       if (!formData.selectedAddress?._id || !formData.selectedDateTime?.timeSlotId) {
@@ -113,86 +183,9 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
     createOrder();
   }, [formData.selectedAddress?._id, formData.selectedDateTime?.timeSlotId]);
 
-  const handleApplyDiscount = async () => {
-    setIsLoading(true);
-    const token = getCookie("auth_token");
-    if (!orderData?.data._id) return;
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_API_BASE_URL + "/order/" + orderData?.data._id,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-          body: JSON.stringify({ discount: discountCode }),
-        }
-      );
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch profile data");
-      // }
-
-      const data = await response.json();
-      if (data.status === "success") {
-        console.log("discount data: ", data);
-        setIsDiscountModalOpen(false);
-        setOrderData(data);
-      } else {
-        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      }
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
-      console.error("Error fetching profile data:", error);
-      throw error;
-    } finally {
-      setIsDiscountModalOpen(false);
-      setIsLoading(false);
-    }
+  const calculateDiscountedPrice = (price: number, discount: number) => {
+    return price - (price * discount) / 100;
   };
-  const handleRemoveDiscount = async () => {
-    setIsLoading(true);
-
-    const token = getCookie("auth_token");
-    if (!orderData?.data._id) return;
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_API_BASE_URL +
-          "/order/remove-discount-order/" +
-          orderData?.data._id,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        }
-      );
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch profile data");
-      // }
-
-      const data = await response.json();
-      if (data.status === "success") {
-        console.log("discount remove data: ", data);
-        showSuccess(formatErrorMessage(data?.message));
-        setOrderData(data);
-      } else {
-        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      }
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
-      console.error("Error fetching profile data:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   if (isLoading) {
     return <div className="text-center p-4">در حال بارگذاری...</div>;
   }
@@ -200,6 +193,71 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
   if (error) {
     return <div className="text-red-500 p-4 text-center">{error}</div>;
   }
+  const renderOrderItem = (item: Product, index: number, isFirstItem: boolean) => {
+    return (
+      <div key={item.id} className="w-full">
+        <div
+          className={`w-full relative pt-2 border-t border-black mb-4 ${
+            isFirstItem ? "border-t-0" : "border-t-2"
+          }`}
+        />
+        <div className="flex justify-between items-center mb-2 first:pt-0 px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col gap-2">
+            <span className="text-md font-bold text-right">{item.title}</span>
+            <span className="text-xs bg-gray-200 rounded-full w-fit px-2 py-1">
+              {item.quantity}x
+            </span>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            {item.globalDiscount > 0 ? (
+              <>
+                <span className="text-md text-left">
+                  {formatCurrency(calculateDiscountedPrice(item.price, item.globalDiscount))}
+                </span>
+                <div className="flex flex-row gap-x-2 items-center">
+                  <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
+                    %{item.globalDiscount}
+                  </span>
+                  <span className="line-through text-gray-400 text-xs text-nowrap">
+                    {formatCurrency(item.price)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <span className="text-md text-left">{formatCurrency(item.price)}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderOrderItems = () => {
+    if (!orderData?.data.data) return null;
+
+    return orderData.data.data.map((orderItem, index) => {
+      if (orderItem.IsTastePyramids && orderItem.dataTastePyramids) {
+        // Render tasting tray items
+        return orderItem.dataTastePyramids.map((item, itemIndex) =>
+          renderOrderItem(item, itemIndex, index === 0 && itemIndex === 0)
+        );
+      } else if (!orderItem.IsTastePyramids && orderItem.id) {
+        // Render regular items
+        return renderOrderItem(
+          {
+            id: orderItem.id,
+            title: orderItem.title || "",
+            price: orderItem.price || 0,
+            quantity: orderItem.quantity || 0,
+            globalDiscount: orderItem.globalDiscount || 0,
+          },
+          index,
+          index === 0
+        );
+      }
+      return null;
+    });
+  };
 
   if (!orderData?.data) {
     return <div className="text-center p-4">اطلاعات سفارش در دسترس نیست</div>;
@@ -208,6 +266,7 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
   const { data: orderItems, price: subtotal } = orderData.data;
   const TAX_RATE = 0.1;
   const tax = subtotal * TAX_RATE;
+  console.log(orderItems);
   const discount = (orderData.data.id_discount?.discountPercentage || 0) / 100;
   const total = subtotal + tax - (subtotal + tax) * discount;
 
@@ -225,38 +284,8 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
         <div className="w-full relative">
           <LineIcon className="w-full" />
         </div>
-        <div className="flex flex-col gap-3 mt-0 py-4">
-          {orderItems.map((item, index) => (
-            <div key={item.id} className="w-full">
-              <div
-                className={`w-full relative pt-2 border-t border-black mb-4 ${
-                  index === 0 ? "border-t-0" : "border-t-2"
-                }`}
-              ></div>
-              <div className="flex justify-between items-center mb-2 first:pt-0 px-4 md:px-6 lg:px-8">
-                <div className="flex flex-col gap-2">
-                  <span className="text-md font-bold text-right">{item.title}</span>
-                  <span className="text-xs bg-gray-200 rounded-full w-fit px-2 py-1">
-                    {item.quantity}x
-                  </span>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-md text-left">{formatCurrency(item.price)}</span>
-                  {item.globalDiscount > 0 && (
-                    <div className="flex flex-row gap-x-2 items-center">
-                      <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
-                        %{item.globalDiscount}
-                      </span>
-                      <span className="line-through text-gray-400 text-xs text-nowrap">
-                        {formatCurrency(item.price * (1 + item.globalDiscount / 100))}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+
+        <div className="flex flex-col gap-3 mt-0 py-4">{renderOrderItems()}</div>
 
         <div className="w-full relative border-b-2 border-black mb-4"></div>
 
@@ -288,7 +317,7 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
                   icon="trash"
                   isError
                   className="!p-0"
-                  onClick={() => handleRemoveDiscount()}
+                  onClick={handleRemoveDiscount}
                 >
                   حذف کد تخفیف
                 </Button>
@@ -326,7 +355,7 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
       <DiscountDialog
         isLoading={isLoading}
         isOpen={isDiscountModalOpen}
-        onSubmit={() => handleApplyDiscount()}
+        onSubmit={handleApplyDiscount}
         onClose={() => setIsDiscountModalOpen(false)}
         message="کد تخفیف بل‌بوی را وارد کنید"
         buttonMessage="ثبت"

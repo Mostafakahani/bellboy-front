@@ -1,14 +1,7 @@
 import React from "react";
 
 import Button from "@/components/ui/Button/Button";
-
-export interface ProductType {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  imageUrls: string[];
-}
+import { ProductType } from "@/hooks/cartType";
 
 export type FormDataType = {
   step1: ProductType | null;

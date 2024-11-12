@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-
-// File imports for slick-carousel CSS are commented out as they're not typically used in React components
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
-
-import { ProductType } from "@/components/BellMazeh/types";
+"use client";
+import React, { useState } from "react";
+import { Transition } from "@headlessui/react";
+import { ProductType, StoreImage } from "@/hooks/cartType";
 
 interface ProductSliderProps {
   product: ProductType;
@@ -14,28 +10,16 @@ interface ProductSliderProps {
 }
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ product, dots, className }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleNext();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [currentIndex, product.imageUrls.length]);
-
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === product.imageUrls.length - 1 ? 0 : prevIndex + 1
-    );
+    setCurrentSlide((prev) => (prev + 1) % product.id_stores.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? product.imageUrls.length - 1 : prevIndex - 1
-    );
+    setCurrentSlide((prev) => (prev - 1 + product.id_stores.length) % product.id_stores.length);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -50,45 +34,61 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ product, dots, className 
     if (touchStart - touchEnd > 75) {
       handleNext();
     }
-
     if (touchStart - touchEnd < -75) {
       handlePrev();
     }
   };
 
+  const getImageUrl = (image: StoreImage) => {
+    return `${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${image.location}`;
+  };
+
   return (
-    <div className={`w-full max-w-3xl ${className}`}>
+    <div
+      className={`relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100 ${className}`}
+    >
       <div
-        className="relative overflow-hidden"
+        className="relative w-full h-full"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="relative w-full h-full">
-          <Image
-            src={product.imageUrls[currentIndex]}
-            alt={`${product.name} - تصویر ${currentIndex + 1}`}
-            width={1080}
-            height={1080}
-            className="rounded-xl transition-opacity duration-300 w-40 h-40 object-cover"
-            priority
-            quality={80}
-          />
-        </div>
-      </div>
-      {dots && (
-        <div className="mt-4 flex justify-center gap-2">
-          {product.imageUrls.map((_, index) => (
-            <div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                index === currentIndex ? "bg-blue-500 w-4" : "bg-gray-300"
-              }`}
-              onClick={() => setCurrentIndex(index)}
+        {product.id_stores.map((image, index) => (
+          <Transition
+            key={index}
+            show={currentSlide === index}
+            enter="transition-opacity duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity duration-300"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <img
+              src={getImageUrl(image)}
+              alt={`${product.title} - ${index + 1}`}
+              className="w-full h-full object-cover"
+              loading={index === 0 ? "eager" : "lazy"}
             />
-          ))}
-        </div>
-      )}
+          </Transition>
+        ))}
+
+        {/* Dots indicator */}
+        {dots && product.id_stores.length > 1 && (
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+            {product.id_stores.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  currentSlide === index ? "bg-black" : "bg-primary-400"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

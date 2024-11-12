@@ -24,18 +24,43 @@ export interface ProductType {
   id_stores: StoreImage[];
   id_categories: CategoryType[];
   globalDiscount: number;
-  disable: boolean;
+  disable?: boolean;
+}
+export interface Product {
+  _id?: string;
+  id?: string;
+  title: string;
+  quantity?: number;
+  description?: string;
+  price: number;
+  stock?: number;
+  id_stores?: string[];
+  id_categories?: string[];
+  globalDiscount: number;
+  active?: boolean;
+  TastingTray?: boolean;
+}
+
+export interface StageItem {
+  productId: Product;
+  quantity: number;
+  _id: string;
+}
+
+export interface Items {
+  quantity: number;
+  _id: string;
+  stage1: StageItem[];
+  stage2: StageItem[];
+  stage3: StageItem[];
+  stage4: StageItem[];
 }
 
 export interface CartItem {
   _id: string;
-  productId: ProductType;
+  id_user: string;
+  IsTastePyramids: boolean;
+  productId: Product;
   quantity: number;
-  items: {
-    quantity: number;
-    stage1: any[];
-    stage2: any[];
-    stage3: any[];
-    stage4: any[];
-  };
+  items: Items;
 }

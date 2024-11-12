@@ -1,24 +1,9 @@
 import React, { useState } from "react";
-import ProductSlider from "@/components/ui/Slider/ProductSlider";
 import { formatCurrency } from "@/utils/formatCurrency";
 import Button from "@/components/ui/Button/Button";
 import { Heram2Icon } from "@/icons/Icons";
-
-export interface ProductType {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  imageUrls: string[];
-}
-
-export type FormDataType = {
-  step1: ProductType | null;
-  step2: any;
-  step3: any; // تعریف دقیق‌تر بر اساس نیاز
-  step4: any; // تعریف دقیق‌تر بر اساس نیاز
-  step5: any; // تعریف دقیق‌تر بر اساس نیاز
-};
+import { ProductType } from "@/hooks/cartType";
+import Image from "next/image";
 
 interface StepProps {
   data: any;
@@ -64,7 +49,7 @@ export const Step2: React.FC<Step2Props> = ({
       <div className="mt-16 flex flex-row flex-nowrap gap-0 justify-start overflow-x-auto">
         {products.map((product) => (
           <div
-            key={product.id}
+            key={product._id}
             className={`flex flex-col items-start p-4 min-w-44 first:mr-0 transition-opacity duration-300 ${
               !selectedProduct
                 ? "opacity-100"
@@ -74,9 +59,16 @@ export const Step2: React.FC<Step2Props> = ({
             }`}
             onClick={() => handleProductSelect(product)}
           >
-            <ProductSlider className="mb-4" product={product} dots={false} />
+            <Image
+              className="rounded-xl w-40 h-40 object-cover"
+              src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${product.id_stores[0]?.location}`}
+              width={150}
+              height={150}
+              alt={product.title}
+            />
+            {/* <ProductSlider className="mb-4" product={product} dots={false} /> */}{" "}
             <div>
-              <h2 className="text-sm font-black text-right">{product.name}</h2>
+              <h2 className="text-sm font-black text-right">{product.title}</h2>
               <p className="text-xs mt-1 line-clamp-1">{product.description}</p>
             </div>
             <p className="text-sm mt-3.5">{formatCurrency(product.price)} </p>

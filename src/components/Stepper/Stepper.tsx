@@ -109,14 +109,16 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
         </div>
       </div>
       <div className="mt-8 mb-4 flex justify-between gap-7 mx-4">
-        <Button
-          icon="right"
-          variant="secondary"
-          onClick={handlePrevStep}
-          disabled={currentStep === 1}
-        >
-          قبلی
-        </Button>
+        {currentStep !== 1 && (
+          <Button
+            icon="right"
+            variant="secondary"
+            onClick={handlePrevStep}
+            disabled={currentStep === 1}
+          >
+            قبلی
+          </Button>
+        )}
         <Button
           className="w-full"
           onXsIsText

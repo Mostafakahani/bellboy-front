@@ -1,4 +1,3 @@
-// types.ts
 type PathConfig = {
   [key: string]: {
     type: string;
@@ -9,17 +8,23 @@ type PathConfig = {
 export const pathConfigs: PathConfig = {
   "/bell-shop": {
     type: "shop",
-    pattern: "^/bell-shop/?.*", // الگو رو تغییر دادیم تا اسلش اختیاری باشه
+    pattern: "^/bell-shop/?.*",
   },
   "/bell-mazeh": {
-    type: "mazeh",
-    pattern: "^/bell-mazeh/?.*", // الگو رو تغییر دادیم تا اسلش اختیاری باشه
+    type: "shop",
+    pattern: "^/bell-mazeh/?.*",
   },
-  // می‌توانید پترن‌های دیگر را اینجا اضافه کنید
+  "/bell-clean": {
+    type: "clean",
+    pattern: "^/bell-clean/?.*",
+  },
+  "/bell-service": {
+    type: "service",
+    pattern: "^/bell-service/?.*",
+  },
 };
 
 export const getPathType = (path: string): string | null => {
-  // حذف اسلش‌های اضافی از ابتدا و انتها
   const normalizedPath = path.replace(/\/+$/, "").replace(/^\/+/, "/");
 
   for (const [basePath, config] of Object.entries(pathConfigs)) {
