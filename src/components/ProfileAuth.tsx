@@ -150,7 +150,7 @@ const ProfileAuth: React.FC = () => {
         throw new Error(formatErrorMessage(message));
       }
 
-      if (data?.statusCode && data.statusCode !== 200) {
+      if (data?.statusCode && data.statusCode !== 201) {
         throw new Error(formatErrorMessage(data.message));
       }
 
@@ -158,15 +158,12 @@ const ProfileAuth: React.FC = () => {
         setCookie("auth_token", data.token);
         showSuccess(message);
 
-        // اول کاربر رو به صفحه پروفایل می‌فرستیم
-        router.push("/profile");
-
-        // بعد چک می‌کنیم پروفایل کامل هست یا نه
         const isProfileComplete = await handleCheckProfileData();
 
         if (!isProfileComplete) {
-          // اگر پروفایل کامل نبود، به صفحه تکمیل اطلاعات هدایت می‌کنیم
           setStep("details");
+        } else {
+          router.push("/profile");
         }
       } else {
         throw new Error(formatErrorMessage(data?.message) || "خطا در تایید کد");

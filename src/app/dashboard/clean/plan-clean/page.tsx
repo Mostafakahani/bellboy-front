@@ -1,6 +1,7 @@
 "use client";
 import PlanCleanForm from "@/components/Dashboard/Clean/PlanCleanForm";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { FileData } from "@/components/FileUploader/FileUploader";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { showError, showSuccess } from "@/lib/toastService";
 import { useEffect, useState } from "react";
@@ -26,6 +27,7 @@ export interface PlanClean {
   globalDiscount: number;
   active: boolean;
   price: number;
+  id_stores: FileData[];
   id_clean: {
     _id: string;
     data: CleanData;
@@ -44,35 +46,6 @@ const PlanCleanPage = () => {
   const [cleanList, setCleanList] = useState<PlanClean[]>([]);
   const [selectedClean, setSelectedClean] = useState<PlanClean | null>(null);
 
-  const handleFormSubmit = async (data: any) => {
-    try {
-      setIsLoading(true);
-      const { error, message } = await authenticatedFetch("/plan-clean", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-
-      if (error) {
-        throw new Error(Array.isArray(message) ? message.join(" ") : message);
-      }
-
-      showSuccess(message);
-      fetchCleanList();
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    if (selectedClean?._id) {
-      fetchCleanSubList(selectedClean._id);
-    }
-  }, [selectedClean]);
-  useEffect(() => {
-    fetchCleanList();
-  }, []);
-
   const fetchCleanSubList = async (id: string) => {
     try {
       setIsLoading(true);
@@ -90,6 +63,7 @@ const PlanCleanPage = () => {
       setIsLoading(false);
     }
   };
+
   const fetchCleanList = async () => {
     try {
       setIsLoading(true);
@@ -102,12 +76,63 @@ const PlanCleanPage = () => {
       }
 
       setCleanList(Array.isArray(data) ? data : []);
+
+      // اگر clean انتخاب شده وجود دارد، لیست آن را نیز به‌روز کنیم
+      if (selectedClean?._id) {
+        await fetchCleanSubList(selectedClean._id);
+      }
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleFormSubmit = async (data: any) => {
+    try {
+      setIsLoading(true);
+      const { error, message } = await authenticatedFetch("/plan-clean", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+
+      if (error) {
+        throw new Error(Array.isArray(message) ? message.join(" ") : message);
+      }
+
+      showSuccess(message);
+
+      // به‌روزرسانی هر دو لیست
+      if (selectedClean?._id) {
+        await fetchCleanSubList(selectedClean._id);
+      }
+      await fetchCleanList();
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // فقط cleanList را در بارگذاری اولیه دریافت می‌کنیم
+  useEffect(() => {
+    fetchCleanList();
+  }, []);
+
+  // وقتی clean انتخاب شده تغییر می‌کند، sublist آن را دریافت می‌کنیم
+  useEffect(() => {
+    if (selectedClean?._id) {
+      fetchCleanSubList(selectedClean._id);
+    } else {
+      setCleanSubList([]); // پاک کردن لیست قبلی اگر هیچ clean‌ای انتخاب نشده
+    }
+  }, [selectedClean?._id]);
+
+  // تابع جدید برای مدیریت تغییر clean انتخاب شده
+  const handleSelectedCleanChange = (clean: PlanClean | null) => {
+    setSelectedClean(clean);
+  };
+
   return (
     <>
       <DashboardHeader />
@@ -118,11 +143,12 @@ const PlanCleanPage = () => {
           cleanList={cleanList}
           onSubmit={handleFormSubmit}
           selectedClean={selectedClean}
-          setSelectedClean={setSelectedClean}
+          setSelectedClean={handleSelectedCleanChange}
           cleanSubList={cleanSubList}
         />
       </div>
     </>
   );
 };
+
 export default PlanCleanPage;

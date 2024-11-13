@@ -29,7 +29,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
-  const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
+  // const [selectedForDeleteAddressId, setSelectedForDeleteAddressId] = useState("");
   const [clickEditButton, setClickEditButton] = useState<boolean>(false);
   const authenticatedFetch = useAuthenticatedFetch();
 
@@ -137,18 +137,18 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
     }
   };
 
-  const handleDeleteAddressDialog = (addressId: string) => {
-    setOpenDeleteDialog(true);
-    setSelectedForDeleteAddressId(addressId);
-  };
+  // const handleDeleteAddressDialog = (addressId: string) => {
+  //   setOpenDeleteDialog(true);
+  //   setSelectedForDeleteAddressId(addressId);
+  // };
 
-  const handleDeleteAddress = () => {
-    const updatedAddresses = addresses.filter((a) => a._id !== selectedForDeleteAddressId);
-    setAddresses(updatedAddresses);
-    setSelectedAddress(null);
-    onAddressChange(updatedAddresses, null);
-    setOpenDeleteDialog(false);
-  };
+  // const handleDeleteAddress = () => {
+  //   const updatedAddresses = addresses.filter((a) => a._id !== selectedForDeleteAddressId);
+  //   setAddresses(updatedAddresses);
+  //   setSelectedAddress(null);
+  //   onAddressChange(updatedAddresses, null);
+  //   setOpenDeleteDialog(false);
+  // };
 
   const handleSelectAddress = (addressId: string) => {
     const selected = addresses.find((a) => a._id === addressId) || null;
@@ -175,7 +175,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
           addresses={addresses}
           selectedAddressId={selectedAddress?._id || null}
           onEdit={handleEditAddress}
-          onDelete={handleDeleteAddressDialog}
+          // onDelete={handleDeleteAddressDialog}
           onSelect={handleSelectAddress}
         />
         <Button
@@ -199,7 +199,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
       <ErrorDialog
         isOpen={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
-        onDelete={handleDeleteAddress}
+        // onDelete={handleDeleteAddress}
         message="آیا مطمئن هستید؟"
         buttonMessage="بله، حذف کن"
       />

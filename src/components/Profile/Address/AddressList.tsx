@@ -9,7 +9,7 @@ interface AddressListProps {
   selectedAddressId: string | null;
   clickEditButton: boolean | null;
   onEdit: (address: Address) => void;
-  onDelete: (addressId: string) => void;
+  // onDelete: (addressId: string) => void;
   onSelect: (addressId: string) => void;
 }
 
@@ -18,7 +18,7 @@ const AddressList: React.FC<AddressListProps> = ({
   selectedAddressId,
   clickEditButton,
   onEdit,
-  onDelete,
+  // onDelete,
   onSelect,
 }) => {
   return (
@@ -56,7 +56,7 @@ const AddressList: React.FC<AddressListProps> = ({
                   >
                     ویرایش
                   </Button>
-                  <Button
+                  {/* <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       onDelete(address._id!);
@@ -64,7 +64,7 @@ const AddressList: React.FC<AddressListProps> = ({
                     icon="trash"
                     variant="tertiary"
                     isError
-                  />
+                  /> */}
                 </div>
               </div>
             </div>

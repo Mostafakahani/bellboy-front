@@ -1,10 +1,11 @@
-import React, { useState, KeyboardEvent } from "react";
+import React, { useState, KeyboardEvent, useEffect } from "react";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { DashboardInput } from "../DashboardInput";
 import DashboardButton from "@/components/ui/Button/DashboardButton";
 import { showError, showSuccess } from "@/lib/toastService";
 import { PlanClean } from "@/app/dashboard/clean/plan-clean/page";
 import EditPlanCleanModal from "./EditPlanCleanModal";
+import { Clean } from "@/app/dashboard/clean/create/page";
 
 interface ExtraField {
   id: number;
@@ -34,7 +35,7 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
 }) => {
   const authenticatedFetch = useAuthenticatedFetch();
   const [title, setTitle] = useState("");
-  const [globalDiscount, setGlobalDiscount] = useState<number>(0);
+  const [globalDiscount, setGlobalDiscount] = useState<number>();
   const [price, setPrice] = useState(0);
   const [open, setOpen] = useState(false);
   const [selectedSubPlan, setSelectedSubPlan] = useState<PlanClean>();
@@ -91,7 +92,16 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
 
-  const handleRemoveField = async (planId: string, cleanId: string) => {
+  useEffect(() => {
+    if (selectedSubPlan && cleanSubList) {
+      const updatedPlan = cleanSubList.find((plan: PlanClean) => plan._id === selectedSubPlan._id);
+      if (updatedPlan) {
+        setSelectedSubPlan(updatedPlan);
+      }
+    }
+  }, [cleanSubList]);
+
+  const handleRemoveField = async (planId: string) => {
     try {
       const { status, error, message } = await authenticatedFetch("/plan-clean/" + planId, {
         method: "DELETE",
@@ -100,17 +110,28 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
         throw new Error(formatErrorMessage(message));
       }
       if (status === "success") {
-        setSelectedClean(cleanId);
         showSuccess(message);
+        // بعد از حذف، لیست را به‌روز می‌کنیم اما clean انتخاب شده را حفظ می‌کنیم
+        if (selectedClean) {
+          await fetchCleanList();
+        }
       }
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedClean) {
       showError("لطفا یک کلین را انتخاب کنید");
+      return;
+    }
+    if (!price) {
+      showError("فیلد قیمت خالی است.");
+      return;
+    }
+    if (!title) {
+      showError("فیلد تایتل خالی است.");
       return;
     }
 
@@ -129,13 +150,14 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
       price,
     };
 
+    await onSubmit(data);
+    await fetchCleanList(); // اضافه کردن await
+
+    // ریست کردن فرم بدون تغییر selectedClean
     setTitle("");
-    setSelectedClean(null);
     setGlobalDiscount(0);
     setPrice(0);
     setExtraFields([]);
-
-    onSubmit(data);
   };
 
   const handleEditSuccess = () => {
@@ -159,7 +181,8 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
         <div className="mb-2">
           <DashboardInput
             type="text"
-            label="تخفیف همگانی (درصد)"
+            label="تخفیف همگانی (%)"
+            placeholder="50"
             value={globalDiscount}
             inputMode="numeric"
             onChange={(e) => {
@@ -174,17 +197,28 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
 
         <div className="mb-2">
           <DashboardInput
-            type="number"
-            label="قیمت"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
+            type="text"
+            label="قیمت (تومان)"
+            placeholder="250,000"
+            value={price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : ""}
+            inputMode="numeric"
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, ""); // حذف کاماها
+              const isValid = /^\d*$/.test(value); // بررسی فقط اعداد
+
+              if (isValid) {
+                setPrice(Number(value));
+              } else {
+                showError("لطفاً فقط از اعداد استفاده کنید.");
+              }
+            }}
           />
         </div>
 
         <div className="mb-6">
           <label className="block text-sm mb-2">انتخاب کلین</label>
           <div className="grid grid-cols-1 gap-4">
-            {cleanList.map((clean: any) => (
+            {cleanList.map((clean: Clean) => (
               <div
                 key={clean._id}
                 className={`flex items-center justify-between p-4 rounded-xl border ${
@@ -195,7 +229,13 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
                 onClick={() => setSelectedClean(clean)}
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg">
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${clean.id_stores[0].location}`}
+                      alt={clean.data.title}
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  </div>
                   <div>
                     <p className="font-medium">{clean.data.title}</p>
                     <p className="text-sm text-gray-500 line-clamp-1 w-[10rem]">
@@ -318,7 +358,7 @@ const PlanCleanForm: React.FC<PlanCleanFormProps> = ({
                       className="border-[1.5px] border-red-500 rounded-2xl !px-3 !py-6"
                       icon="trash"
                       onXsIsText
-                      onClick={() => handleRemoveField(clean._id, clean.id_clean._id)}
+                      onClick={() => handleRemoveField(clean._id)}
                     />
                   </div>
                 </div>

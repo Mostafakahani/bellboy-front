@@ -171,7 +171,7 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${item.location}`} // Use `item` to access properties
                         alt={item.name} // Use `item` for alt text
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain rounded-lg"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -233,20 +233,20 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
             {loading ? (
               <>در حال بارگزاری</>
             ) : (
-              <div
-                className="w-full flex flex-row justify-between items-center border border-black p-4 rounded-xl"
-                onClick={() => {
-                  setSelectedCleanPlan(clean);
-                  setOpen(true);
-                }}
-              >
-                <div className="flex flex-row gap-4 items-center">
+              <div className="w-full flex flex-row justify-between items-center border border-black p-4 rounded-xl">
+                <div
+                  className="flex flex-row gap-4 items-center"
+                  onClick={() => {
+                    setSelectedCleanPlan(clean);
+                    setOpen(true);
+                  }}
+                >
                   <div>
-                    <div className="w-16 h-16 bg-gray-400 rounded-2xl">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl">
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${clean.id_stores[0].location}`}
                         alt={clean.data.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain rounded-lg"
                       />
                     </div>
                   </div>

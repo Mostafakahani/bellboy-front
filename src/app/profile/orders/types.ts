@@ -8,13 +8,43 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: string;
+  _id: string;
+  TypeOrder: "shop" | "clean" | "service";
   date: string;
-  status: OrderStatus;
-  items: OrderItem[];
-  totalPrice: number;
-  tax: number;
-  shippingCost: number;
-  totalPayable: number;
-  offer?: number;
+  data: {
+    IsTastePyramids: boolean;
+    data?: {
+      price: number;
+      globalDiscount: number;
+      id_clean: string[];
+      id: string;
+      data?: {
+        title: string;
+        data?: {
+          id: number;
+          title: string;
+          count: number;
+          data?: string[];
+        }[];
+      };
+    }[];
+    dataTastePyramids?: {
+      id: string;
+      title: string;
+      price: number;
+      quantity: number;
+      globalDiscount: number;
+    }[];
+    id: string;
+    title: string;
+    price: number;
+    quantity: number;
+    globalDiscount: number;
+  }[];
+  price: number;
+  startHour: string;
+  endHour: string;
+  status: string;
+  paymentStatus: string;
+  orderNumber: string;
 }
