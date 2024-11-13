@@ -149,7 +149,7 @@ export const CartForm: React.FC<CartProps> = ({
   return (
     <div className="container mx-auto py-4 px-4 flex flex-col justify-between min-h-[70vh]">
       <div>
-        <h1 className="text-md text-right font-bold mb-6">لیست محصولات سبد خرید شما</h1>
+        <h1 className="text-xl font-bold mb-6 text-right">لیست محصولات سبد خرید شما</h1>
         <div className="space-y-4">
           {cartData.map((item) => {
             const isDeleting = itemsToDelete[item._id];
@@ -310,7 +310,7 @@ export const CartForm: React.FC<CartProps> = ({
         </div>
       </div>
       {cartData.length > 0 && (
-        <div className="mt-16 w-full flex flex-col gap-y-3 pt-20">
+        <div className="mt-8 w-full flex flex-col gap-y-3 pt-20">
           <div className="w-full flex flex-row justify-between">
             <p>مبلغ {cartData.length} کالا</p>
             <p>

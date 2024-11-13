@@ -75,7 +75,11 @@ const ServicesDrawer: React.FC<ServicesDrawerProps> = ({ isOpen, onClose }) => {
                 }`}
                 style={{ transitionDelay: `${index * 50}ms` }}
               >
-                <Link href={service.link} className="flex items-center justify-between">
+                <Link
+                  href={service.link}
+                  onClick={onClose}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center mr-3">
                     <Image
                       src={service.icon}

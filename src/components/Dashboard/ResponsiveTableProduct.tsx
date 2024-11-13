@@ -193,8 +193,8 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data, f
       closeModal();
       // router.reload();
       window.location.reload();
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     }
   };
 

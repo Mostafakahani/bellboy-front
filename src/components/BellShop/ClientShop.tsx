@@ -56,18 +56,16 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
 
+  const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   // State
   const [parentCategories] = useState(initialCategories);
   const [selectedParentCategory, setSelectedParentCategory] = useState(
     initialCategories[0] || null
   );
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState<ProductType[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-
-  const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState<FormData>({
     addresses: [],
@@ -76,7 +74,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     selectedDateTime: null,
     paymentComplete: false,
   });
-
+  useEffect(() => {
+    if (initialProducts?.length > 0) {
+      setProducts(initialProducts);
+      setIsLoading(false);
+    }
+  }, []);
   // const handleContinue = (selectedAddress: string, deliveryId: string) => {
   //   // Handle the continuation logic here
   //   console.log({ isInitialLoading });
@@ -110,7 +113,6 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
         setProducts(reversedData);
       }
       setIsLoading(false);
-      console.warn(data);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
@@ -149,7 +151,6 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       // }
 
       const data = await response.json();
-      console.log(data);
       setCart(ensureCartArray(data));
       saveState("cart", ensureCartArray(data));
     } catch (error) {
@@ -320,7 +321,6 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       //  else {
       //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
       // }
-      console.log(data);
       setFormData((prev) => ({
         ...prev,
         addresses: data as Address[],
@@ -357,13 +357,14 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             );
           } else {
             addToCart(product._id);
+            setIsModalOpen(true);
           }
         }}
       >
         {isInCart ? (
           <div className="text-black flex flex-row items-center justify-between gap-2">
             <PlusIcon
-              className={`${isLoading ? "opacity-50" : ""} cursor-pointer`}
+              className={`${isLoading ? "opacity-50" : ""} size-6 cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -380,7 +381,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
             </span>
             <TrashIcon
-              className={`${isLoading ? "opacity-50" : ""} cursor-pointer`}
+              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
               onClick={async (e) => {
                 e.stopPropagation();
                 e.preventDefault();

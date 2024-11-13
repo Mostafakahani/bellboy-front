@@ -1,10 +1,11 @@
-import { Clean } from "@/app/dashboard/clean/create/page";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import React, { useState } from "react";
 import { DashboardInput } from "../DashboardInput";
 import FileUploaderComponent, { FileData } from "@/components/FileUploader/FileUploader";
 import DashboardButton from "@/components/ui/Button/DashboardButton";
 import { showError, showSuccess } from "@/lib/toastService";
+import EditCleanModal from "./EditCleanModal";
+import { Clean } from "@/app/dashboard/clean/create/page";
 
 interface ExtraField {
   key: string;
@@ -20,10 +21,12 @@ interface CleanFormProps {
 
 const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fetchCleanList }) => {
   const authenticatedFetch = useAuthenticatedFetch();
+  const [open, setOpen] = useState(false);
+  const [selectedCleanPlan, setSelectedCleanPlan] = useState<Clean>();
 
   const [title, setTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
-  const [price, setPrice] = useState<number>(0);
+  // const [price, setPrice] = useState<number>(0);
   const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
   const [formData, setFormData] = useState<any>({ selectedFile: [] });
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -60,7 +63,10 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     }
   };
-
+  const handleEditSuccess = () => {
+    fetchCleanList();
+    setOpen(false);
+  };
   const handleFieldChange = (index: number, value: string) => {
     const newFields = [...extraFields];
     newFields[index].value = value;
@@ -119,7 +125,7 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
             onChange={(e) => setShortDescription(e.target.value)}
           />
         </div>
-        <div className="mb-2">
+        {/* <div className="mb-2">
           <DashboardInput
             label="قیمت (تومان)"
             value={price ? Number(price) : 0}
@@ -132,7 +138,7 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
             type="text"
             // disabled={isSubmitting}
           />
-        </div>
+        </div> */}
         <div className="mb-2">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -227,10 +233,22 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
             {loading ? (
               <>در حال بارگزاری</>
             ) : (
-              <div className="w-full flex flex-row justify-between items-center border border-black p-4 rounded-xl">
+              <div
+                className="w-full flex flex-row justify-between items-center border border-black p-4 rounded-xl"
+                onClick={() => {
+                  setSelectedCleanPlan(clean);
+                  setOpen(true);
+                }}
+              >
                 <div className="flex flex-row gap-4 items-center">
                   <div>
-                    <div className="w-16 h-16 bg-gray-400 rounded-2xl"></div>
+                    <div className="w-16 h-16 bg-gray-400 rounded-2xl">
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${clean.id_stores[0].location}`}
+                        alt={clean.data.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col">
                     <p className="line-clamp-1 w-[7rem]">{clean.data.title}</p>
@@ -254,6 +272,12 @@ const CleanForm: React.FC<CleanFormProps> = ({ onSubmit, cleanData, loading, fet
           </div>
         ))}
       </div>
+      <EditCleanModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        selectedPlan={selectedCleanPlan}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 };

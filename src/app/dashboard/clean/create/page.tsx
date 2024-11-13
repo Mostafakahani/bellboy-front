@@ -2,6 +2,7 @@
 
 import CleanForm from "@/components/Dashboard/Clean/CleanForm";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { FileData } from "@/components/FileUploader/FileUploader";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { showError, showSuccess } from "@/lib/toastService";
 import React, { useEffect, useState } from "react";
@@ -14,7 +15,7 @@ export interface CleanData {
 export interface Clean {
   _id: string;
   data: CleanData;
-  id_stores: string[];
+  id_stores: FileData[];
   active: boolean;
   createdAt: string;
   updatedAt: string;

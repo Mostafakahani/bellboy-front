@@ -27,6 +27,7 @@ interface OrderItem {
   price?: number;
   quantity?: number;
   globalDiscount?: number;
+  data?: { title: string; data: { id: number; count: number; title: string; data: string[] }[] };
 }
 
 interface OrderData {
@@ -63,9 +64,15 @@ interface FactorFormProps {
   formData: FormData;
   onFormChange: (newData: Partial<FormData>) => void;
   type?: string;
+  planIds?: string[];
 }
 
-export default function FactorForm({ formData, onFormChange, type }: FactorFormProps) {
+export default function FactorForm({
+  formData,
+  onFormChange,
+  type = "shop",
+  planIds = undefined,
+}: FactorFormProps) {
   const authenticatedFetch = useAuthenticatedFetch();
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
@@ -149,17 +156,19 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
   };
   useEffect(() => {
     const createOrder = async () => {
+      console.log({ type, planIds });
       if (!formData.selectedAddress?._id || !formData.selectedDateTime?.timeSlotId) {
         return;
       }
 
       try {
-        const response = await authenticatedFetch("/order", {
+        const response = await authenticatedFetch(`/order/${type !== "shop" ? type : ""}`, {
           method: "POST",
           body: JSON.stringify({
             delivery: formData.selectedDateTime.timeSlotId,
             address: formData.selectedAddress._id,
-            type: type || "shop",
+            type: type,
+            plans: type === "clean" ? planIds : undefined,
           }),
         });
 
@@ -204,9 +213,11 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
         <div className="flex justify-between items-center mb-2 first:pt-0 px-4 md:px-6 lg:px-8">
           <div className="flex flex-col gap-2">
             <span className="text-md font-bold text-right">{item.title}</span>
-            <span className="text-xs bg-gray-200 rounded-full w-fit px-2 py-1">
-              {item.quantity}x
-            </span>
+            {type !== "clean" && (
+              <span className="text-xs bg-gray-200 rounded-full w-fit px-2 py-1">
+                {item.quantity}x
+              </span>
+            )}
           </div>
           <div className="flex flex-col items-end gap-2">
             {item.globalDiscount > 0 ? (
@@ -246,7 +257,7 @@ export default function FactorForm({ formData, onFormChange, type }: FactorFormP
         return renderOrderItem(
           {
             id: orderItem.id,
-            title: orderItem.title || "",
+            title: orderItem.title || orderItem.data?.title || "",
             price: orderItem.price || 0,
             quantity: orderItem.quantity || 0,
             globalDiscount: orderItem.globalDiscount || 0,

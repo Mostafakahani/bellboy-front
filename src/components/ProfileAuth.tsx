@@ -158,12 +158,14 @@ const ProfileAuth: React.FC = () => {
         setCookie("auth_token", data.token);
         showSuccess(message);
 
-        // چک کردن وضعیت پروفایل
+        // اول کاربر رو به صفحه پروفایل می‌فرستیم
+        router.push("/profile");
+
+        // بعد چک می‌کنیم پروفایل کامل هست یا نه
         const isProfileComplete = await handleCheckProfileData();
 
-        if (isProfileComplete) {
-          router.push("/profile");
-        } else {
+        if (!isProfileComplete) {
+          // اگر پروفایل کامل نبود، به صفحه تکمیل اطلاعات هدایت می‌کنیم
           setStep("details");
         }
       } else {
@@ -175,6 +177,12 @@ const ProfileAuth: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // اضافه کردن prefetch در useEffect
+  useEffect(() => {
+    // پیش‌بارگیری مسیر پروفایل
+    router.prefetch("/profile");
+  }, []); // فقط یکبار اجرا می‌شود
   const handleDetailsSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -284,8 +292,11 @@ const ProfileAuth: React.FC = () => {
     index: number,
     e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    if (e.key === "Backspace" && index > 0 && otp[index] === "") {
-      inputRefs[index + 1].current?.focus();
+    if (e.key === "Backspace") {
+      if (otp[index] === "" && index > 0) {
+        // const newOtp = [...otp];
+        inputRefs[index - 1].current?.focus();
+      }
     }
   };
   const renderStep = () => {
@@ -361,6 +372,8 @@ const ProfileAuth: React.FC = () => {
                   ref={inputRefs[index]}
                   type="text"
                   value={digit}
+                  inputMode="numeric"
+                  pattern="\d*"
                   onChange={(
                     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
                   ) => handleChange(index, e.target.value)}

@@ -28,12 +28,14 @@ interface DateTimeSelectorProps {
   selectedTime: TimeSlot | null;
   setSelectedTime: React.Dispatch<React.SetStateAction<TimeSlot | null>>;
   onSelect: (selectedDate: string, selectedTime: TimeSlot) => void;
+  type?: string;
 }
 
 const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   selectedTime,
   setSelectedTime,
   onSelect,
+  type = "shop",
 }) => {
   const authenticatedFetch = useAuthenticatedFetch();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -98,7 +100,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   const fetchDeliveryTimes = async () => {
     try {
       setIsLoading(true);
-      const { data } = await authenticatedFetch("/delivery-time/shop");
+      const { data } = await authenticatedFetch("/delivery-time/" + type);
       const transformedData = transformApiData(Array.isArray(data) ? data : []);
       setWeekSchedule(transformedData);
 
@@ -150,8 +152,8 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   if (weekSchedule.length === 0) {
     return (
       <div className="p-4">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-right">
-          در حال حاضر هیچ زمان آزادی برای رزرو وجود ندارد
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4 text-right text-sm">
+          در حال حاضر هیچ زمان آزادی برای رزرو وجود ندارد.
         </div>
       </div>
     );

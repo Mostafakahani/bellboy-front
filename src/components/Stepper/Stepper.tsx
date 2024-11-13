@@ -108,7 +108,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           })}
         </div>
       </div>
-      <div className="mt-8 mb-4 flex justify-between gap-7 mx-4">
+      <div className="mt-2 mb-4 flex justify-between gap-7 mx-4">
         {currentStep !== 1 && (
           <Button
             icon="right"

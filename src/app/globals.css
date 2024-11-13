@@ -8,6 +8,12 @@
   --primary: #19F7A6;
   --secondary: #E6FFF6;
 }
+/* Disable scroll bounce effect */
+html, body {
+  scroll-behavior: smooth;
+
+  overscroll-behavior: none !important;
+}
 
 
 body {

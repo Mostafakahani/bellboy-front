@@ -1,6 +1,7 @@
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { useEffect, useState } from "react";
 import { Dropdown } from "./Dropdown";
+import { showError } from "@/lib/toastService";
 
 export interface Category {
   _id: string;
@@ -54,8 +55,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
       const { data } = await authenticatedFetch<Category[]>("/category");
       const parents = data?.filter((category: Category) => category.isParent);
       setParentCategories(parents);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
       setParentCategories([]);
     } finally {
       setIsLoadingParents(false);
@@ -67,8 +68,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
     try {
       const { data } = await authenticatedFetch<Category[]>(`/category/${parentId}`);
       setChildCategories(data || []);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
       setChildCategories([]);
     } finally {
       setIsLoadingChildren(false);

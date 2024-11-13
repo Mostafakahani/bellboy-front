@@ -149,7 +149,12 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
     const updateCartCount = () => {
       try {
         const cartItems = loadState("cart");
-        setCartItemsCount(cartItems.length);
+        // Ensure cartItems is an array before checking its length
+        if (Array.isArray(cartItems) && cartItems.length < 1) {
+          setCartItemsCount(cartItems.length);
+        } else {
+          setCartItemsCount(cartItems ? cartItems.length : 0);
+        }
       } catch (error) {
         console.log(error);
         setCartItemsCount(0);

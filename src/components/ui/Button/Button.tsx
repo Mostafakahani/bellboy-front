@@ -35,7 +35,7 @@ const iconSizeStyles = {
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "tertiary";
   size?: "sm" | "md" | "lg";
-  icon?: "plus" | "minus" | "trash" | "right" | "gps" | "edit" | "left" | boolean;
+  icon?: "plus" | "minus" | "trash" | "right" | "gps" | "edit" | "left" | "bottom" | boolean;
   isError?: boolean;
   iconOnly?: boolean;
   children?: React.ReactNode;
@@ -75,6 +75,8 @@ const Button: React.FC<ButtonProps> = ({
         return <BackArrowIcon className="w-5 h-5" />;
       case "left":
         return <LeftArrowIcon />;
+      case "bottom":
+        return <LeftArrowIcon className="transform -rotate-90" />;
       case "gps":
         return <GPSIcon />;
       case "edit":

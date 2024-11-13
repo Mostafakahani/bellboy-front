@@ -6,7 +6,6 @@ async function BellShopPage() {
   // Fetch data on server side
   const categories = await fetchCategories();
   const initialProducts = await fetchInitialProducts(categories[0]?._id);
-
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ClientShop initialCategories={categories} initialProducts={initialProducts} />

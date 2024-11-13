@@ -90,7 +90,7 @@ const AddressList: React.FC<AddressListProps> = ({
                   </div>
                   <div className="flex flex-row items-start">
                     <Image width={30} height={30} src={"/images/icons/gps.svg"} alt="gps icon" />
-                    <p className="text-sm text-gray-600 line-clamp-2">{`${address.province}، ${address.city}، ${address.address}`}</p>
+                    <p className="text-sm text-right text-gray-600 line-clamp-2">{`${address.province}، ${address.city}، ${address.address}`}</p>
                   </div>
                 </div>
               </div>

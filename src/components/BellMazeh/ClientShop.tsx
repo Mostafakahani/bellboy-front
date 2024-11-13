@@ -365,13 +365,14 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
             );
           } else {
             addToCart(product._id);
+            setIsModalOpen(true);
           }
         }}
       >
         {isInCart ? (
           <div className="text-black flex flex-row items-center justify-between gap-2">
             <PlusIcon
-              className={`${isLoading ? "opacity-50" : ""} cursor-pointer`}
+              className={`${isLoading ? "opacity-50" : ""} size-6 cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -388,7 +389,7 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
             </span>
             <TrashIcon
-              className={`${isLoading ? "opacity-50" : ""} cursor-pointer`}
+              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
               onClick={async (e) => {
                 e.stopPropagation();
                 e.preventDefault();

@@ -140,7 +140,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   };
 
   return (
-    <div className="p-4 mt-16 flex flex-col justify-between items-center min-h-[85vh]">
+    <div className="p-4 my-16 flex flex-col justify-between items-center min-h-[85vh]">
       <div className="w-full mt-5 flex flex-row justify-between items-center">
         <div className="w-full flex flex-row gap-x-3 text-sm items-center justify-start">
           {Array.isArray(product.id_categories) &&
