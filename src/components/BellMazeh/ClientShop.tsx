@@ -365,7 +365,7 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
             );
           } else {
             addToCart(product._id);
-            setIsModalOpen(true);
+            setIsModalCheckOutOpen(true);
           }
         }}
       >

@@ -16,6 +16,7 @@ import { Modal } from "@/components/BellMazeh/Modal";
 import { Dropdown } from "@/components/Dashboard/Dropdown";
 import LocationUi from "@/components/LocationUi";
 import SupportConnetction from "@/components/SupportConnetction";
+import Image from "next/image";
 export interface FormData {
   addresses: Address[];
   selectedAddress: Address | null;
@@ -248,7 +249,7 @@ export default function BellServicePage() {
       id: 2,
       label: "سرویس",
       content: <ServiceForm onFormChange={handleFormChange} />,
-      isComplete: () => true, ///formData.selectedServices.length > 0,
+      isComplete: () => formData.selectedServices.length > 0,
     },
     {
       id: 3,
@@ -343,13 +344,13 @@ export default function BellServicePage() {
         </div>
         <div className="my-10">
           <div className="w-full">
-            <LineIcon className="w-full !my-0" />
-            {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
+            {/* <LineIcon className="w-full !my-0" /> */}
+            <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
           </div>
           <LocationUi />
           <div className="w-full">
-            <LineIcon className="w-full !my-0" />
-            {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
+            {/* <LineIcon className="w-full !my-0" /> */}
+            <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" />
           </div>
         </div>
         <SupportConnetction />

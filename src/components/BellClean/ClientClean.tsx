@@ -8,7 +8,7 @@ import { ServiceForm } from "@/components/ServiceForm/ServiceForm";
 import { Modal } from "@/components/BellMazeh/Modal";
 import MainHeader from "@/components/mobile/Header/MainHeader";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
-import { LineIcon, OneLineIcon } from "@/icons/Icons";
+import { LeftArrowIcon, LineIcon, OneLineIcon } from "@/icons/Icons";
 import Image from "next/image";
 import { Clean } from "@/app/dashboard/clean/create/page";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
@@ -59,16 +59,16 @@ export default function PlanCleanPage({ planDatas }: { planDatas: Clean[] }) {
   });
   const authenticatedFetch = useAuthenticatedFetch();
   const [isLoading, setIsLoading] = useState(true);
-  // const [isModalSelectedPlanOpen, setIsModalSelectedPlanOpen] = useState(false);
+  const [isModalSelectedPlanOpen, setIsModalSelectedPlanOpen] = useState(false);
   const [allPlans, setAllPlans] = useState<PlanItem[]>();
-  // const [selectedPlan, setSelectedPlan] = useState<PlanItem>();
+  const [selectedPlan, setSelectedPlan] = useState<PlanItem>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fetchedData, setFetchedData] = useState<PlanCleanData>({});
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
-  // const handleViewDetails = (planItem: PlanItem) => {
-  //   setSelectedPlan(planItem);
-  //   setIsModalSelectedPlanOpen(true);
-  // };
+  const handleViewDetails = (planItem: PlanItem) => {
+    setSelectedPlan(planItem);
+    setIsModalSelectedPlanOpen(true);
+  };
   const fetchSubs = async (cleanId: string) => {
     setIsLoading(true);
     try {
@@ -319,7 +319,7 @@ export default function PlanCleanPage({ planDatas }: { planDatas: Clean[] }) {
                           <p>{formatCurrency(planItem.price)}</p>
                         </div>
                       </div>
-                      {/* <div className="w-full flex justify-center items-center mt-5">
+                      <div className="w-full flex justify-center items-center mt-5">
                         <button
                           onClick={() => handleViewDetails(planItem)}
                           className="w-full rounded-full bg-gray-50 border-2 border-black py-1 text-xs font-bold flex flex-row gap-2 justify-center items-center"
@@ -327,7 +327,7 @@ export default function PlanCleanPage({ planDatas }: { planDatas: Clean[] }) {
                           مشاهده جزییات
                           <LeftArrowIcon className="transform -rotate-90" />
                         </button>
-                      </div> */}
+                      </div>
                     </div>
                   );
                 })}
@@ -352,6 +352,47 @@ export default function PlanCleanPage({ planDatas }: { planDatas: Clean[] }) {
             onFormChange={handleFormChange}
             handleSubmit={handleSubmit}
           />
+        </Modal>
+
+        <Modal
+          isOpen={isModalSelectedPlanOpen && selectedPlan ? true : false}
+          onClose={() => setIsModalSelectedPlanOpen(false)}
+          title="جزییات"
+        >
+          {selectedPlan && (
+            <div className="space-y-4">
+              {/* نمایش عنوان هر داده */}
+              <div>
+                <h3 className="font-semibold text-xl">عنوان‌ها:</h3>
+                <ul className="list-disc pl-5">
+                  {selectedPlan.data.data.map((x, index) => (
+                    <li key={index}>{x.title}</li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* نمایش مقادیر هر داده */}
+              <div>
+                <h3 className="font-semibold text-xl">مقادیر:</h3>
+                <ul className="list-disc pl-5">
+                  {selectedPlan.data.data.map((x, index) => (
+                    <li key={index}>{x.count}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-xl">اطلاعات اضافی:</h3>
+                <ul className="list-disc pl-5">
+                  {selectedPlan.data.data
+                    .flatMap((x) => x.data)
+                    .map((x, index) => (
+                      <li key={index}>{x}</li>
+                    ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </Modal>
       </div>
     </>

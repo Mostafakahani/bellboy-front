@@ -46,6 +46,12 @@ const DashboardDrawer: React.FC<DashboardDrawerProps> = ({ isOpen, onClose }) =>
       arabic: "ساختن پلن کلین",
       link: "/dashboard/clean/plan-clean",
     },
+    {
+      icon: "/images/icons/bellService.svg",
+      name: "Create Service",
+      arabic: "ساختن سرویس",
+      link: "/dashboard/service",
+    },
     // {
     //   icon: "/images/icons/bellService.svg",
     //   name: "Bell Service",
