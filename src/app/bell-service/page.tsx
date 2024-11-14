@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/Input/Input";
 import DateTimeSelector, { TimeSlot } from "@/components/DateTimeSelector";
 import HandType from "@/components/HandType";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
-import { LineIcon } from "@/icons/Icons";
 import { LocationForm } from "@/components/Location/LocationForm";
 import { showError, showSuccess } from "@/lib/toastService";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
@@ -20,14 +19,16 @@ import Image from "next/image";
 export interface FormData {
   addresses: Address[];
   selectedAddress: Address | null;
-  selectedServices: any[];
+  selectedParent: ParentService | null;
+  selectedChild: ChildService | null;
+  selectedServices: any;
+
   selectedDateTime: {
     date: string;
     time: TimeSlot;
     timeSlotId: string;
   } | null;
   paymentComplete: boolean;
-  selectedChild: ChildService | any;
   desc: string;
 }
 export interface ParentService {
@@ -162,10 +163,12 @@ export default function BellServicePage() {
   const [formData, setFormData] = useState<FormData>({
     addresses: [],
     selectedAddress: null,
+    selectedParent: null,
     selectedServices: [],
+
     selectedDateTime: null,
     paymentComplete: false,
-    selectedChild: [],
+    selectedChild: null,
     desc: "",
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -249,7 +252,20 @@ export default function BellServicePage() {
       id: 2,
       label: "سرویس",
       content: <ServiceForm onFormChange={handleFormChange} />,
-      isComplete: () => formData.selectedServices.length > 0,
+      isComplete: () => {
+        // بررسی وجود سرویس والد
+        if (!formData.selectedParent?._id) {
+          return false;
+        }
+
+        // بررسی وجود سرویس فرزند
+        if (!formData.selectedChild?._id) {
+          return false;
+        }
+
+        // desc اختیاری است، پس نیازی به بررسی آن نیست
+        return true;
+      },
     },
     {
       id: 3,
@@ -271,11 +287,12 @@ export default function BellServicePage() {
     setFormData({
       addresses: [],
       selectedAddress: null,
-      selectedServices: [],
+      selectedParent: null,
       selectedDateTime: null,
       paymentComplete: false,
-      selectedChild: [],
+      selectedChild: null,
       desc: "",
+      selectedServices: [],
     });
     /////clean input values
   };
@@ -291,7 +308,7 @@ export default function BellServicePage() {
           delivery: formData.selectedDateTime?.timeSlotId,
           address: formData.selectedAddress._id,
           type: "service",
-          id_service_option: formData.selectedChild._id,
+          id_service_option: formData.selectedChild?._id,
           description: formData.desc,
         }),
       });
