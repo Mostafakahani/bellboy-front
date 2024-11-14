@@ -9,6 +9,7 @@ interface ModalProps {
   children: React.ReactNode;
   title?: string;
   haveBorder?: boolean;
+  px?: boolean;
   customStyle?: string;
 }
 
@@ -19,6 +20,7 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   haveBorder = false,
   customStyle,
+  px = false,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -91,7 +93,9 @@ export const Modal: React.FC<ModalProps> = ({
                       <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
                     </button>
                   </div>
-                  <div className={`w-full ${customStyle || "mt-8 sm:mt-10"}`}>{children}</div>
+                  <div className={`w-full ${customStyle || "mt-8 sm:mt-10"} ${px ? "px-4" : ""}`}>
+                    {children}
+                  </div>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

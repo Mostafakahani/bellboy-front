@@ -41,6 +41,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
   onXsIsText?: boolean;
   loading?: boolean;
+  textClassName?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -54,6 +55,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   onXsIsText = false,
   loading = false,
+  textClassName,
   ...props
 }) => {
   const variantClass = variantStyles[variant][isError ? "error" : "default"];
@@ -94,9 +96,11 @@ const Button: React.FC<ButtonProps> = ({
     >
       {!iconOnly && children && (
         <span
-          className={`${onXsIsText ? "block" : "hidden"}  md:block ${icon ? "ml-2" : "text-sm "} ${
-            disabled || loading ? "!text-slate-600" : "text-black"
-          }${isError && "!text-red-600"} !text-base`}
+          className={`${onXsIsText ? "block" : "hidden"}  md:block ${
+            icon ? "ml-2" : "text-sm "
+          } ${textClassName} ${disabled || loading ? "!text-slate-600" : "text-black"}${
+            isError && "!text-red-600"
+          } !text-base`}
         >
           {children}
         </span>

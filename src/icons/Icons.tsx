@@ -2,20 +2,24 @@ import React from "react";
 
 export const LineIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
-    width="375"
-    height="50"
-    viewBox="0 0 375 50"
+    width="961"
+    height="14"
+    viewBox="0 0 961 14"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
+    style={{
+      marginTop: "1.25rem",
+      marginBottom: "1.25rem",
+    }}
   >
     <path
-      d="M-0.000164071 34.1701C75.0794 34.1101 329.167 30.0245 375 34.4673"
+      d="M-0.00100783 2.71065C192.203 2.72387 842.662 -1.11396 959.999 3.37352"
       stroke="black"
       strokeWidth="2"
     />
     <path
-      d="M-0.000822811 43.4443C75.08 41.8543 185.002 38.3789 375 42.6393"
+      d="M-0.0016599 12.3501C192.204 10.8333 473.601 7.46511 959.999 11.9108"
       stroke="black"
       strokeWidth="2"
     />

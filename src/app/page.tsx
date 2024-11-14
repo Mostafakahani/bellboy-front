@@ -27,6 +27,7 @@ import MainSlider from "@/components/ui/Slider/ProfileSlider";
 import OfficeLocations from "@/components/ui/OfficeLocations";
 import Footer from "@/components/mobile/Footer/Footer";
 import Link from "next/link";
+import SupportConnetction from "@/components/SupportConnetction";
 interface Item {
   icon: JSX.Element;
   label: string;
@@ -367,20 +368,7 @@ export default function Home() {
             loading="eager"
           />
         </div>
-        <div className="mb-20 max-w-3xl">
-          <div className="w-full flex flex-col justify-start items-center mt-10">
-            <span className="text-2xl relative inline-block mr-1">
-              <span className="relative z-10 font-bold">مریم هستم</span>
-              <span className="absolute bottom-1.5 left-0 w-full h-[6px] bg-[#48FDBC]"></span>
-            </span>
-          </div>
-          <p className="text-center text-xl mt-2">پشتیبان و همراه شما</p>
-          <div className="flex flex-col justify-start items-center my-5">
-            <Button variant="secondary" onXsIsText icon="left">
-              شروع گفتگو
-            </Button>
-          </div>
-        </div>
+        <SupportConnetction />
       </div>
       <div className="w-full flex items-center flex-col">
         <Footer />

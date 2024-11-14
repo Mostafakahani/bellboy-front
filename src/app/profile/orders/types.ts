@@ -44,7 +44,7 @@ export interface Order {
   price: number;
   startHour: string;
   endHour: string;
-  status: string;
+  status: "PREPARING" | "CANCELLED";
   paymentStatus: string;
   orderNumber: string;
 }

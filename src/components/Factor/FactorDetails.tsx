@@ -7,6 +7,8 @@ import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { getCookie } from "cookies-next";
 import { showError, showSuccess } from "@/lib/toastService";
 import { Product } from "@/hooks/cartType";
+import Image from "next/image";
+import ErrorDialog from "../Profile/ErrorDialog";
 
 interface FormData {
   addresses: any[];
@@ -33,6 +35,7 @@ interface OrderItem {
 interface OrderData {
   status: string;
   message: string;
+  TypeOrder?: string;
   data: {
     id_user: string;
     data: OrderItem[];
@@ -67,24 +70,25 @@ interface FactorFormProps {
   planIds?: string[];
 }
 
-export default function FactorForm({
+const FactorForm: React.FC<FactorFormProps> = ({
   formData,
   onFormChange,
   type = "shop",
   planIds = undefined,
-}: FactorFormProps) {
+}) => {
   const authenticatedFetch = useAuthenticatedFetch();
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [orderData, setOrderData] = useState<OrderData | null>();
   const [isLoading, setIsLoading] = useState(false);
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
       return message.join(" ");
     }
-    return message?.toString() || "خطای ناشناخته رخ داده است";
+    return message?.toString() || "Unknown error occurred";
   };
 
   const handleApplyDiscount = async () => {
@@ -94,7 +98,7 @@ export default function FactorForm({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/${orderData?.data._id}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/${orderData.data._id}`,
         {
           method: "POST",
           headers: {
@@ -111,10 +115,10 @@ export default function FactorForm({
         setIsDiscountModalOpen(false);
         setOrderData(data);
       } else {
-        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
+        throw new Error(formatErrorMessage(data?.message) || "Error submitting information");
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+      showError(err instanceof Error ? err.message : "Error connecting to the server");
       console.error("Error applying discount:", err);
     } finally {
       setIsDiscountModalOpen(false);
@@ -122,6 +126,38 @@ export default function FactorForm({
     }
   };
 
+  const handleCancelAddress = async () => {
+    setIsLoading(true);
+    const token = getCookie("auth_token");
+    if (!orderData?.data._id) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/cancel/${orderData.data._id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        showSuccess(formatErrorMessage(data?.message));
+        window.location.reload();
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "Error submitting information");
+      }
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Error connecting to the server");
+      console.error("Error removing discount:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleRemoveDiscount = async () => {
     setIsLoading(true);
     const token = getCookie("auth_token");
@@ -129,7 +165,7 @@ export default function FactorForm({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/remove-discount-order/${orderData?.data._id}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/order/remove-discount-order/${orderData.data._id}`,
         {
           method: "GET",
           headers: {
@@ -145,15 +181,16 @@ export default function FactorForm({
         showSuccess(formatErrorMessage(data?.message));
         setOrderData(data);
       } else {
-        throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
+        throw new Error(formatErrorMessage(data?.message) || "Error submitting information");
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+      showError(err instanceof Error ? err.message : "Error connecting to the server");
       console.error("Error removing discount:", err);
     } finally {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     const createOrder = async () => {
       console.log({ type, planIds });
@@ -162,15 +199,18 @@ export default function FactorForm({
       }
 
       try {
-        const response = await authenticatedFetch(`/order/${type !== "shop" ? type : ""}`, {
-          method: "POST",
-          body: JSON.stringify({
-            delivery: formData.selectedDateTime.timeSlotId,
-            address: formData.selectedAddress._id,
-            type: type,
-            plans: type === "clean" ? planIds : undefined,
-          }),
-        });
+        const response = await authenticatedFetch(
+          `/order${type === "service" ? "/service" : type === "clean" ? "/clean" : ""}`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              delivery: formData.selectedDateTime.timeSlotId,
+              address: formData.selectedAddress._id,
+              type: type,
+              plans: type === "clean" ? planIds : undefined,
+            }),
+          }
+        );
 
         if (response.error) {
           throw new Error(formatErrorMessage(response.message));
@@ -180,10 +220,10 @@ export default function FactorForm({
           setOrderData(response as OrderData);
           onFormChange({ paymentComplete: true });
         } else {
-          throw new Error(response.message || "خطا در دریافت اطلاعات سفارش");
+          throw new Error(response.message || "Error fetching order information");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+        setError(err instanceof Error ? err.message : "Error connecting to the server");
       } finally {
         setIsLoading(false);
       }
@@ -195,13 +235,15 @@ export default function FactorForm({
   const calculateDiscountedPrice = (price: number, discount: number) => {
     return price - (price * discount) / 100;
   };
+
   if (isLoading) {
-    return <div className="text-center p-4">در حال بارگذاری...</div>;
+    return <div className="text-center p-4">درحال بارگزاری...</div>;
   }
 
   if (error) {
     return <div className="text-red-500 p-4 text-center">{error}</div>;
   }
+
   const renderOrderItem = (item: Product, index: number, isFirstItem: boolean) => {
     return (
       <div key={item.id} className="w-full">
@@ -248,12 +290,10 @@ export default function FactorForm({
 
     return orderData.data.data.map((orderItem, index) => {
       if (orderItem.IsTastePyramids && orderItem.dataTastePyramids) {
-        // Render tasting tray items
         return orderItem.dataTastePyramids.map((item, itemIndex) =>
           renderOrderItem(item, itemIndex, index === 0 && itemIndex === 0)
         );
       } else if (!orderItem.IsTastePyramids && orderItem.id) {
-        // Render regular items
         return renderOrderItem(
           {
             id: orderItem.id,
@@ -271,29 +311,30 @@ export default function FactorForm({
   };
 
   if (!orderData?.data) {
-    return <div className="text-center p-4">اطلاعات سفارش در دسترس نیست</div>;
+    return <div className="text-center p-4">Order information is not available</div>;
   }
 
   const { data: orderItems, price: subtotal } = orderData.data;
+  console.log(orderItems);
   const TAX_RATE = 0.1;
   const tax = subtotal * TAX_RATE;
-  console.log(orderItems);
-  const discount = (orderData.data.id_discount?.discountPercentage || 0) / 100;
-  const total = subtotal + tax - (subtotal + tax) * discount;
+  const discountPercentage = orderData.data.id_discount?.discountPercentage || 0;
+  const discount = (discountPercentage / 100) * subtotal; // استفاده از subtotal به جای totalPrice
+  const total = subtotal + tax - (subtotal + tax) * (discountPercentage / 100);
 
   return (
     <div className="bg-white pt-0">
       <div className="relative bottom-2.5 bg-[#FFFF00] !py-9 text-sm mb-0 px-4 md:px-6 lg:px-8 flex flex-row justify-between items-center font-bold">
         <p className="flex flex-row gap-x-1 items-center">
           <ClockIcon />
-          <span>حداکثر زمان تحویل:</span>
+          <span>زمان تحویل:</span>
         </p>
         <span>{`${orderData.data.startHour} - ${orderData.data.endHour}`}</span>
       </div>
 
       <div className="relative bottom-10 flex flex-col">
         <div className="w-full relative">
-          <LineIcon className="w-full" />
+          <LineIcon />
         </div>
 
         <div className="flex flex-col gap-3 mt-0 py-4">{renderOrderItems()}</div>
@@ -309,37 +350,41 @@ export default function FactorForm({
             <span className="text-md font-bold">مالیات بر ارزش افزوده</span>
             <span>{formatCurrency(tax)}</span>
           </div>
+          {orderData.data.id_discount?._id && (
+            <div className="flex justify-between">
+              <span className="text-md font-bold">تخفیف</span>
+              <span>{formatCurrency(discount)}</span>
+            </div>
+          )}
         </div>
 
-        <div className="w-full relative border-b-2 border-black my-4"></div>
+        <div className="w-full relative border-b-2 border-black mt-4"></div>
 
-        <div className="flex flex-row justify-between items-center gap-4 my-6 px-4 md:px-6 lg:px-8">
+        <div className="flex flex-row justify-between items-center gap-4 px-4 py-5 md:px-6 lg:px-8 bg-primary-200">
           {orderData.data.id_discount?._id ? (
             <div className="w-full flex flex-row justify-between items-center">
-              <div className="flex flex-col gap-y-3 justify-between text-red-600">
-                <span className="text-md font-bold">کد تخفیف</span>
-                <span>{orderData?.data?.id_discount?.code}</span>
+              <div className="flex flex-col gap-y-3 justify-between">
+                <span className="text-sm font-bold">
+                  کد تخفیف به ارزش {orderData?.data?.id_discount?.discountPercentage}% ثبت شد
+                </span>
               </div>
               <div>
-                <Button
-                  onXsIsText
-                  loading={isLoading}
-                  variant="tertiary"
-                  icon="trash"
-                  isError
-                  className="!p-0"
+                <button
                   onClick={handleRemoveDiscount}
+                  type="button"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="بستن"
                 >
-                  حذف کد تخفیف
-                </Button>
+                  <Image width={20} height={20} src="/images/icons/close.svg" alt="close" />
+                </button>
               </div>
             </div>
           ) : (
             <>
               <p className="text-sm font-light text-right">
-                اگر کد تخفیف بل‌بوی دارید
+                اگر کدتخفیف بل بوی دارید
                 <br />
-                درکادر زیر وارد کنید
+                در کادر زیر وارد کنید
               </p>
               <Button
                 onXsIsText
@@ -347,6 +392,7 @@ export default function FactorForm({
                 variant="tertiary"
                 icon="plus"
                 className="!p-0"
+                textClassName="!text-sm"
                 onClick={() => setIsDiscountModalOpen(true)}
               >
                 کد تخفیف
@@ -355,14 +401,28 @@ export default function FactorForm({
           )}
         </div>
 
+        <div className="w-full relative border-b-2 border-black mb-4"></div>
+        <div className="flex flex-row justify-between items-center gap-4 md:px-6 lg:px-8">
+          <div
+            className="w-full flex flex-row justify-center items-center text-red-400 text-center font-bold text-sm"
+            onClick={() => setOpenCancelDialog(true)}
+          >
+            لغو سفارش
+          </div>
+        </div>
         <div className="w-full relative border-b-2 border-black my-4"></div>
-
         <div className="flex justify-between font-bold text-lg mt-4 px-4 md:px-6 lg:px-8">
           <span className="text-sm">مبلغ قابل پرداخت</span>
           <span className="text-sm font-bold">{formatCurrency(total)}</span>
         </div>
       </div>
-
+      <ErrorDialog
+        isOpen={openCancelDialog}
+        onClose={() => setOpenCancelDialog(false)}
+        onDelete={handleCancelAddress}
+        message="آیا مطمئن هستید؟"
+        buttonMessage="بله، لفو سفارش کن"
+      />
       <DiscountDialog
         isLoading={isLoading}
         isOpen={isDiscountModalOpen}
@@ -374,4 +434,6 @@ export default function FactorForm({
       />
     </div>
   );
-}
+};
+
+export default FactorForm;

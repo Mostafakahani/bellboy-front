@@ -47,16 +47,20 @@ export default function OrderList({ orders }: OrderListProps) {
           alt="بستن"
         />
       </div>
-      {orders.map((order) => (
-        <div
-          key={order._id}
-          onClick={() => openOrderDetails(order)}
-          className="flex flex-row items-center gap-3 rounded-xl border-2 border-black p-5 mb-2 text-right cursor-pointer"
-        >
-          <p className="font-bold text-sm">سفارش {order.orderNumber}</p>
-          <p className="text-[11px] rounded-full py-1 px-2 bg-gray-100 font-black">{order.date}</p>
-        </div>
-      ))}
+      <div className="w-full flex flex-col-reverse">
+        {orders.map((order) => (
+          <div
+            key={order._id}
+            onClick={() => openOrderDetails(order)}
+            className="flex flex-row items-center gap-3 rounded-xl border-2 border-black p-5 mb-2 text-right cursor-pointer"
+          >
+            <p className="font-bold text-sm">سفارش {order.orderNumber}</p>
+            <p className="text-[11px] rounded-full py-1 px-2 bg-gray-100 font-black">
+              {order.date}
+            </p>
+          </div>
+        ))}
+      </div>
 
       {/* مودال برای جزئیات سفارش */}
       {isModalOpen && (

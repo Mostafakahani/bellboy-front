@@ -1,4 +1,5 @@
 import { InstagramIcon, LinkedinIcon, TelegramIcon, WhatsAppIcon, XIcon } from "@/icons/Icons";
+import { getCookie } from "cookies-next";
 import Link from "next/link";
 import React from "react";
 
@@ -9,6 +10,7 @@ interface DrawerMenuProps {
 }
 
 const DrawerMenu: React.FC<DrawerMenuProps> = ({ isDrawerOpen, toggleDrawer, links }) => {
+  const token = getCookie("auth_token");
   return (
     <div
       className={`fixed z-40 top-0 left-0 h-dvh overflow-y-hidden w-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
@@ -20,11 +22,19 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ isDrawerOpen, toggleDrawer, lin
       </button>
       <div className="p-4 mx-4 flex flex-col gap-2">
         <div className="w-full mb-12">
-          <Link href={"/profile/auth"}>
-            <button className="bg-[#69ffc3] text-black border-[2px] py-3 font-bold w-full border-black hover:bg-primary-300 active:bg-black rounded-full active:text-white disabled:bg-primary-100 disabled:text-emerald-300 disabled:border-black/30">
-              ورود به حساب / ثبت نام
-            </button>
-          </Link>
+          {token ? (
+            <Link href={"/profile"}>
+              <button className="bg-[#69ffc3] text-black border-[2px] py-3 font-bold w-full border-black hover:bg-primary-300 active:bg-black rounded-full active:text-white disabled:bg-primary-100 disabled:text-emerald-300 disabled:border-black/30">
+                پروفایل کاربری
+              </button>
+            </Link>
+          ) : (
+            <Link href={"/profile/auth"}>
+              <button className="bg-[#69ffc3] text-black border-[2px] py-3 font-bold w-full border-black hover:bg-primary-300 active:bg-black rounded-full active:text-white disabled:bg-primary-100 disabled:text-emerald-300 disabled:border-black/30">
+                ورود به حساب / ثبت نام
+              </button>
+            </Link>
+          )}
         </div>
         <nav>
           <ul className="flex flex-col gap-10">
@@ -41,7 +51,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ isDrawerOpen, toggleDrawer, lin
           <div className="w-full">
             <p className="text-center font-bold">ما را دنبال کنید</p>
           </div>
-          <div className="w-full flex flex-row justify-between mt-5">
+          <div className="w-full flex flex-row justify-between mt-5 text-black">
             <InstagramIcon />
             <TelegramIcon />
             <LinkedinIcon />

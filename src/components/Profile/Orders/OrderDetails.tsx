@@ -14,7 +14,8 @@ export default function OrderDetails({ order, onClose }: OrderDetailsProps) {
     return null;
   }
   const isDiscounted = false;
-  const isPending = order.status === "PREPARING" ? "در حال تامین" : "";
+  const isPending =
+    order.status === "PREPARING" ? "در حال تامین" : order.status === "CANCELLED" ? "لغو شده" : "";
 
   return (
     <div className="relative">
@@ -28,7 +29,11 @@ export default function OrderDetails({ order, onClose }: OrderDetailsProps) {
       <div className={`w-full`}>
         <div
           className={`w-full border-t-2 border-black flex flex-col gap-3 p-6 ${
-            isPending ? "bg-[#FFFF00]" : "bg-gray-100"
+            order.status === "PREPARING"
+              ? "bg-[#FFFF00]"
+              : order.status === "CANCELLED"
+              ? "bg-gray-300"
+              : "bg-primary-400"
           }`}
         >
           <div className="flex flex-row justify-between text-right text-sm font-bold mb-2">
@@ -46,7 +51,7 @@ export default function OrderDetails({ order, onClose }: OrderDetailsProps) {
             <span className="font-black">{isPending}</span>
           </div>
         </div>
-        <div className="w-full absolute left-0 top-[155px]">
+        <div className="w-full absolute left-0 top-[170px]">
           <LineIcon className="w-full" />
           {/* <Image width={1080} height={150} className="w-full" src="/images/line.svg" alt="" /> */}
         </div>

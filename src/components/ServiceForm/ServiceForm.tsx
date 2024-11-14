@@ -135,7 +135,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ formData, onFormChange
               </span>
             </div>
           </div>
-          <div className="relative" style={{ top: "-50px" }}>
+          <div className="relative" style={{ top: "-30px" }}>
             <LineIcon className="w-full relative" />
           </div>
           {/* Services */}
@@ -149,7 +149,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ formData, onFormChange
                     {service.count} عدد
                   </span>
                 </div>
-                <p className="mt-2 text-[11px]">{service.data.join(", ")}</p>
+                <p className="mt-2 text-[11px] text-right">{service.data.join(", ")}</p>
               </div>
             ))}
           </div>

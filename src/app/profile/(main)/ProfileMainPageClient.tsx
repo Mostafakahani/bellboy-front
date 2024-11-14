@@ -42,7 +42,7 @@ const ProfileMainPageClient: React.FC<ProfileMainPageClientProps> = ({ profileDa
         <p className="text-xs">شناسه: {profileData._id}</p>
       </div>
       <div className="w-full">
-        <LineIcon />
+        <LineIcon className="w-full" />
       </div>
       <div className="w-full flex flex-col px-8 mt-2">
         <div className="w-full flex flex-row justify-between border-b border-black my-2 pb-4">

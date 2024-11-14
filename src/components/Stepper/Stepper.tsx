@@ -30,7 +30,10 @@ const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, curr
         const isUpcoming = index > currentStep - 1;
 
         return (
-          <div key={step.id} className="flex items-center flex-1 last:flex-none relative">
+          <div
+            key={step.id}
+            className="flex items-center flex-1 last:flex-none relative min-w-[79px]"
+          >
             <div className={`flex items-center z-10 ${index >= currentStep && "flex-row-reverse"}`}>
               <div
                 className={`ml-1 w-[34px] h-6 flex items-center justify-center rounded-full text-xs
@@ -97,7 +100,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   return (
     <div className="max-w-2xl mx-auto flex flex-col justify-between min-h-[85vh]">
       <div className="w-full h-full">
-        <div className="w-full overflow-y-auto">
+        <div className="w-full overflow-y-auto px-4">
           <Stepper steps={steps} currentStep={currentStep} />
           {/* <div className="w-full border-b-2 border-black absolute top-36 left-0"></div> */}
         </div>
