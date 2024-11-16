@@ -16,7 +16,7 @@ interface FormData {
   selectedDateTime: {
     timeSlotId: string;
     date: string;
-    time: any;
+    time: { _id: string };
   } | null;
   paymentComplete: boolean;
 }
@@ -80,6 +80,8 @@ const FactorForm: React.FC<FactorFormProps> = ({
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [orderData, setOrderData] = useState<OrderData | null>();
+  const [shippingPrice, setShippingPrice] = useState<number>(0);
+  const [taxValue, setTaxValue] = useState<number>();
   const [isLoading, setIsLoading] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -204,10 +206,15 @@ const FactorForm: React.FC<FactorFormProps> = ({
           {
             method: "POST",
             body: JSON.stringify({
-              delivery: formData.selectedDateTime.timeSlotId,
+              delivery:
+                formData.selectedDateTime.time._id === "custom-delivery"
+                  ? undefined
+                  : formData.selectedDateTime.timeSlotId,
               address: formData.selectedAddress._id,
-              type: type,
+              type: type || "shop",
               plans: type === "clean" ? planIds : undefined,
+              expires_at:
+                formData.selectedDateTime.timeSlotId === "custom-delivery" ? true : undefined,
             }),
           }
         );
@@ -231,6 +238,40 @@ const FactorForm: React.FC<FactorFormProps> = ({
 
     createOrder();
   }, [formData.selectedAddress?._id, formData.selectedDateTime?.timeSlotId]);
+  useEffect(() => {
+    const fetchShippingPrice = async () => {
+      try {
+        setIsLoading(true);
+        const { data } = await authenticatedFetch<any>("/setting/shipping");
+
+        setShippingPrice(data?.value || 0);
+      } catch (error) {
+        console.error("Error fetching delivery times:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const getTaxValue = async () => {
+      try {
+        const response = await authenticatedFetch<any>(`/setting/tax`, {
+          method: "GET",
+        });
+
+        if (response.error) {
+          throw new Error(formatErrorMessage(response.message));
+        }
+        console.log(response.data.value);
+        setTaxValue(response?.data?.value);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error connecting to the server");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchShippingPrice();
+    getTaxValue();
+  }, [formData.selectedAddress?._id]);
 
   const calculateDiscountedPrice = (price: number, discount: number) => {
     return price - (price * discount) / 100;
@@ -316,8 +357,8 @@ const FactorForm: React.FC<FactorFormProps> = ({
 
   const { data: orderItems, price: subtotal } = orderData.data;
   console.log(orderItems);
-  const TAX_RATE = 0.1;
-  const tax = subtotal * TAX_RATE;
+  const TAX_RATE = taxValue || 0;
+  const tax = subtotal * (TAX_RATE / 100); // تقسیم بر 100 برای تبدیل درصد به اعشار
   const discountPercentage = orderData.data.id_discount?.discountPercentage || 0;
   const discount = (discountPercentage / 100) * subtotal; // استفاده از subtotal به جای totalPrice
   const total = subtotal + tax - (subtotal + tax) * (discountPercentage / 100);
@@ -349,6 +390,10 @@ const FactorForm: React.FC<FactorFormProps> = ({
           <div className="flex justify-between">
             <span className="text-md font-bold">مالیات بر ارزش افزوده</span>
             <span>{formatCurrency(tax)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-md font-bold">هزینه حمل و نقل</span>
+            <span>{formatCurrency(shippingPrice || 0)}</span>
           </div>
           {orderData.data.id_discount?._id && (
             <div className="flex justify-between">

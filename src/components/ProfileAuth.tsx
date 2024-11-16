@@ -159,11 +159,11 @@ const ProfileAuth: React.FC = () => {
         showSuccess(message);
 
         const isProfileComplete = await handleCheckProfileData();
-
+        console.log({ isProfileComplete });
         if (!isProfileComplete) {
           setStep("details");
         } else {
-          router.push("/profile");
+          window.location.reload();
         }
       } else {
         throw new Error(formatErrorMessage(data?.message) || "خطا در تایید کد");

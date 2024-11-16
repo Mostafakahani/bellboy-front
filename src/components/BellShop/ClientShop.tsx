@@ -49,7 +49,7 @@ const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void
   formData,
   onFormChange,
 }) => {
-  return <FactorDetails formData={formData} onFormChange={onFormChange} />;
+  return <FactorDetails type="shop" formData={formData} onFormChange={onFormChange} />;
 };
 
 export default function ClientShop({ initialCategories, initialProducts }: ClientShopProps) {

@@ -47,10 +47,16 @@ const DashboardDrawer: React.FC<DashboardDrawerProps> = ({ isOpen, onClose }) =>
       link: "/dashboard/clean/plan-clean",
     },
     {
-      icon: "/images/icons/bellService.svg",
+      icon: "/images/icons/bellMazeh.svg",
       name: "Create Service",
       arabic: "ساختن سرویس",
       link: "/dashboard/service",
+    },
+    {
+      icon: "/images/icons/bellService.svg",
+      name: "Site Settings",
+      arabic: "تنظیمات",
+      link: "/dashboard/setting",
     },
     // {
     //   icon: "/images/icons/bellService.svg",

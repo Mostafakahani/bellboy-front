@@ -16,8 +16,8 @@ export type TimeSlot = {
   _id: string;
   start: string;
   end: string;
+  expires_at?: boolean;
 };
-
 type DaySchedule = {
   date: string;
   dayName: string;
@@ -40,6 +40,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   const authenticatedFetch = useAuthenticatedFetch();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [weekSchedule, setWeekSchedule] = useState<DaySchedule[]>([]);
+  const [customDelivery, setCustomDelivery] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const getPersianDayName = (dateStr: string): string => {
@@ -58,6 +59,18 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
       .hours(parseInt(startHour.split(":")[0]))
       .minutes(parseInt(startHour.split(":")[1]));
     return slotDateTime.isAfter(now);
+  };
+  const handleCustomDeliverySelect = () => {
+    const customTimeSlot: TimeSlot = {
+      _id: "custom-delivery",
+      start: "",
+      end: "",
+      expires_at: true,
+    };
+    setSelectedTime(customTimeSlot);
+    setSelectedDate(null);
+    // Use current date for custom delivery
+    onSelect(moment().format("YYYY-MM-DD"), customTimeSlot);
   };
 
   const sortTimeSlots = (slots: TimeSlot[]): TimeSlot[] => {
@@ -118,8 +131,21 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
     }
   };
 
+  const getDeliveryCustom = async () => {
+    try {
+      setIsLoading(true);
+      const { data } = await authenticatedFetch<any>("/setting/delivery");
+      setCustomDelivery(data?.title || null);
+    } catch (error) {
+      console.error("Error fetching delivery times:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchDeliveryTimes();
+    getDeliveryCustom();
     // Refresh data every minute to keep the available times current
     const intervalId = setInterval(fetchDeliveryTimes, 60000);
     return () => clearInterval(intervalId);
@@ -166,6 +192,22 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
         <Image src={"/images/icons/hand.png"} width={24} height={24} alt="hand" />
         در زمان مورد نظر در منزل حاضر باشید
       </p>
+
+      {customDelivery && (
+        <button
+          className={`w-full flex flex-row text-right py-3 px-4 mb-4 rounded-xl text-black font-bold border-2 border-black ${
+            selectedTime?.expires_at ? "bg-primary-100" : "bg-white"
+          }`}
+          onClick={handleCustomDeliverySelect}
+        >
+          <InputRadio
+            darkMode={selectedTime?.expires_at}
+            setDarkMode={handleCustomDeliverySelect}
+            className="ml-2"
+          />
+          {customDelivery}
+        </button>
+      )}
 
       <div className="space-y-5">
         {weekSchedule.map((day) => (
