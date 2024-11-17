@@ -375,7 +375,7 @@ const FactorForm: React.FC<FactorFormProps> = ({
 
       <div className="relative bottom-10 flex flex-col">
         <div className="w-full relative">
-          <LineIcon />
+          <LineIcon className="w-full" />
         </div>
 
         <div className="flex flex-col gap-3 mt-0 py-4">{renderOrderItems()}</div>

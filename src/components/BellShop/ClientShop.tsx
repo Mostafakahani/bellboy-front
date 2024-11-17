@@ -468,7 +468,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
               <div className="w-full">
                 <p className="flex flex-row gap-2 text-right mb-2">
                   <ShoppingBasket />
-                  {cart.length} در سبد
+                  {cart.length} محصول در سبد
                 </p>
                 <hr />
               </div>

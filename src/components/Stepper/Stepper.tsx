@@ -7,6 +7,7 @@ interface Step {
   id: number;
   label: string;
   content: React.ReactNode;
+
   isComplete: () => boolean; // Add this line to define isComplete as a function
 }
 
@@ -18,6 +19,7 @@ interface MultiStepFormProps {
     selectedAddress?: any;
     selectedServices?: any[];
   }) => void;
+  // iNeedBTN?: boolean;
   handleSubmit: () => void;
 }
 
@@ -35,7 +37,7 @@ const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, curr
             className="flex items-center flex-1 last:flex-none relative min-w-[79px]"
           >
             <div
-              className={`flex items-center z-10 ${index === 2 && "mr-3"} ${
+              className={`flex items-center z-10 ${index === 2 && "mr-4"} ${
                 index >= currentStep && "flex-row-reverse"
               }`}
             >
@@ -82,6 +84,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   formData,
   onFormChange,
   handleSubmit,
+  // iNeedBTN = true,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -115,7 +118,8 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           })}
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 bg-white  px-4 py-3 z-50">
+      {/* {iNeedBTN && ( */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white  px-4 py-3 z-20">
         <div className="max-w-7xl mx-auto flex justify-between gap-7">
           {currentStep !== 1 && (
             <Button
@@ -140,7 +144,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           </Button>
         </div>
       </div>
-
+      {/* )} */}
       <div className="h-20"></div>
     </div>
   );
