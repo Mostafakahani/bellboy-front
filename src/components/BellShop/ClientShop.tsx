@@ -525,6 +525,13 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             </div>
           </div>
         </div>
+        <div className="w-full flex justify-center items-center mt-4 px-4 md:px-0">
+          <img
+            src="https://static.snapp.express/sliders/11/16/14455288-d9fd-4660-b416-98244038c69a.webp"
+            alt="bnr"
+            className="max-w-md w-full rounded-xl h-[113px] bg-cover"
+          />
+        </div>
 
         <div className="mt-16 mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-y-4 justify-items-center">
           {isLoading ? (
@@ -560,8 +567,8 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
                   className="flex flex-col gap-2"
                   onClick={() => router.push("/bell-shop/" + product._id)}
                 >
-                  <span className="text-sm font-bold">{product.title}</span>
-                  <span className="text-xs line-clamp-2">{product.description}</span>
+                  <span className="text-xs font-bold">{product.title}</span>
+                  <span className="text-[10px] line-clamp-2">{product.description}</span>
                   {product.stock == 2 ? (
                     <span className="text-red-500 text-xs">2 موجودی باقیمانده</span>
                   ) : product.stock == 1 ? (

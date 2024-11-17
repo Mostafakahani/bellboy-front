@@ -129,43 +129,63 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const newLocation = {
-          x: position.coords.latitude,
-          y: position.coords.longitude,
-        };
+    const successCallback = (position: GeolocationPosition) => {
+      const newLocation = {
+        x: position.coords.latitude,
+        y: position.coords.longitude,
+      };
 
-        if (L.latLngBounds(iranBounds).contains(L.latLng(newLocation.x, newLocation.y))) {
-          setCurrentLocation(newLocation);
-          if (mapRef.current) {
-            mapRef.current.flyTo([newLocation.x, newLocation.y], 13);
-          }
-        } else {
-          setError("موقعیت شما خارج از مرزهای ایران است.");
+      // Check if location is within Iran's boundaries
+      const isInIran = L.latLngBounds(iranBounds).contains([newLocation.x, newLocation.y]);
+
+      if (isInIran) {
+        setCurrentLocation(newLocation);
+        if (mapRef.current) {
+          // Use setView instead of flyTo for more reliable positioning
+          mapRef.current.setView([newLocation.x, newLocation.y], 13, {
+            animate: true,
+            duration: 1,
+          });
         }
-        setIsLoading(false);
-      },
-      (error) => {
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setError(
-              "دسترسی به موقعیت مکانی رد شد. لطفاً دسترسی را در تنظیمات مرورگر خود فعال کنید."
-            );
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setError("اطلاعات موقعیت مکانی در دسترس نیست. لطفاً دوباره تلاش کنید.");
-            break;
-          case error.TIMEOUT:
-            setError("درخواست برای دریافت موقعیت مکانی به پایان رسید. لطفاً دوباره تلاش کنید.");
-            break;
-          default:
-            setError("خطای ناشناخته در هنگام دریافت موقعیت مکانی رخ داد. لطفاً دوباره تلاش کنید.");
-        }
-        setIsLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-    );
+      } else {
+        setError("موقعیت شما خارج از مرزهای ایران است.");
+      }
+      setIsLoading(false);
+    };
+
+    const errorCallback = (error: GeolocationPositionError) => {
+      let errorMessage = "خطا در دریافت موقعیت مکانی.";
+
+      switch (error.code) {
+        case GeolocationPositionError.PERMISSION_DENIED:
+          errorMessage =
+            "دسترسی به موقعیت مکانی رد شد. لطفاً دسترسی را در تنظیمات مرورگر خود فعال کنید.";
+          break;
+        case GeolocationPositionError.POSITION_UNAVAILABLE:
+          errorMessage = "اطلاعات موقعیت مکانی در دسترس نیست. لطفاً دوباره تلاش کنید.";
+          break;
+        case GeolocationPositionError.TIMEOUT:
+          errorMessage = "درخواست برای دریافت موقعیت مکانی به پایان رسید. لطفاً دوباره تلاش کنید.";
+          break;
+      }
+
+      setError(errorMessage);
+      setIsLoading(false);
+    };
+
+    const options: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 15000, // Increased timeout to 15 seconds
+      maximumAge: 0, // Always get fresh position
+    };
+
+    try {
+      navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
+    } catch (e) {
+      console.log(e);
+      setError("خطای غیرمنتظره در دریافت موقعیت مکانی.");
+      setIsLoading(false);
+    }
   };
 
   const LocationMarker: React.FC = () => {

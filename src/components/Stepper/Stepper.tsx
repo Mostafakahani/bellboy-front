@@ -34,7 +34,11 @@ const Stepper: React.FC<{ steps: Step[]; currentStep: number }> = ({ steps, curr
             key={step.id}
             className="flex items-center flex-1 last:flex-none relative min-w-[79px]"
           >
-            <div className={`flex items-center z-10 ${index >= currentStep && "flex-row-reverse"}`}>
+            <div
+              className={`flex items-center z-10 ${index === 2 && "mr-3"} ${
+                index >= currentStep && "flex-row-reverse"
+              }`}
+            >
               <div
                 className={`ml-1 w-[34px] h-6 flex items-center justify-center rounded-full text-xs
     ${
@@ -111,30 +115,33 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           })}
         </div>
       </div>
-      <div className="mt-2 mb-4 flex justify-between gap-7 mx-4">
-        {currentStep !== 1 && (
+      <div className="fixed bottom-0 left-0 right-0 bg-white  px-4 py-3 z-50">
+        <div className="max-w-7xl mx-auto flex justify-between gap-7">
+          {currentStep !== 1 && (
+            <Button
+              icon="right"
+              variant="secondary"
+              onClick={handlePrevStep}
+              disabled={currentStep === 1}
+            >
+              قبلی
+            </Button>
+          )}
           <Button
-            icon="right"
-            variant="secondary"
-            onClick={handlePrevStep}
-            disabled={currentStep === 1}
+            className="w-full"
+            onXsIsText
+            onClick={
+              currentStep === steps.length && steps[currentStep - 1].isComplete()
+                ? handleSubmit
+                : handleNextStep
+            }
           >
-            قبلی
+            ادامه
           </Button>
-        )}
-        <Button
-          className="w-full"
-          onXsIsText
-          onClick={
-            currentStep === steps.length && steps[currentStep - 1].isComplete()
-              ? handleSubmit
-              : handleNextStep
-          }
-          // disabled={currentStep === steps.length || formData.addresses.length === 0}
-        >
-          ادامه
-        </Button>
+        </div>
       </div>
+
+      <div className="h-20"></div>
     </div>
   );
 };

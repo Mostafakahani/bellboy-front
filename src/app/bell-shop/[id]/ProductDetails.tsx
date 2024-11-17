@@ -140,15 +140,15 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   };
 
   return (
-    <div className="p-4 my-16 flex flex-col justify-between items-center min-h-[85vh]">
+    <div className="p-4 mt-16 mb-7 flex flex-col justify-between items-center min-h-[85vh]">
       <div className="w-full mt-5 flex flex-row justify-between items-center">
-        <div className="w-full flex flex-row gap-x-3 text-sm items-center justify-start">
+        <div className="w-full flex flex-row gap-x-1 text-sm items-center justify-start">
           {Array.isArray(product.id_categories) &&
             product.id_categories.map((category, index) => {
               if (typeof category === "object" && category.isParent) {
                 return (
                   <div
-                    className="flex flex-row gap-x-3 text-sm items-center"
+                    className="flex flex-row gap-x-1 text-xs items-center"
                     key={String(category._id)}
                   >
                     <span onClick={() => router.push("/bell-shop")}>بِل‌شاپ</span>
@@ -158,7 +158,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 );
               } else {
                 return (
-                  <div key={index} className="font-medium">
+                  <div key={index} className="font-medium text-xs">
                     {String(category.name)}
                   </div>
                 );
@@ -181,9 +181,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           <p className="text-gray-800 text-[13px] leading-5 font-light">{product.description}</p>
         </div>
         {product.stock == 2 ? (
-          <span className="text-red-500 text-xs">2 موجودی باقیمانده</span>
+          <span className="text-red-500 text-xs text-right w-full">2 موجودی باقیمانده</span>
         ) : product.stock == 1 ? (
-          <span className="text-red-500 text-xs">1 موجودی باقیمانده</span>
+          <span className="text-red-500 text-xs text-right w-full">1 موجودی باقیمانده</span>
         ) : null}
       </div>
       <div className="w-full flex flex-row justify-between items-center mt-10">
