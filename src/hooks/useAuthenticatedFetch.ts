@@ -103,7 +103,7 @@ export function useAuthenticatedFetch() {
             data: null,
             error: new Error("خطای احراز هویت"),
             isLoading: false,
-            message: "نشست شما منقضی شده است. لطفا دوباره وارد شوید.",
+            message: "قبل از انجام عملیات وارد حساب خود شوید.",
           };
         }
 

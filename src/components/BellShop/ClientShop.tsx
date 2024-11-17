@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
+import { Loader2, Minus, PlusIcon, ShoppingBasket, TrashIcon } from "lucide-react";
 
 import BellTypoGraphy from "@/components/BellTypoGraphy";
 import MainHeader from "@/components/mobile/Header/MainHeader";
@@ -23,6 +23,7 @@ import CartForm from "../Profile/Cart/CartForm";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { saveState } from "@/utils/localStorage";
+import { ModalSmall } from "../BellMazeh/ModalSmall";
 
 // Types
 interface ClientShopProps {
@@ -66,6 +67,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isParentModalOpen, setIsParentModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     addresses: [],
@@ -120,6 +122,22 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       setIsLoading(false);
     }
   };
+  // const handleCategoryChangeAndGetChildData = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const { data } = await authenticatedFetch(`/category/${selectedParentCategory._id}`);
+  //     if (Array.isArray(data)) {
+  //       const reversedData = [...data].reverse();
+  //       setProducts(reversedData);
+  //     }
+  //     setIsLoading(false);
+  //   } catch (error) {
+  //     console.error("Error fetching products:", error);
+  //     setProducts([]);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const handleCartOperations = {
     remove: async (cartId: string) => {
       await removeFromCart(cartId);
@@ -357,14 +375,14 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             );
           } else {
             addToCart(product._id);
-            setIsModalOpen(true);
+            setIsParentModalOpen(true);
           }
         }}
       >
         {isInCart ? (
           <div className="text-black flex flex-row items-center justify-between gap-2">
             <PlusIcon
-              className={`${isLoading ? "opacity-50" : ""} size-6 cursor-pointer`}
+              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -380,32 +398,54 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             <span className="font-bold text-lg text-nowrap w-6 line-clamp-1 flex justify-center items-center">
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
             </span>
-            <TrashIcon
-              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
-              onClick={async (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (cartItem && !loadingItems[cartItem._id]) {
-                  if (cartItem.quantity === 1) {
-                    await handleCartOperations.remove(cartItem._id);
-                  } else {
-                    await handleCartOperations.updateQuantity(
-                      cartItem._id,
-                      cartItem.quantity - 1,
-                      cartItem.quantity
-                    );
+            {cartItem?.quantity === 1 ? (
+              <TrashIcon
+                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (cartItem && !loadingItems[cartItem._id]) {
+                    if (cartItem.quantity === 1) {
+                      await handleCartOperations.remove(cartItem._id);
+                    } else {
+                      await handleCartOperations.updateQuantity(
+                        cartItem._id,
+                        cartItem.quantity - 1,
+                        cartItem.quantity
+                      );
+                    }
                   }
-                }
-              }}
-              color="black"
-            />
+                }}
+                color="black"
+              />
+            ) : (
+              <Minus
+                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (cartItem && !loadingItems[cartItem._id]) {
+                    if (cartItem.quantity === 1) {
+                      await handleCartOperations.remove(cartItem._id);
+                    } else {
+                      await handleCartOperations.updateQuantity(
+                        cartItem._id,
+                        cartItem.quantity - 1,
+                        cartItem.quantity
+                      );
+                    }
+                  }
+                }}
+                color="black"
+              />
+            )}
           </div>
         ) : (
           <>
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-black" />
             ) : (
-              <PlusIcon className="text-black" />
+              <PlusIcon className="text-black size-5" />
             )}
           </>
         )}
@@ -422,6 +462,41 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       <div className="mt-20 overflow-y-auto">
         <BellTypoGraphy english="Bell Shop" farsi="بل شاپ" />
         <BannerSlider images={BANNER_IMAGES} activeDotColor="#000000" inactiveDotColor="#48FDBC" />
+        <ModalSmall isOpen={isParentModalOpen} onClose={() => setIsParentModalOpen(false)}>
+          <div className="h-full flex flex-row justify-end w-full px-3">
+            <div className="w-full flex flex-col gap-y-3 px-3">
+              <div className="w-full">
+                <p className="flex flex-row gap-2 text-right mb-2">
+                  <ShoppingBasket />
+                  {cart.length} در سبد
+                </p>
+                <hr />
+              </div>
+              <div className="w-full flex flex-row justify-between">
+                <p>مجموع سبد خرید</p>
+                <p>
+                  <span className="font-bold ml-1">
+                    {cart
+                      .reduce((total, item) => total + item.productId.price * item.quantity, 0)
+                      .toLocaleString("fa-IR")}
+                  </span>
+                  تومان
+                </p>
+              </div>
+
+              <div className="w-full">
+                <Button
+                  className="w-full"
+                  variant="primary"
+                  onXsIsText
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  مشاهده سبدخرید
+                </Button>
+              </div>
+            </div>
+          </div>
+        </ModalSmall>
         <div className="relative w-full mt-8">
           <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4">
             <div className="flex gap-5 px-4 min-w-max mx-auto">

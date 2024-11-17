@@ -28,6 +28,7 @@ import OfficeLocations from "@/components/ui/OfficeLocations";
 import Footer from "@/components/mobile/Footer/Footer";
 import Link from "next/link";
 import SupportConnetction from "@/components/SupportConnetction";
+import BannerSlider from "@/components/ui/Slider/BannerSlider";
 interface Item {
   icon: JSX.Element;
   label: string;
@@ -65,6 +66,12 @@ const Exprience: ItemExprience[] = [
     desc: "نظافت تمام بخش‌های داخلی و خارجی اقامتگاه، از حمام و سرویس بهداشتی، راه‌پله، سالن و پذیرایی، اتاق خواب و آشپزخانه گرفته تا استخر، باغچه، حیاط، تراس و آلاچیق",
   },
 ];
+// Constants
+const BANNER_IMAGES = [
+  { url: "/images/shop/banner1.jpg", alt: "توضیحات تصویر اول" },
+  { url: "/images/shop/banner2.jpg", alt: "توضیحات تصویر دوم" },
+];
+
 export default function Home() {
   // const { width } = useWindowSize();
   // const isMobile = width ? width < 1024 : false;
@@ -132,13 +139,24 @@ export default function Home() {
               <strong>میهمان</strong>&nbsp; می‌سازد
             </p>
           </div>
+
+          <div className="w-full flex justify-center items-center">
+            <div className="max-w-sm md:max-w-full">
+              <BannerSlider
+                images={BANNER_IMAGES}
+                activeDotColor="#000000"
+                inactiveDotColor="#48FDBC"
+              />
+            </div>
+          </div>
+
           <div className="w-full flex flex-col justify-start items-center mt-10">
             <span className="text-4xl relative inline-block mr-1">
               <span className="relative z-10">خدمات بِل‌بوی</span>
               <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span>
             </span>
           </div>
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center mt-5">
             <Image
               width={1080}
               height={150}
