@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Trash2, Plus, Loader2, RotateCcw } from "lucide-react";
+import { Trash2, Plus, Loader2, RotateCcw, Minus } from "lucide-react";
 import { CartItem, Items } from "@/hooks/cartType";
 
 interface CartProps {
@@ -147,9 +147,9 @@ export const CartForm: React.FC<CartProps> = ({
   }
 
   return (
-    <div className="container mx-auto py-4 px-4 flex flex-col  min-h-[70vh]">
+    <div className="container mx-auto py-4 px-4 flex flex-col  min-h-[55vh]">
       <div>
-        <h1 className="text-xl font-bold mb-6 text-right">لیست محصولات سبد خرید شما</h1>
+        <h1 className="text-sm font-bold mb-6 text-right">لیست محصولات سبد خرید شما</h1>
         <div className="space-y-4">
           {cartData.map((item) => {
             const isDeleting = itemsToDelete[item._id];
@@ -218,13 +218,21 @@ export const CartForm: React.FC<CartProps> = ({
                               item.items?.quantity
                             )}
                           </span>
-                          <Trash2
-                            size={20}
-                            className={`text-black cursor-pointer ${
-                              loadingItems[item._id] ? "opacity-50" : ""
-                            }`}
-                            onClick={() => handleRemoveItem(item._id)}
-                          />
+                          {item.items?.quantity === 1 ? (
+                            <Trash2
+                              size={20}
+                              className={`text-black cursor-pointer ${
+                                loadingItems[item._id] ? "opacity-50" : ""
+                              }`}
+                              onClick={() => handleRemoveItem(item._id)}
+                            />
+                          ) : (
+                            <Minus
+                              className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                              onClick={() => handleRemoveItem(item._id)}
+                              color="black"
+                            />
+                          )}
                         </div>
                       </div>
                     </div>
@@ -251,16 +259,16 @@ export const CartForm: React.FC<CartProps> = ({
                     ) : (
                       <div className="flex w-full justify-between items-center p-4 transition-all">
                         <div className="flex-1">
-                          <h3 className="text-md text-right font-semibold">
+                          <h3 className="text-sm text-right font-semibold">
                             {item.productId?.title}
                           </h3>
-                          <div className="flex flex-col items-start gap-2 mt-2">
-                            <span className="text-md">
+                          <div className="flex flex-col items-start gap-1 mt-2">
+                            <span className="text-sm">
                               {formatPrice(item.productId?.price)} تومان
                             </span>
                             {item.productId?.globalDiscount > 0 && (
                               <div className="flex flex-row gap-x-2 items-center">
-                                <span className="line-through text-gray-400">
+                                <span className="line-through text-gray-400 text-sm">
                                   {formatPrice(
                                     item.productId?.price *
                                       (1 + item.productId?.globalDiscount / 100)
@@ -291,13 +299,21 @@ export const CartForm: React.FC<CartProps> = ({
                                 item.quantity
                               )}
                             </span>
-                            <Trash2
-                              size={20}
-                              className={`text-black cursor-pointer ${
-                                loadingItems[item._id] ? "opacity-50" : ""
-                              }`}
-                              onClick={() => handleRemoveItem(item._id)}
-                            />
+                            {item?.quantity === 1 ? (
+                              <Trash2
+                                size={20}
+                                className={`text-black cursor-pointer ${
+                                  loadingItems[item._id] ? "opacity-50" : ""
+                                }`}
+                                onClick={() => handleRemoveItem(item._id)}
+                              />
+                            ) : (
+                              <Minus
+                                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                                onClick={() => handleRemoveItem(item._id)}
+                                color="black"
+                              />
+                            )}
                           </div>
                         </div>
                       </div>

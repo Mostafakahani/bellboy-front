@@ -138,6 +138,14 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   //     setIsLoading(false);
   //   }
   // };
+  useEffect(() => {
+    if (Array.isArray(cart) && cart.length === 0) {
+      setIsModalOpen(false);
+      setIsParentModalOpen(false);
+    }
+  }, [cart]); // وابستگی به cart
+
+  // و handleCartOperations رو ساده‌تر کنیم
   const handleCartOperations = {
     remove: async (cartId: string) => {
       await removeFromCart(cartId);
@@ -145,7 +153,9 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     },
     updateQuantity: async (cartId: string, newQuantity: number, currentQuantity: number) => {
       await updateCartItemQuantity(cartId, newQuantity, currentQuantity);
-      if (newQuantity === 0) await fetchCart();
+      if (newQuantity === 0) {
+        await fetchCart();
+      }
     },
   };
 
@@ -361,8 +371,8 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
     return (
       <button
-        className={`relative right-[6rem] flex items-center justify-center border-[3px] border-black w-[50px] h-[50px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
-          isInCart ? "bg-primary-400 !w-[110px] !right-[2.2rem]" : "bg-white"
+        className={`relative right-[7.5rem] top-4 flex items-center justify-center border-[3px] border-black w-[40px] h-[40px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
+          isInCart ? "bg-primary-400 !w-[90px] !right-[4.1rem]" : "bg-white"
         }`}
         onClick={(e) => {
           e.preventDefault();
@@ -380,7 +390,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
         }}
       >
         {isInCart ? (
-          <div className="text-black flex flex-row items-center justify-between gap-2">
+          <div className="text-black flex flex-row items-center justify-between gap-1">
             <PlusIcon
               className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
               onClick={(e) => {
@@ -400,7 +410,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             </span>
             {cartItem?.quantity === 1 ? (
               <TrashIcon
-                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
                 onClick={async (e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -573,7 +583,9 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
                     <span className="text-red-500 text-xs">2 موجودی باقیمانده</span>
                   ) : product.stock == 1 ? (
                     <span className="text-red-500 text-xs">1 موجودی باقیمانده</span>
-                  ) : null}
+                  ) : (
+                    <span></span>
+                  )}
                   <div className="text-left flex flex-col gap-1">
                     <span className="text-xs">تومان</span>
                     {product.globalDiscount !== 0 ? (

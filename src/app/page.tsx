@@ -118,15 +118,15 @@ export default function Home() {
               <h2 className="text-4xl font-black text-center leading-relaxed">
                 تجربه‌ای شگفت‌انگیز
               </h2>
-              <h2 className="text-4xl font-black w-[14rem] ml-5">در اقامت ویلا</h2>
-              <Image
+              <h2 className="text-4xl font-black ml-0">در اقامت ویلا</h2>
+              {/* <Image
                 className="w-[50px] h-auto absolute right-[calc(50%+80px)] top-[3.2rem]"
                 src={"/images/main/imo.png"}
                 width={1080}
                 height={1080}
                 quality={100}
                 alt=""
-              />
+              /> */}
             </div>
             <div className="w-full flex flex-col justify-start items-center my-6">
               <OneLineIcon />

@@ -15,7 +15,7 @@ interface CartOperationsHook {
     quantity: number,
     currentQuantity: number
   ) => Promise<void>;
-  fetchCart: () => Promise<void>;
+  fetchCart: () => Promise<CartItem[]>; // تغییر اینجا
 }
 
 export const useCartOperations = (
@@ -39,7 +39,7 @@ export const useCartOperations = (
   const fetchCart = async () => {
     const token = getCookie("auth_token");
 
-    if (!token) return;
+    if (!token) return [];
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + "/cart", {
         method: "GET",
@@ -50,19 +50,17 @@ export const useCartOperations = (
         cache: "no-store",
       });
 
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch profile data");
-      // }
-
       const data = await response.json();
-      setCart(ensureCartArray(data));
-      saveState("cart", ensureCartArray(data));
+      const cartData = ensureCartArray(data);
+      setCart(cartData);
+      saveState("cart", cartData);
+      return cartData; // برگرداندن داده‌های سبد خرید
     } catch (error) {
       console.error("Error fetching cart:", error);
-      setCart([]); // Set empty array on error
+      setCart([]);
+      return []; // برگرداندن آرایه خالی در صورت خطا
     }
   };
-
   const addToCart = async (productId: string) => {
     const token = getCookie("auth_token");
 

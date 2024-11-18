@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import Layout from "@/components/mobile/Drawers/Layout";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
-import { Loader2, PlusIcon } from "lucide-react";
+import { Loader2, Minus, PlusIcon, ShoppingBasket } from "lucide-react";
 import { TrashIcon } from "@/icons/Icons";
 import Button from "@/components/ui/Button/Button";
 import { CartItem, Items, ProductType } from "@/hooks/cartType";
@@ -24,6 +24,7 @@ import MultiStepForm from "../Stepper/Stepper";
 import CartForm, { formatPrice } from "../Profile/Cart/CartForm";
 import FactorDetails from "../Factor/FactorDetails";
 import { LocationForm } from "../Location/LocationForm";
+import ModalSmall from "./ModalSmall";
 interface ClientShopProps {
   initialProducts: ProductType[];
 }
@@ -45,6 +46,8 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCheckOutOpen, setIsModalCheckOutOpen] = useState(false);
   //   const [loading, setLoading] = useState<boolean>(false);
+  const [isParentModalOpen, setIsParentModalOpen] = useState(false);
+
   const [products, setProducts] = useState<ProductType[]>(initialProducts); // eslint-disable-line @typescript-eslint/no-unused-vars
   const authenticatedFetch = useAuthenticatedFetch();
 
@@ -149,7 +152,9 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
       // }
 
       const data = await response.json();
+
       console.log(data);
+
       setCart(ensureCartArray(data));
       saveState("cart", ensureCartArray(data));
     } catch (error) {
@@ -234,10 +239,10 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
     };
   }, []);
   useEffect(() => {
-    if (isModalOpen) {
+    if (isParentModalOpen) {
       fetchAddresses();
     }
-  }, [isModalOpen]);
+  }, [isParentModalOpen]);
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
       console.log({ message });
@@ -283,6 +288,15 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
       setIsLoading(false);
     }
   };
+  // اضافه کردن useEffect برای نظارت بر تغییرات cart
+  useEffect(() => {
+    if (Array.isArray(cart) && cart.length === 0) {
+      setIsModalCheckOutOpen(false);
+      setIsParentModalOpen(false);
+    }
+  }, [cart]); // وابستگی به cart
+
+  // و handleCartOperations رو ساده‌تر کنیم
   const handleCartOperations = {
     remove: async (cartId: string) => {
       await removeFromCart(cartId);
@@ -290,10 +304,11 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
     },
     updateQuantity: async (cartId: string, newQuantity: number, currentQuantity: number) => {
       await updateCartItemQuantity(cartId, newQuantity, currentQuantity);
-      if (newQuantity === 0) await fetchCart();
+      if (newQuantity === 0) {
+        await fetchCart();
+      }
     },
   };
-
   // Steps configuration
   const steps = [
     {
@@ -351,8 +366,8 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
 
     return (
       <button
-        className={`relative right-[6rem] flex items-center justify-center border-[3px] border-black w-[50px] h-[50px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
-          isInCart ? "bg-primary-400 !w-[110px] !right-[2.2rem]" : "bg-white"
+        className={`relative right-[7.5rem] top-4 flex items-center justify-center border-[3px] border-black w-[40px] h-[40px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
+          isInCart ? "bg-primary-400 !w-[90px] !right-[4.1rem]" : "bg-white"
         }`}
         onClick={(e) => {
           e.preventDefault();
@@ -365,14 +380,14 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
             );
           } else {
             addToCart(product._id);
-            setIsModalCheckOutOpen(true);
+            setIsParentModalOpen(true);
           }
         }}
       >
         {isInCart ? (
-          <div className="text-black flex flex-row items-center justify-between gap-2">
+          <div className="text-black flex flex-row items-center justify-between gap-1">
             <PlusIcon
-              className={`${isLoading ? "opacity-50" : ""} size-6 cursor-pointer`}
+              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -388,44 +403,102 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
             <span className="font-bold text-lg text-nowrap w-6 line-clamp-1 flex justify-center items-center">
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
             </span>
-            <TrashIcon
-              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
-              onClick={async (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (cartItem && !loadingItems[cartItem._id]) {
-                  if (cartItem.quantity === 1) {
-                    await handleCartOperations.remove(cartItem._id);
-                  } else {
-                    await handleCartOperations.updateQuantity(
-                      cartItem._id,
-                      cartItem.quantity - 1,
-                      cartItem.quantity
-                    );
+            {cartItem?.quantity === 1 ? (
+              <TrashIcon
+                className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (cartItem && !loadingItems[cartItem._id]) {
+                    if (cartItem.quantity === 1) {
+                      await handleCartOperations.remove(cartItem._id);
+                    } else {
+                      await handleCartOperations.updateQuantity(
+                        cartItem._id,
+                        cartItem.quantity - 1,
+                        cartItem.quantity
+                      );
+                    }
                   }
-                }
-              }}
-              color="black"
-            />
+                }}
+                color="black"
+              />
+            ) : (
+              <Minus
+                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (cartItem && !loadingItems[cartItem._id]) {
+                    if (cartItem.quantity === 1) {
+                      await handleCartOperations.remove(cartItem._id);
+                    } else {
+                      await handleCartOperations.updateQuantity(
+                        cartItem._id,
+                        cartItem.quantity - 1,
+                        cartItem.quantity
+                      );
+                    }
+                  }
+                }}
+                color="black"
+              />
+            )}
           </div>
         ) : (
           <>
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-black" />
             ) : (
-              <PlusIcon className="text-black" />
+              <PlusIcon className="text-black size-5" />
             )}
           </>
         )}
       </button>
     );
   };
+
   return (
     <>
       <MainHeader />
       <Layout>
         <div className="flex flex-col mt-16">
           <BellTypoGraphy farsi="بِل مزه" english="Bell Mazeh" className="!rotate-[3deg]" />
+          <ModalSmall isOpen={isParentModalOpen} onClose={() => setIsParentModalOpen(false)}>
+            <div className="h-full flex flex-row justify-end w-full px-3">
+              <div className="w-full flex flex-col gap-y-3 px-3">
+                <div className="w-full">
+                  <p className="flex flex-row gap-2 text-right mb-2">
+                    <ShoppingBasket />
+                    {cart.length} محصول در سبد
+                  </p>
+                  <hr />
+                </div>
+                <div className="w-full flex flex-row justify-between">
+                  <p>مجموع سبد خرید</p>
+                  <p>
+                    <span className="font-bold ml-1">
+                      {cart
+                        .reduce((total, item) => total + item.productId.price * item.quantity, 0)
+                        .toLocaleString("fa-IR")}
+                    </span>
+                    تومان
+                  </p>
+                </div>
+
+                <div className="w-full">
+                  <Button
+                    className="w-full"
+                    variant="primary"
+                    onXsIsText
+                    onClick={() => setIsModalCheckOutOpen(true)}
+                  >
+                    مشاهده سبدخرید
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </ModalSmall>
           <div className="flex flex-row justify-center gap-5 mt-8">
             {categorys.map((category) => (
               <div
@@ -450,7 +523,7 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
                 }}
                 key={category.id}
               >
-                <div className="flex flex-col items-center justify-between gap-y-3 py-1">
+                <div className="flex flex-col items-center justify-between gap-y-1 py-1">
                   <Image
                     src={category.icon}
                     width={24}
@@ -487,7 +560,9 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
                         <span className="text-red-500 text-xs">2 موجودی باقیمانده</span>
                       ) : product.stock == 1 ? (
                         <span className="text-red-500 text-xs">1 موجودی باقیمانده</span>
-                      ) : null}
+                      ) : (
+                        <span></span>
+                      )}
                       <div className="text-left flex flex-col gap-1">
                         <span className="text-xs">تومان</span>
                         {product.globalDiscount !== 0 ? (

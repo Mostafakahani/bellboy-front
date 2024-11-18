@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { getCookie } from "cookies-next";
-import { Loader2, PlusIcon } from "lucide-react";
+import { Loader2, Minus, PlusIcon } from "lucide-react";
 import { CartItem, ProductType } from "@/hooks/cartType";
 import { ensureCartArray, useCartOperations } from "@/hooks/useCartOperations";
 import ProductSliderNew from "@/components/ui/Slider/ProductSliderNew";
@@ -85,7 +85,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         }}
       >
         {isInCart ? (
-          <div className="text-black flex flex-row items-center justify-between gap-2 w-full">
+          <div className="text-black flex flex-row items-center justify-between gap-1 w-full">
             <PlusIcon
               className={`${isLoading ? "opacity-50" : ""} cursor-pointer`}
               onClick={(e) => {
@@ -103,7 +103,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             <span className="font-bold text-lg text-nowrap w-6 line-clamp-1 flex justify-center items-center">
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
             </span>
-            <TrashIcon
+            {/* <TrashIcon
               className={`${isLoading ? "opacity-50" : ""} cursor-pointer`}
               onClick={async (e) => {
                 e.stopPropagation();
@@ -121,7 +121,48 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 }
               }}
               color="black"
-            />
+            /> */}
+            {cartItem?.quantity === 1 ? (
+              <TrashIcon
+                className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (cartItem && !loadingItems[cartItem._id]) {
+                    if (cartItem.quantity === 1) {
+                      await handleCartOperations.remove(cartItem._id);
+                    } else {
+                      await handleCartOperations.updateQuantity(
+                        cartItem._id,
+                        cartItem.quantity - 1,
+                        cartItem.quantity
+                      );
+                    }
+                  }
+                }}
+                color="black"
+              />
+            ) : (
+              <Minus
+                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (cartItem && !loadingItems[cartItem._id]) {
+                    if (cartItem.quantity === 1) {
+                      await handleCartOperations.remove(cartItem._id);
+                    } else {
+                      await handleCartOperations.updateQuantity(
+                        cartItem._id,
+                        cartItem.quantity - 1,
+                        cartItem.quantity
+                      );
+                    }
+                  }
+                }}
+                color="black"
+              />
+            )}
           </div>
         ) : (
           <>
@@ -184,7 +225,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           <span className="text-red-500 text-xs text-right w-full">2 موجودی باقیمانده</span>
         ) : product.stock == 1 ? (
           <span className="text-red-500 text-xs text-right w-full">1 موجودی باقیمانده</span>
-        ) : null}
+        ) : (
+          <span></span>
+        )}
       </div>
       <div className="w-full flex flex-row justify-between items-center mt-10">
         <div>{renderProductControls()}</div>

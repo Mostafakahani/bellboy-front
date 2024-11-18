@@ -59,9 +59,9 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
         ) <= area.radius
     );
     onLocationSelect(currentLocation, isInServiceArea);
-    if (!isInServiceArea) {
-      alert("این مکان خارج از محدوده خدمات ماست، اما می‌توانید آن را انتخاب کنید.");
-    }
+    // if (!isInServiceArea) {
+    //   alert("این مکان خارج از محدوده خدمات ماست، اما می‌توانید آن را انتخاب کنید.");
+    // }
     onClose();
   };
 
