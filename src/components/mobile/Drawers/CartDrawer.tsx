@@ -19,6 +19,7 @@ import { saveState } from "@/utils/localStorage";
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  isType: string;
 }
 // Components
 const FactorForm: React.FC<{
@@ -28,7 +29,7 @@ const FactorForm: React.FC<{
 }> = ({ formData, onFormChange, type }) => {
   return <FactorDetails type={type} formData={formData} onFormChange={onFormChange} />;
 };
-const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
+const CartDrawer: React.FC<CartDrawerProps> = ({ isType, isOpen, onClose }) => {
   const pathname = usePathname();
   const authenticatedFetch = useAuthenticatedFetch();
 
@@ -67,10 +68,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     initializeData();
   }, [isOpen]);
   useEffect(() => {
-    if (cart.length === 0) {
+    if (cart.length == 0 && isType === "cartDrawer") {
       onClose();
     }
-  }, [cart, onClose]);
+  }, [cart]);
   useEffect(() => {
     if (isOpen) {
       fetchAddresses();
@@ -152,10 +153,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       console.log(data);
       setCart(ensureCartArray(data));
       saveState("cart", ensureCartArray(data));
-      console.log(ensureCartArray(data).length === 0);
-      if (ensureCartArray(data).length === 0) {
-        onClose();
-      }
+      console.log(data.length === 0);
+      // if (data.length === 0) {
+      //   onClose();
+      // }
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]); // Set empty array on error
