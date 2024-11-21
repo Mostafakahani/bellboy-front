@@ -14,6 +14,7 @@ export interface ProfileData {
   lastName: string;
   email?: string;
   birthDate?: string;
+  phone?: string;
 }
 
 interface ProfileMainPageClientProps {

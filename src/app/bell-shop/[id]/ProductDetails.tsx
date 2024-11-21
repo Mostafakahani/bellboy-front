@@ -124,7 +124,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             /> */}
             {cartItem?.quantity === 1 ? (
               <TrashIcon
-                className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
+                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
                 onClick={async (e) => {
                   e.stopPropagation();
                   e.preventDefault();

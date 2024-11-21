@@ -119,7 +119,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
         </div>
       </div>
       {/* {iNeedBTN && ( */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white  px-4 py-3 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-white px-4 py-3 z-20 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-7xl mx-auto flex justify-between gap-7">
           {currentStep !== 1 && (
             <Button

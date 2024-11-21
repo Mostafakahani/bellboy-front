@@ -13,6 +13,7 @@ export interface DialogProps {
 export interface PhoneNumberEditDialogProps extends DialogProps {
   onSave: (newNumber: string) => void;
   currentPhoneNumber: string;
+  handlePhoneEdit: () => void;
 }
 
 export enum Step {

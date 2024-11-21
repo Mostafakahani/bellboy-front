@@ -4,14 +4,18 @@ import { Input } from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import { PhoneNumberEditDialogProps, Step } from "./ProfileTypes";
 import Image from "next/image";
-import SuccessDialog from "./SuccessDialog";
+import { showSuccess } from "@/lib/toastService";
+import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 
 export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
   isOpen,
   onClose,
   onSave,
   currentPhoneNumber,
+  handlePhoneEdit,
 }) => {
+  const authenticatedFetch = useAuthenticatedFetch();
+
   const [step, setStep] = useState<Step>(Step.PHONE);
   const phoneNumber = currentPhoneNumber;
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
@@ -19,7 +23,6 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
   const [timeLeft, setTimeLeft] = useState(120);
   const [isFinished, setIsFinished] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -54,20 +57,57 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    handlePhoneEdit();
     console.log(`Sending OTP to ${phoneNumber}`);
     setStep(Step.OTP);
     setTimeLeft(120);
     setIsFinished(false);
   };
 
+  const formatErrorMessage = (message: string | string[] | any): string => {
+    if (Array.isArray(message)) {
+      return message.join(" ");
+    }
+    return message?.toString() || "خطای ناشناخته رخ داده است";
+  };
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(`Verifying OTP: ${otp.join("")}`);
-    if (otp.join("") === "1234") {
-      setStep(Step.NEW_PHONE);
+
+    e.preventDefault();
+    const otpValue = otp.join("");
+
+    if (otpValue.length !== 4) {
+      setErrorMessage("لطفا کد 4 رقمی را کامل وارد کنید");
+      return;
+    }
+
+    try {
+      // setLoading(true);
       setErrorMessage("");
-    } else {
-      setErrorMessage("کد وارد شده صحیح نیست");
+
+      const { data, error, message, status } = await authenticatedFetch<ApiResponse>("/users/otp", {
+        method: "POST",
+        body: JSON.stringify({ phone: phoneNumber, otp: otpValue }),
+      });
+
+      if (error) {
+        throw new Error(formatErrorMessage(message));
+      }
+
+      if (data?.statusCode && data.statusCode !== 201) {
+        throw new Error(formatErrorMessage(data.message));
+      }
+
+      if (data?.token && status === "success") {
+        showSuccess(message);
+        setStep(Step.NEW_PHONE);
+      } else {
+        throw new Error(formatErrorMessage(data?.message) || "خطا در تایید کد");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
+    } finally {
+      // setLoading(false);
     }
   };
 
@@ -75,13 +115,7 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
     e.preventDefault();
     console.log(`Updating phone number to ${newPhoneNumber}`);
     onSave(newPhoneNumber);
-    setShowSuccessDialog(true);
-  };
-
-  const handleSuccessDialogClose = () => {
-    setShowSuccessDialog(false);
-    onClose();
-    setOtp(["", "", "", ""]);
+    // setShowSuccessDialog(true);
   };
 
   const handleChange = (index: number, value: string) => {
@@ -214,11 +248,6 @@ export const PhoneNumberEditDialog: React.FC<PhoneNumberEditDialogProps> = ({
                 ذخیره شماره جدید
               </Button>
             </form>
-            <SuccessDialog
-              isOpen={showSuccessDialog}
-              onClose={handleSuccessDialogClose}
-              message="با موفقیت انجام شد"
-            />
           </>
         );
     }

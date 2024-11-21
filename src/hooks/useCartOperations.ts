@@ -4,6 +4,7 @@ import { ApiResponse, useAuthenticatedFetch } from "./useAuthenticatedFetch";
 import { CartItem } from "./cartType";
 import { getCookie } from "cookies-next";
 import { saveState } from "@/utils/localStorage";
+import { useRouter } from "next/navigation";
 
 interface CartOperationsHook {
   loading?: boolean;
@@ -21,6 +22,7 @@ interface CartOperationsHook {
 export const useCartOperations = (
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>
 ): CartOperationsHook => {
+  const router = useRouter();
   const authenticatedFetch = useAuthenticatedFetch();
   // const [loading, setLoading] = useState<boolean>(false);
   const [loadingItems, setLoadingItems] = useState<{ [key: string]: boolean }>({});
@@ -66,6 +68,7 @@ export const useCartOperations = (
 
     if (!token) {
       showError("برای انجام این عملیات باید وارد حساب خود شده باشید");
+      router.push("/profile/auth");
       return;
     }
     setItemLoading(productId, true);

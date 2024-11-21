@@ -13,6 +13,7 @@ export const PhoneNumberDisplay: React.FC<PhoneNumberDisplayProps> = ({ phoneNum
       <div className="flex items-center justify-between border-2 px-3 py-3 border-black rounded-xl focus:outline-none focus:ring-0 bg-gray-100">
         <span className="text-gray-700">{phoneNumber}</span>
         <button
+          type="button"
           onClick={onEdit}
           className="text-gray-400 hover:text-gray-600 focus:outline-none ml-2"
         >

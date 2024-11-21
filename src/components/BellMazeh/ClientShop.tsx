@@ -405,7 +405,7 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
             </span>
             {cartItem?.quantity === 1 ? (
               <TrashIcon
-                className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
+                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
                 onClick={async (e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -493,7 +493,7 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
                     onXsIsText
                     onClick={() => setIsModalCheckOutOpen(true)}
                   >
-                    مشاهده سبدخرید
+                    تکمیل سفارش
                   </Button>
                 </div>
               </div>

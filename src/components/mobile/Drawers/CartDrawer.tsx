@@ -66,7 +66,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
     initializeData();
   }, [isOpen]);
-
+  useEffect(() => {
+    if (cart.length === 0) {
+      onClose();
+    }
+  }, [cart, onClose]);
   useEffect(() => {
     if (isOpen) {
       fetchAddresses();
@@ -148,6 +152,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       console.log(data);
       setCart(ensureCartArray(data));
       saveState("cart", ensureCartArray(data));
+      console.log(ensureCartArray(data).length === 0);
+      if (ensureCartArray(data).length === 0) {
+        onClose();
+      }
     } catch (error) {
       console.error("Error fetching cart:", error);
       setCart([]); // Set empty array on error

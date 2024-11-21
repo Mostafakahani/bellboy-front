@@ -6,6 +6,7 @@ import SettingsDrawer from "./SettingsDrawer";
 import ServicesDrawer from "./ServicesDrawer";
 import CartDrawer from "./CartDrawer";
 import DashboardDrawer from "./DashboardDrawer";
+import Head from "next/head";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </Head>
       {children}
       <BottomMenu onOpenDrawer={handleOpenDrawer} />
 
