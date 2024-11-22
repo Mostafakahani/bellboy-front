@@ -5,14 +5,13 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import Layout from "@/components/mobile/Drawers/Layout";
 import BellTypoGraphy from "@/components/BellTypoGraphy";
-import { Loader2, Minus, PlusIcon, ShoppingBasket } from "lucide-react";
-import { TrashIcon } from "@/icons/Icons";
+import { ShoppingBasket } from "lucide-react";
 import Button from "@/components/ui/Button/Button";
 import { CartItem, Items, ProductType } from "@/hooks/cartType";
 import MultiStepModal from "@/components/Stepper/MultiStepModalHeram/MultiStepModalHeram";
 import DateTimeSelector, { TimeSlot } from "@/components/DateTimeSelector";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { FormData } from "@/components/BellShop/ClientShop";
 import { ensureCartArray, useCartOperations } from "@/hooks/useCartOperations";
 import { saveState } from "@/utils/localStorage";
@@ -25,6 +24,7 @@ import CartForm, { formatPrice } from "../Profile/Cart/CartForm";
 import FactorDetails from "../Factor/FactorDetails";
 import { LocationForm } from "../Location/LocationForm";
 import ModalSmall from "./ModalSmall";
+import ProductGrid from "../Products/ProductGrid";
 interface ClientShopProps {
   initialProducts: ProductType[];
 }
@@ -40,7 +40,7 @@ const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void
 };
 
 const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
-  const router = useRouter();
+  // const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -357,106 +357,106 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
     },
   ];
 
-  const renderProductControls = (product: ProductType) => {
-    const cartItem = Array.isArray(cart)
-      ? cart.find((item) => item?.productId?._id === product._id && !item.IsTastePyramids)
-      : null;
-    const isInCart = Boolean(cartItem);
-    const isLoading = loadingItems[product._id] || (cartItem?._id && loadingItems[cartItem._id]);
+  // const renderProductControls = (product: ProductType) => {
+  //   const cartItem = Array.isArray(cart)
+  //     ? cart.find((item) => item?.productId?._id === product._id && !item.IsTastePyramids)
+  //     : null;
+  //   const isInCart = Boolean(cartItem);
+  //   const isLoading = loadingItems[product._id] || (cartItem?._id && loadingItems[cartItem._id]);
 
-    return (
-      <button
-        className={`relative right-[7.5rem] top-4 flex items-center justify-center border-[3px] border-black w-[40px] h-[40px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
-          isInCart ? "bg-primary-400 !w-[90px] !right-[4.1rem]" : "bg-white"
-        }`}
-        onClick={(e) => {
-          e.preventDefault();
-          if (!Array.isArray(cart)) return;
-          if (cartItem) {
-            handleCartOperations.updateQuantity(
-              cartItem._id,
-              cartItem.quantity - 1,
-              cartItem.quantity
-            );
-          } else {
-            addToCart(product._id);
-            setIsParentModalOpen(true);
-          }
-        }}
-      >
-        {isInCart ? (
-          <div className="text-black flex flex-row items-center justify-between gap-1">
-            <PlusIcon
-              className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (cartItem && !loadingItems[cartItem._id]) {
-                  handleCartOperations.updateQuantity(
-                    cartItem._id,
-                    cartItem.quantity + 1,
-                    cartItem.quantity
-                  );
-                }
-              }}
-            />
-            <span className="font-bold text-lg text-nowrap w-6 line-clamp-1 flex justify-center items-center">
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
-            </span>
-            {cartItem?.quantity === 1 ? (
-              <TrashIcon
-                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (cartItem && !loadingItems[cartItem._id]) {
-                    if (cartItem.quantity === 1) {
-                      await handleCartOperations.remove(cartItem._id);
-                    } else {
-                      await handleCartOperations.updateQuantity(
-                        cartItem._id,
-                        cartItem.quantity - 1,
-                        cartItem.quantity
-                      );
-                    }
-                  }
-                }}
-                color="black"
-              />
-            ) : (
-              <Minus
-                className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (cartItem && !loadingItems[cartItem._id]) {
-                    if (cartItem.quantity === 1) {
-                      await handleCartOperations.remove(cartItem._id);
-                    } else {
-                      await handleCartOperations.updateQuantity(
-                        cartItem._id,
-                        cartItem.quantity - 1,
-                        cartItem.quantity
-                      );
-                    }
-                  }
-                }}
-                color="black"
-              />
-            )}
-          </div>
-        ) : (
-          <>
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin text-black" />
-            ) : (
-              <PlusIcon className="text-black size-5" />
-            )}
-          </>
-        )}
-      </button>
-    );
-  };
+  //   return (
+  //     <button
+  //       className={`relative right-[7.5rem] top-4 flex items-center justify-center border-[3px] border-black w-[40px] h-[40px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
+  //         isInCart ? "bg-primary-400 !w-[90px] !right-[4.1rem]" : "bg-white"
+  //       }`}
+  //       onClick={(e) => {
+  //         e.preventDefault();
+  //         if (!Array.isArray(cart)) return;
+  //         if (cartItem) {
+  //           handleCartOperations.updateQuantity(
+  //             cartItem._id,
+  //             cartItem.quantity - 1,
+  //             cartItem.quantity
+  //           );
+  //         } else {
+  //           addToCart(product._id);
+  //           setIsParentModalOpen(true);
+  //         }
+  //       }}
+  //     >
+  //       {isInCart ? (
+  //         <div className="text-black flex flex-row items-center justify-between gap-1">
+  //           <PlusIcon
+  //             className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
+  //             onClick={(e) => {
+  //               e.stopPropagation();
+  //               e.preventDefault();
+  //               if (cartItem && !loadingItems[cartItem._id]) {
+  //                 handleCartOperations.updateQuantity(
+  //                   cartItem._id,
+  //                   cartItem.quantity + 1,
+  //                   cartItem.quantity
+  //                 );
+  //               }
+  //             }}
+  //           />
+  //           <span className="font-bold text-lg text-nowrap w-6 line-clamp-1 flex justify-center items-center">
+  //             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
+  //           </span>
+  //           {cartItem?.quantity === 1 ? (
+  //             <TrashIcon
+  //               className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+  //               onClick={async (e) => {
+  //                 e.stopPropagation();
+  //                 e.preventDefault();
+  //                 if (cartItem && !loadingItems[cartItem._id]) {
+  //                   if (cartItem.quantity === 1) {
+  //                     await handleCartOperations.remove(cartItem._id);
+  //                   } else {
+  //                     await handleCartOperations.updateQuantity(
+  //                       cartItem._id,
+  //                       cartItem.quantity - 1,
+  //                       cartItem.quantity
+  //                     );
+  //                   }
+  //                 }
+  //               }}
+  //               color="black"
+  //             />
+  //           ) : (
+  //             <Minus
+  //               className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
+  //               onClick={async (e) => {
+  //                 e.stopPropagation();
+  //                 e.preventDefault();
+  //                 if (cartItem && !loadingItems[cartItem._id]) {
+  //                   if (cartItem.quantity === 1) {
+  //                     await handleCartOperations.remove(cartItem._id);
+  //                   } else {
+  //                     await handleCartOperations.updateQuantity(
+  //                       cartItem._id,
+  //                       cartItem.quantity - 1,
+  //                       cartItem.quantity
+  //                     );
+  //                   }
+  //                 }
+  //               }}
+  //               color="black"
+  //             />
+  //           )}
+  //         </div>
+  //       ) : (
+  //         <>
+  //           {isLoading ? (
+  //             <Loader2 className="w-5 h-5 animate-spin text-black" />
+  //           ) : (
+  //             <PlusIcon className="text-black size-5" />
+  //           )}
+  //         </>
+  //       )}
+  //     </button>
+  //   );
+  // };
 
   return (
     <>
@@ -538,65 +538,16 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
           </div>
 
           {/* نمایش محصولات */}
-          <div className="mt-16 mb-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-y-4 justify-items-center">
-            {products?.length && selectedCategory && selectedCategory.type === "list"
-              ? products.map((product) => (
-                  <div className="flex flex-col gap-3 w-[160px]" key={product._id}>
-                    <Image
-                      className="rounded-xl w-40 h-40 object-cover"
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${product.id_stores[0]?.location}`}
-                      width={150}
-                      height={150}
-                      alt={product.title}
-                    />
-
-                    <div
-                      className="flex flex-col gap-2"
-                      onClick={() => router.push("/bell-shop/" + product._id)}
-                    >
-                      <span className="text-sm font-bold">{product.title}</span>
-                      <span className="text-xs line-clamp-2">{product.description}</span>
-                      {product.stock == 2 ? (
-                        <span className="text-red-500 text-xs">2 موجودی باقیمانده</span>
-                      ) : product.stock == 1 ? (
-                        <span className="text-red-500 text-xs">1 موجودی باقیمانده</span>
-                      ) : (
-                        <span></span>
-                      )}
-                      <div className="text-left flex flex-col gap-1">
-                        <span className="text-xs">تومان</span>
-                        {product.globalDiscount !== 0 ? (
-                          <>
-                            <span className="text-sm font-bold">
-                              {Math.round(
-                                Number(product.price) * (1 - Number(product.globalDiscount) / 100)
-                              ).toLocaleString()}
-                            </span>
-                            <div className="w-full flex flex-row justify-between items-center">
-                              <span className="py-1.5 px-2 text-[11px] bg-red-500 text-white rounded-full w-fit h-fit text-left">
-                                %{product.globalDiscount}
-                              </span>
-                              <span className={`text-sm line-through`}>
-                                {product.price.toLocaleString("fa-IR")}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <span className={`text-sm font-bold`}>
-                            {product.price.toLocaleString("fa-IR")}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="absolute" onClick={() => null}>
-                      <div className="relative left-0 top-24 flex items-center gap-2">
-                        {renderProductControls(product)}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              : null}
-          </div>
+          <ProductGrid
+            products={products}
+            cart={cart}
+            loadingItems={loadingItems}
+            handleCartOperations={handleCartOperations}
+            addToCart={addToCart}
+            setIsParentModalOpen={setIsParentModalOpen}
+            isLoading={isLoading}
+            selectedCategory={selectedCategory}
+          />
 
           {/* نمایش سبد خرید */}
 

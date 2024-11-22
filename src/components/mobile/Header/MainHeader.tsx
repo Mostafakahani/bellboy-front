@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import DrawerMenu from "./DrawerMenu";
 import Image from "next/image";
@@ -16,16 +16,27 @@ interface MainHeaderProps {
 }
 const MainHeader: React.FC<MainHeaderProps> = ({ noBorder }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsVisible(currentScrollY < lastScrollY || currentScrollY < 500);
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 bg-white z-50 ${
-        !noBorder && "border-b"
-      }  border-black pb-2`}
+      className={`fixed top-0 left-0 right-0 bg-white z-50 transition-transform duration-300 ease-in-out ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      } ${!noBorder && "border-b"}  border-black pb-2`}
     >
       <div className="flex items-center justify-between px-4 py-2 mx-1 mt-2">
         {/* Drawer toggle button */}

@@ -210,7 +210,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 bg-white shadow-lg transition-transform duration-300 ease-in-out ${
+      className={`fixed z-50 bottom-0 left-0 right-0 bg-white shadow-lg transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
     >

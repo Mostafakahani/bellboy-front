@@ -153,7 +153,7 @@ export default function Home() {
           <div className="w-full flex flex-col justify-start items-center mt-10">
             <span className="text-4xl relative inline-block mr-1">
               <span className="relative z-10">خدمات بِل‌بوی</span>
-              <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span>
+              {/* <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span> */}
             </span>
           </div>
           <div className="flex justify-center items-center mt-5">
@@ -313,7 +313,7 @@ export default function Home() {
           <div className="w-full flex flex-col justify-start items-center mt-10">
             <span className="text-4xl relative inline-block mr-1">
               <span className="relative z-10">مزایا</span>
-              <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span>
+              {/* <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span> */}
             </span>
           </div>
           <div className="w-full flex flex-col justify-between px-8 my-8">
@@ -349,7 +349,7 @@ export default function Home() {
           <div className="w-full flex flex-col justify-start items-center mt-10">
             <span className="text-4xl relative inline-block mr-1">
               <span className="relative z-10">تجربه شما</span>
-              <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span>
+              {/* <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span> */}
             </span>
           </div>
           <div className="my-16 flex flex-row flex-nowrap gap-0 justify-start overflow-x-auto">
@@ -371,7 +371,7 @@ export default function Home() {
           <div className="w-full flex flex-col justify-start items-center">
             <span className="text-4xl relative inline-block mr-1">
               <span className="relative z-10">شعبه های ما</span>
-              <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span>
+              {/* <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span> */}
             </span>
           </div>
           <OfficeLocations />
