@@ -40,7 +40,7 @@ const Footer = () => {
             شعبه‌های ما
           </Link>
           <Link className="text-sm" href={""}>
-            درباره بل‌بوی
+            درباره میزبانو
           </Link>
           <Link className="text-sm" href={""}>
             قوانین و شرایط استفاده
@@ -60,7 +60,7 @@ const Footer = () => {
           /> */}
         </div>
         {/* <div className="text-sm font-light">
-          <p>© کلیه حقوق برای بل‌بوی محفوظ است</p>
+          <p>© کلیه حقوق برای میزبانو محفوظ است</p>
           <p>
             طراحی شده توسط <span className="text-blue-500">استودیو نیوا</span>
           </p>

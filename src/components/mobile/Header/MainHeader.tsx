@@ -7,7 +7,7 @@ import { LogoIcon, MenuIcon } from "@/icons/Icons";
 const links = [
   { name: "پرسش های شما", href: "/" },
   { name: "شعبه های ما", href: "/about" },
-  { name: "درباره بل‌بوی", href: "/contact" },
+  { name: "درباره میزبانو", href: "/contact" },
   { name: "شرایط و قوانین استفاده", href: "/contact" },
   { name: "حریم خصوصی", href: "/contact" },
 ];
@@ -45,7 +45,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ noBorder }) => {
             src={"/images/icons/menu.svg"}
             width={20}
             height={20}
-            alt="menu بل بوی | menu Bell Boy"
+            alt="menu میزبانو | menu Bell Boy"
           /> */}
           <MenuIcon />
         </button>
@@ -57,7 +57,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ noBorder }) => {
             src={"/images/logo.svg"}
             width={120}
             height={100}
-            alt="لوگو بل بوی | Logo Bell Boy"
+            alt="لوگو میزبانو | Logo Bell Boy"
           /> */}
         </div>
 
@@ -67,7 +67,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ noBorder }) => {
             src={"/images/icons/phone.svg"}
             width={20}
             height={20}
-            alt="phone بل بوی | phone Bell Boy"
+            alt="phone میزبانو | phone Bell Boy"
           />
         </Link>
       </div>

@@ -1,9 +1,10 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { PlusIcon, MinusIcon, Loader2Icon, TrashIcon } from "lucide-react";
 import { CartItem, ProductType } from "@/hooks/cartType";
 import { useRouter } from "next/navigation";
+import ProductDetails from "./ProductDetails";
 
 interface ProductGridProps {
   products: ProductType[];
@@ -28,6 +29,7 @@ interface ProductCardProps {
   handleCartOperations: ProductGridProps["handleCartOperations"];
   addToCart: (productId: string) => void;
   setIsParentModalOpen: (isOpen: boolean) => void;
+  // setOpenDetailsModal?: (isOpen: boolean) => void;
 }
 
 const ProductControls: React.FC<ProductCardProps> = ({
@@ -113,27 +115,33 @@ const ProductControls: React.FC<ProductCardProps> = ({
     </div>
   );
 };
-const ProductCard: React.FC<ProductCardProps> = ({
+const ProductCard: React.FC<
+  ProductCardProps & { handleSelectDetails: (value: string) => void }
+> = ({
   product,
   cart,
   loadingItems,
   handleCartOperations,
   addToCart,
   setIsParentModalOpen,
+  // setOpenDetailsModal,
+  handleSelectDetails,
 }) => {
   const router = useRouter();
 
   return (
     <div className="group relative border-s border-b last:border-b-0 flex flex-col h-full bg-white overflow-hidden transition-all duration-500 hover:shadow-2xl hover:z-30">
-      <div className="relative">
-        <div className="relative w-full pt-[100%]">
+      <div className="relative flex justify-center items-center mt-4">
+        <div className="relative  w-36 h-36 pt-[100%]">
           {/* Aspect ratio 1:1 */}
           <Image
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="absolute inset-0 object-cover transition-transform duration-300 group-hover:scale-105"
             src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${product.id_stores[0]?.location}`}
-            layout="fill"
+            // layout="fill"
+            width={250}
+            height={250}
             alt={product.title}
-            onClick={() => router.push("/bell-shop/" + product._id)}
+            onClick={() => handleSelectDetails(product._id)}
           />
         </div>
         {/* <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
@@ -206,6 +214,28 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   isLoading,
   selectedCategory,
 }) => {
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
+  const [selectedDetails, setSelectedDetails] = useState<string | null>(null);
+
+  const handleSelectDetails = (details: string) => {
+    if (selectedDetails === details) {
+      // Reset and set again to trigger state update
+      setSelectedDetails(null);
+      setTimeout(() => setSelectedDetails(details), 0); // Delay to ensure state change
+    } else {
+      setSelectedDetails(details);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDetails) {
+      setOpenDetailsModal(true);
+      console.log("Opening modal due to selected details:", selectedDetails);
+    } else {
+      setOpenDetailsModal(false);
+      console.log("Closing modal because no details are selected.");
+    }
+  }, [selectedDetails]);
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 p-6">
@@ -249,8 +279,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             handleCartOperations={handleCartOperations}
             addToCart={addToCart}
             setIsParentModalOpen={setIsParentModalOpen}
+            // setOpenDetailsModal={setOpenDetailsModal}
+            handleSelectDetails={handleSelectDetails}
           />
         ))}
+      <ProductDetails
+        open={openDetailsModal}
+        setOpen={setOpenDetailsModal}
+        id={selectedDetails || ""}
+      />
     </div>
   );
 };

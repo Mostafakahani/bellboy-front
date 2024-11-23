@@ -2,6 +2,7 @@
 import { Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface ModalProps {
   haveBorder?: boolean;
   px?: boolean;
   customStyle?: string;
+  notUseClose?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -21,7 +23,16 @@ export const Modal: React.FC<ModalProps> = ({
   haveBorder = false,
   customStyle,
   px = false,
+  notUseClose = true,
 }) => {
+  const pathname = usePathname();
+
+  // Effect for URL changes
+  useEffect(() => {
+    if (isOpen && notUseClose) {
+      onClose();
+    }
+  }, [pathname]);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -73,15 +84,14 @@ export const Modal: React.FC<ModalProps> = ({
                   w-full transform overflow-hidden bg-white transition-all
                   ${haveBorder ? "border border-black" : ""}
                   /* موبایل: تمام صفحه */
-                  h-screen
-                  /* دسکتاپ: محدود به md و گرد گوشه */
-                  sm:h-auto sm:max-w-md sm:rounded-2xl
+                  h-[93vh]
+                  sm:max-w-md sm:rounded-2xl
                   ${haveBorder ? "sm:border sm:border-black" : ""}
                 `}
               >
                 <div className="bg-white w-full h-full overflow-auto">
-                  <div className="sticky z-[40] top-0 bg-white flex justify-between items-center mt-4 sm:mt-6 px-4 pb-4 border-b">
-                    <Dialog.Title className="font-black text-lg sm:text-xl">
+                  <div className="sticky w-full z-[40] top-0 bg-white flex justify-between items-center mt-4 sm:mt-6 px-4 pb-4 border-b">
+                    <Dialog.Title className="font-black text-lg sm:text-xl text-right">
                       {title || "بل سرویس"}
                     </Dialog.Title>
                     <button

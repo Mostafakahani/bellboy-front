@@ -427,7 +427,7 @@ const FactorForm: React.FC<FactorFormProps> = ({
           ) : (
             <>
               <p className="text-sm font-light text-right">
-                اگر کدتخفیف بل بوی دارید
+                اگر کدتخفیف میزبانو دارید
                 <br />
                 در کادر زیر وارد کنید
               </p>
@@ -473,7 +473,7 @@ const FactorForm: React.FC<FactorFormProps> = ({
         isOpen={isDiscountModalOpen}
         onSubmit={handleApplyDiscount}
         onClose={() => setIsDiscountModalOpen(false)}
-        message="کد تخفیف بل‌بوی را وارد کنید"
+        message="کد تخفیف میزبانو را وارد کنید"
         buttonMessage="ثبت"
         onChange={(e) => setDiscountCode(e)}
       />

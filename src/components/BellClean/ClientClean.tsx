@@ -263,7 +263,7 @@ export default function PlanCleanPage({ planDatas }: { planDatas: Clean[] }) {
           <span className="mx-1 z-10 price relative font-bold text-black after:content-[''] after:absolute after:left-0 after:bottom-1 after:w-full after:h-[5px] after:bg-primary-400 after:z-[-1]">
             پیش‌فرض شرایط عادی
           </span>
-          است. قیمت دقیق بعد از مشاهده کارشناس بل‌بوی مشخص و امضا می‌شود
+          است. قیمت دقیق بعد از مشاهده کارشناس میزبانو مشخص و امضا می‌شود
         </p>
         <LineIcon className="w-full text-center" />
         <div className="w-full flex flex-col justify-center">

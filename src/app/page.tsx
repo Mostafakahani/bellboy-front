@@ -132,7 +132,7 @@ export default function Home() {
               <OneLineIcon />
             </div>
             <p className="text-md text-gray-600 mt-4 text-center max-w-[400px]">
-              بِل‌بوی با خدمات متمرکز در مناطق ویلایی
+              میزبانو با خدمات متمرکز در مناطق ویلایی
               <br />
               تجربه‌ای متفاوت برای&nbsp;
               <strong>میزبان</strong>&nbsp; و&nbsp;
@@ -152,7 +152,7 @@ export default function Home() {
 
           <div className="w-full flex flex-col justify-start items-center mt-10">
             <span className="text-4xl relative inline-block mr-1">
-              <span className="relative z-10">خدمات بِل‌بوی</span>
+              <span className="relative z-10">خدمات میزبانو</span>
               {/* <span className="absolute bottom-2.5 left-0 w-full h-[8px] bg-[#FFFF00]"></span> */}
             </span>
           </div>

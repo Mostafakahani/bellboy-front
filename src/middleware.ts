@@ -26,7 +26,7 @@ export function middleware(request: NextRequest) {
   if (isAuthenticated && isAuthRoute) {
     // اگر callbackUrl وجود داشت به آن مسیر برگردد، در غیر این صورت به داشبورد
     const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
-    return NextResponse.redirect(new URL(callbackUrl || "/dashboard", request.url));
+    return NextResponse.redirect(new URL(callbackUrl || "/profile", request.url));
   }
 
   return NextResponse.next();

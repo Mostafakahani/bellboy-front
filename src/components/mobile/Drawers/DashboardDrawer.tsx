@@ -81,7 +81,7 @@ const DashboardDrawer: React.FC<DashboardDrawerProps> = ({ isOpen, onClose }) =>
         onClick={(e) => e.stopPropagation()}
       >
         {/* <div className="p-4 flex justify-between items-center">
-          <h2 className="text-lg font-semibold">خدمات بِل‌بوی</h2>
+          <h2 className="text-lg font-semibold">خدمات میزبانو</h2>
         </div> */}
         <div className="w-full flex flex-col justify-between gap-8">
           <div className="p-4 overflow-y-auto h-full">

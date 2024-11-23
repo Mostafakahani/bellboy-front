@@ -41,7 +41,7 @@ const menuConfigs: MenuConfig = {
     {
       iconActive: "/images/icons/services-active.svg",
       iconInactive: "/images/icons/services.svg",
-      label: "خدمات بِل‌بوی",
+      label: "خدمات میزبانو",
       href: "/service",
       action: "drawer",
       drawerId: "bellService",

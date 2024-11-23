@@ -7,19 +7,17 @@ interface Step {
   id: number;
   label: string;
   content: React.ReactNode;
-
-  isComplete: () => boolean; // Add this line to define isComplete as a function
+  isComplete: () => boolean;
 }
 
 interface MultiStepFormProps {
-  steps: Step[]; // The steps array will now contain `isComplete` for each step
-  formData: { addresses: Address[]; selectedAddress: any; selectedServices: any[] }; // Adjust formData to match structure
+  steps: Step[];
+  formData: { addresses: Address[]; selectedAddress: any; selectedServices: any[] };
   onFormChange: (newData: {
     addresses: Address[];
     selectedAddress?: any;
     selectedServices?: any[];
   }) => void;
-  // iNeedBTN?: boolean;
   handleSubmit: () => void;
 }
 
@@ -84,7 +82,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   formData,
   onFormChange,
   handleSubmit,
-  // iNeedBTN = true,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -105,22 +102,28 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col justify-between min-h-[85vh]">
-      <div className="w-full h-full">
-        <div className="w-full overflow-y-auto px-4">
+    <div className="flex flex-col h-full relative">
+      <div className="flex-1">
+        <div className="w-full px-4">
           <Stepper steps={steps} currentStep={currentStep} />
-          {/* <div className="w-full border-b-2 border-black absolute top-36 left-0"></div> */}
         </div>
-        <div className="">
+        <div className="py-4 pb-24">
           {React.cloneElement(steps[currentStep - 1].content as React.ReactElement, {
             formData,
             handleInputChange,
           })}
         </div>
       </div>
-      {/* {iNeedBTN && ( */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white px-4 py-3 z-20 pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-7xl mx-auto flex justify-between gap-7">
+
+      <div
+        className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 mt-auto top-[unset]"
+        style={
+          {
+            // paddingBottom: "env(safe-area-inset-bottom,0px) / 3",
+          }
+        }
+      >
+        <div className="max-w-2xl mx-auto flex justify-between gap-7">
           {currentStep !== 1 && (
             <Button
               icon="right"
@@ -144,10 +147,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           </Button>
         </div>
       </div>
-      {/* )} */}
-      <div className="h-20"></div>
     </div>
   );
 };
-
 export default MultiStepForm;

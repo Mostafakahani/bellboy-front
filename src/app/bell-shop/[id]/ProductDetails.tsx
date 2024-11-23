@@ -265,7 +265,7 @@ interface BackHandlerProps {
   className?: string;
 }
 
-const BackHandler = ({ fallbackUrl = "/", className = "" }: BackHandlerProps) => {
+export const BackHandler = ({ fallbackUrl = "/", className = "" }: BackHandlerProps) => {
   const router = useRouter();
 
   const handleBack = () => {

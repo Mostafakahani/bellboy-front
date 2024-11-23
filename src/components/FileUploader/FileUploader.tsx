@@ -183,6 +183,7 @@ export default function FileUploaderComponent({
     <Modal
       isOpen={isUploadModalOpen}
       onClose={() => setIsUploadModalOpen(false)}
+      notUseClose={false}
       title="آپلود تصویر محصول"
     >
       <div className="p-6">
