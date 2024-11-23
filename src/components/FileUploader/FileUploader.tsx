@@ -304,7 +304,7 @@ export default function FileUploaderComponent({
             type="button"
             variant="tertiary"
             onXsIsText
-            onClick={() => setIsOpenModal(false)}
+            onClick={() => setIsUploadModalOpen(false)}
           >
             انصراف
           </DashboardButton>

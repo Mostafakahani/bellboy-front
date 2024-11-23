@@ -75,6 +75,7 @@ export default function DashboardHeaderCreateCategory() {
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isGalleryOpenEdit, setIsGalleryOpenEdit] = useState(false);
+  const [isGallerySubOpenEdit, setIsGallerySubOpenEdit] = useState(false);
   const authenticatedFetch = useAuthenticatedFetch();
   const [editFormData, setEditFormData] = useState<EditCategoryFormData>(initialEditFormData);
 
@@ -118,6 +119,14 @@ export default function DashboardHeaderCreateCategory() {
     }
     setIsGalleryOpenEdit(false);
   };
+  // const handleFileSubSelectEdit = (files: FileData[]) => {
+  //   if (files.length > 0) {
+  //     setEditFormData({
+  //       id_store: [files[0]],
+  //     });
+  //   }
+  //   setIsGallerySubOpenEdit(false);
+  // };
   // 3. تابع handleRemoveFileEdit رو اصلاح می‌کنیم
   const handleRemoveFileEdit = () => {
     setEditFormData({
@@ -125,7 +134,6 @@ export default function DashboardHeaderCreateCategory() {
     });
   };
 
-  // Updated useEffect for handling editing
   useEffect(() => {
     if (editingCategory?.id_store) {
       // Ensure the id_store has all required FileData properties
@@ -133,7 +141,7 @@ export default function DashboardHeaderCreateCategory() {
         _id: editingCategory.id_store._id,
         name: editingCategory.id_store.name,
         size: editingCategory.id_store.size,
-        type: editingCategory.id_store.type, // This was the missing property
+        type: editingCategory.id_store.type,
         location: editingCategory.id_store.location,
       };
 
@@ -208,6 +216,12 @@ export default function DashboardHeaderCreateCategory() {
   const handleCreateChildCategory = async () => {
     if (!selectedParentCat) return;
 
+    // اضافه کردن validation برای تصویر
+    if (editFormData.id_store?.length === 0) {
+      setError("انتخاب یک تصویر الزامی است");
+      return;
+    }
+
     try {
       const { error, message, status } = await authenticatedFetch<ApiResponse>(
         "/category/" + selectedParentCat,
@@ -216,6 +230,8 @@ export default function DashboardHeaderCreateCategory() {
           body: JSON.stringify({
             name: childCatName,
             path: childCatPath,
+            // اضافه کردن id_store به body
+            id_store: editFormData.id_store[0]._id,
           }),
         }
       );
@@ -228,6 +244,8 @@ export default function DashboardHeaderCreateCategory() {
         setChildCatName("");
         setChildCatPath("");
         setSelectedParentCat("");
+        // ریست کردن فرم تصویر
+        setEditFormData(initialEditFormData);
         fetchCategoryChildren(selectedParentCat);
       }
     } catch (err) {
@@ -272,10 +290,10 @@ export default function DashboardHeaderCreateCategory() {
         name: category.name,
         path: category.path,
         IsShow: true,
-        ...(category.isParent &&
-          editFormData.id_store.length > 0 && {
-            id_store: editFormData.id_store[0]._id,
-          }),
+        // حذف شرط isParent تا برای همه دسته‌بندی‌ها تصویر ست بشه
+        ...(editFormData.id_store.length > 0 && {
+          id_store: editFormData.id_store[0]._id,
+        }),
       };
 
       await authenticatedFetch(`/category/${category._id}`, {
@@ -384,55 +402,70 @@ export default function DashboardHeaderCreateCategory() {
         />
       </div>
 
-      {editingCategory?.isParent && (
-        <div className="w-full">
-          <div className="w-full space-y-4">
-            <div className="w-full flex justify-between items-center">
-              <p className="text-sm font-medium">تصویر دسته‌بندی</p>
-              <DashboardButton
-                onXsIsText
-                type="button"
-                variant="secondary"
-                onClick={() => setIsGalleryOpenEdit(true)}
-              >
-                انتخاب تصویر
-              </DashboardButton>
-            </div>
+      {/* حذف شرط isParent */}
+      <div className="w-full">
+        <div className="w-full space-y-4">
+          <div className="w-full flex justify-between items-center">
+            <p className="text-sm font-medium">تصویر دسته‌بندی</p>
+            <DashboardButton
+              onXsIsText
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                // استفاده از modal مجزا برای parent و child
+                if (editingCategory?.isParent) {
+                  setIsGalleryOpenEdit(true);
+                } else {
+                  setIsGallerySubOpenEdit(true);
+                }
+              }}
+            >
+              انتخاب تصویر
+            </DashboardButton>
+          </div>
 
-            <FileUploaderComponent
-              isOpenModal={isGalleryOpenEdit}
-              setIsOpenModal={setIsGalleryOpenEdit}
-              onFileSelect={handleFileSelectEdit}
-              initialSelectedFiles={editFormData.id_store}
-            />
+          {/* FileUploader برای parent */}
+          <FileUploaderComponent
+            isOpenModal={isGalleryOpenEdit}
+            setIsOpenModal={setIsGalleryOpenEdit}
+            onFileSelect={handleFileSelectEdit}
+            initialSelectedFiles={editFormData.id_store}
+          />
 
-            <div className="grid grid-cols-1 gap-4">
-              {editFormData.id_store.length > 0 && (
-                <div className="flex gap-4 items-center justify-between bg-white p-3 rounded-lg shadow-sm">
-                  <div className="bg-gray-200 rounded-lg w-12 h-12 overflow-hidden">
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${editFormData.id_store[0].location}`}
-                      alt={editFormData.id_store[0].name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-right line-clamp-1">{editFormData.id_store[0].name}</p>
-                    <span className="text-gray-400 text-xs">{editFormData.id_store[0].size}</span>
-                  </div>
-                  <DashboardButton
-                    variant="tertiary"
-                    className="border-[1.5px] border-red-500 rounded-2xl !px-3 !py-6"
-                    icon="trash"
-                    onClick={() => handleRemoveFileEdit()}
-                    disabled={loading}
+          {/* FileUploader برای child */}
+          <FileUploaderComponent
+            isOpenModal={isGallerySubOpenEdit}
+            setIsOpenModal={setIsGallerySubOpenEdit}
+            onFileSelect={handleFileSelectEdit}
+            initialSelectedFiles={editFormData.id_store}
+          />
+
+          <div className="grid grid-cols-1 gap-4">
+            {editFormData.id_store.length > 0 && (
+              <div className="flex gap-4 items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                <div className="bg-gray-200 rounded-lg w-12 h-12 overflow-hidden">
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${editFormData.id_store[0].location}`}
+                    alt={editFormData.id_store[0].name}
+                    className="w-full h-full object-cover"
                   />
                 </div>
-              )}
-            </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-right line-clamp-1">{editFormData.id_store[0].name}</p>
+                  <span className="text-gray-400 text-xs">{editFormData.id_store[0].size}</span>
+                </div>
+                <DashboardButton
+                  variant="tertiary"
+                  className="border-[1.5px] border-red-500 rounded-2xl !px-3 !py-6"
+                  icon="trash"
+                  onClick={() => handleRemoveFileEdit()}
+                  disabled={loading}
+                />
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       <div className="w-full flex flex-row gap-2 justify-between">
         <DashboardButton onXsIsText variant="tertiary" onClick={() => setEditingCategory(null)}>
@@ -678,6 +711,55 @@ export default function DashboardHeaderCreateCategory() {
                   }
                 }}
               />
+              <div className="w-full">
+                <div className="w-full space-y-4">
+                  <div className="w-full flex justify-between items-center">
+                    <p className="text-sm font-medium">تصویر زیردسته بندی</p>
+                    <DashboardButton
+                      onXsIsText
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setIsGallerySubOpenEdit(true)}
+                    >
+                      انتخاب تصویر
+                    </DashboardButton>
+                  </div>
+
+                  <FileUploaderComponent
+                    isOpenModal={isGallerySubOpenEdit}
+                    setIsOpenModal={setIsGallerySubOpenEdit}
+                    onFileSelect={handleFileSelectEdit}
+                    initialSelectedFiles={editFormData.id_store}
+                  />
+
+                  <div className="grid grid-cols-1 gap-4">
+                    {editFormData.id_store.length > 0 && (
+                      <div className="flex gap-4 items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                        <div className="bg-gray-200 rounded-lg w-12 h-12 overflow-hidden">
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${editFormData.id_store[0].location}`}
+                            alt={editFormData.id_store[0].name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-right line-clamp-1">{editFormData.id_store[0].name}</p>
+                          <span className="text-gray-400 text-xs">
+                            {editFormData.id_store[0].size}
+                          </span>
+                        </div>
+                        <DashboardButton
+                          variant="tertiary"
+                          className="border-[1.5px] border-red-500 rounded-2xl !px-3 !py-6"
+                          icon="trash"
+                          onClick={() => handleRemoveFileEdit()}
+                          disabled={loading}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               <DashboardButton onClick={handleCreateChildCategory} disabled={loading} onXsIsText>
                 ثبت زیر دسته بندی

@@ -83,7 +83,7 @@ export function useAuthenticatedFetch() {
 
       const token = getCookie("auth_token");
       abortControllerRef.current = new AbortController();
-      console.log({ token });
+      // console.log({ token });
       try {
         const response = await fetch(url.toString(), {
           ...fetchOptions,

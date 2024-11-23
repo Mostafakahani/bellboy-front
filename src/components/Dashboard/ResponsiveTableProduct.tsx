@@ -252,7 +252,13 @@ const ResponsiveTableProduct: React.FC<ResponsiveTableProductProps> = ({ data, f
 
         <DashboardModal isOpen={isModalOpen} onClose={closeModal}>
           <>
-            <Modal isOpen={isModalOpen} onClose={closeModal} customStyle="mt-4" title="ویرایش کالا">
+            <Modal
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              notUseClose={false}
+              customStyle="mt-4"
+              title="ویرایش کالا"
+            >
               <div className="bg-gray-100">
                 <div className="px-4 py-5">
                   <div className="flex items-center justify-between my-3 px-1">

@@ -63,6 +63,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   const [selectedParentCategory, setSelectedParentCategory] = useState(
     initialCategories[0] || null
   );
+  const [subCategorys, setSubCategorys] = useState<CategoryType[]>([]);
   const [products, setProducts] = useState<ProductType[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,40 +105,36 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     }));
   };
 
-  // تغییر در handleCategoryChange
+  // Handle parent category selection
   const handleCategoryChange = async (category: CategoryType) => {
     setSelectedParentCategory(category);
+    handleCategoryChangeAndGetChildData(category);
+    await fetchProductsByCategory(category._id);
+  };
+
+  // Handle subcategory selection
+  const handleSubCategorySelect = async (subCategory: CategoryType) => {
+    await fetchProductsByCategory(subCategory._id);
+  };
+  const handleCategoryChangeAndGetChildData = async (category: CategoryType) => {
     setIsLoading(true);
     try {
-      const { data } = await authenticatedFetch(`/product/cat/${category._id}`);
+      const { data } = await authenticatedFetch(`/category/${category._id}`);
       if (Array.isArray(data)) {
-        const reversedData = [...data].reverse();
-        setProducts(reversedData);
+        setSubCategorys(data);
       }
-      setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
+      console.error("Error fetching subcategories:", error);
+      setSubCategorys([]);
     } finally {
       setIsLoading(false);
     }
   };
-  // const handleCategoryChangeAndGetChildData = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const { data } = await authenticatedFetch(`/category/${selectedParentCategory._id}`);
-  //     if (Array.isArray(data)) {
-  //       const reversedData = [...data].reverse();
-  //       setProducts(reversedData);
-  //     }
-  //     setIsLoading(false);
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //     setProducts([]);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  useEffect(() => {
+    if (selectedParentCategory) {
+      handleCategoryChangeAndGetChildData(selectedParentCategory);
+    }
+  }, []);
   useEffect(() => {
     if (Array.isArray(cart) && cart.length === 0) {
       setIsModalOpen(false);
@@ -238,7 +235,21 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       isComplete: () => formData.paymentComplete,
     },
   ];
-
+  const fetchProductsByCategory = async (categoryId: string) => {
+    setIsLoading(true);
+    try {
+      const { data } = await authenticatedFetch(`/product/cat/${categoryId}`);
+      if (Array.isArray(data)) {
+        const reversedData = [...data].reverse();
+        setProducts(reversedData);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   // Effects
   // برای اجرای درخواست اولیه هنگام تغییر modal
   useEffect(() => {
@@ -465,7 +476,11 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
   return (
     <>
-      {/* <Button onXsIsText className="fixed z-[9999999999999999999]" onClick={log}>
+      {/* <Button
+        onXsIsText
+        className="fixed z-[9999999999999999999]"
+        onClick={() => handleCategoryChangeAndGetChildData()}
+      >
         LOG
       </Button> */}
       <MainHeader />
@@ -507,6 +522,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             </div>
           </div>
         </ModalSmall>
+        {/* Parent Categories */}
         <div className="relative w-full mt-8">
           <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4">
             <div className="flex gap-5 px-4 min-w-max mx-auto">
@@ -535,6 +551,10 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             </div>
           </div>
         </div>
+
+        {/* Subcategories */}
+        <CategoryGrid subCategories={subCategorys} onSelectSubCategory={handleSubCategorySelect} />
+
         <div className="w-full flex justify-center items-center mt-4 px-4 md:px-0">
           <img
             src="https://static.snapp.express/sliders/11/16/14455288-d9fd-4660-b416-98244038c69a.webp"
@@ -598,3 +618,52 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     </>
   );
 }
+
+const CategoryGrid = ({
+  subCategories,
+  onSelectSubCategory,
+}: {
+  subCategories: CategoryType[];
+  onSelectSubCategory: (category: CategoryType) => void;
+}) => {
+  if (!Array.isArray(subCategories) || subCategories.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="w-full px-4">
+      <h2 className="font-bold text-lg my-6 rtl:text-right">دسته بندی ها</h2>
+      <div className="grid grid-cols-3 gap-4">
+        {subCategories.map((category, index) => (
+          <div
+            key={category._id || index}
+            className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+            onClick={() => onSelectSubCategory(category)}
+          >
+            <div className="relative flex justify-center items-center w-20 h-20 bg-gray-100 rounded-xl overflow-hidden">
+              {category.id_store?.location ? (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${category.id_store.location}`}
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-cover rounded-xl"
+                  alt={category.name || "Category image"}
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkMj8xLy8vLy8xPz5AQEA+RkdIUFRcYWJiY2RkYz01PVtxa2Xi/9sABAEVFxceHh4tISEtYkJCQmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400 text-2xl">⚪</span>
+                </div>
+              )}
+            </div>
+            <p className="w-full mt-3 text-sm font-medium text-center line-clamp-2">
+              {category.name || "Untitled Category"}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
