@@ -162,7 +162,7 @@ const ProductCard: React.FC<
           onClick={() => router.push("/bell-shop/" + product._id)}
         >
           <h3 className="text-sm font-bold text-gray-800 transition-colors">{product.title}</h3>
-          <p className="text-[10px] text-gray-600 line-clamp-2">{product.description}</p>
+          {/* <p className="text-[10px] text-gray-600 line-clamp-2">{product.description}</p> */}
 
           {product.stock <= 2 && product.stock > 0 && (
             <span className="inline-flex items-center gap-1 text-red-500 text-xs">

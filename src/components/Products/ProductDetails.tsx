@@ -272,7 +272,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ open, setOpen, id }) =>
               </div>
               <div className="w-full bg-white flex flex-col gap-2">
                 <h1 className="text-lg text-right w-full font-bold">{product.title}</h1>
-                <p className="text-gray-800 text-[13px] leading-5 font-light">
+                <p className="text-gray-800 text-[13px] leading-5 font-light text-right">
                   {product.description}
                 </p>
               </div>

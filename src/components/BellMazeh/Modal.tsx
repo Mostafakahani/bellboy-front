@@ -84,7 +84,7 @@ export const Modal: React.FC<ModalProps> = ({
                   w-full transform overflow-hidden bg-white transition-all
                   ${haveBorder ? "border border-black" : ""}
                   /* موبایل: تمام صفحه */
-                  h-[93vh]
+                  h-[90vh]
                   sm:max-w-md sm:rounded-2xl
                   ${haveBorder ? "sm:border sm:border-black" : ""}
                 `}
