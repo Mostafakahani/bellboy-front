@@ -44,7 +44,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
   const [currentLocation, setCurrentLocation] = useState<Location>(
     initialLocation || defaultCenter
   );
-  console.log({ initialLocation });
+  // console.log({ initialLocation });
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Array<{ name: string; location: Location }>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -222,7 +222,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl h-[95vh] flex flex-col">
+      <div className="bg-white rounded-lg w-full max-w-2xl min-h-[85vh] flex flex-col">
         <div className="flex justify-between items-center mb-4 p-4">
           <h3 className="text-lg font-semibold">انتخاب موقعیت روی نقشه</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -252,7 +252,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
               placeholder="جستجو در نقشه"
             />
             <Button
-              className="absolute top-[385px] right-[24px] z-[800] h-12 w-12 !p-1 border-2 border-black bg-white"
+              className="absolute top-[365px] right-[24px] z-[800] h-12 w-12 !p-1 border-2 border-black bg-white"
               variant="tertiary"
               onClick={handleGetMyLocation}
               disabled={isLoading}

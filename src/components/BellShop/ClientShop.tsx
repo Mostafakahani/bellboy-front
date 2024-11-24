@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ShoppingBasket } from "lucide-react";
 
@@ -24,6 +24,7 @@ import { getCookie } from "cookies-next";
 import { saveState } from "@/utils/localStorage";
 import { ModalSmall } from "../BellMazeh/ModalSmall";
 import ProductGrid from "../Products/ProductGrid";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Types
 interface ClientShopProps {
@@ -54,16 +55,24 @@ const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void
 };
 
 export default function ClientShop({ initialCategories, initialProducts }: ClientShopProps) {
-  // const router = useRouter();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const authenticatedFetch = useAuthenticatedFetch();
 
-  const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
+  // Get category IDs from URL
+  const currentParentId = searchParams.get("parentCategory");
+  // const currentSubId = searchParams.get("subCategory");
   // State
+  const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [parentCategories] = useState(initialCategories);
-  const [selectedParentCategory, setSelectedParentCategory] = useState(
-    initialCategories[0] || null
-  );
-  const [subCategorys, setSubCategorys] = useState<CategoryType[]>([]);
+  const [selectedParentCategory, setSelectedParentCategory] = useState<CategoryType | null>(() => {
+    if (currentParentId) {
+      return initialCategories.find((cat) => cat._id === currentParentId) || initialCategories[0];
+    }
+    return initialCategories[0];
+  });
+  const [subCategorys, setSubCategories] = useState<CategoryType[]>([]);
+
   const [products, setProducts] = useState<ProductType[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -77,18 +86,36 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     selectedDateTime: null,
     paymentComplete: false,
   });
+
+  // URL update helper
+  const updateUrlParams = useCallback(
+    (parentId?: string, subId?: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (parentId) {
+        params.set("parentCategory", parentId);
+      } else {
+        params.delete("parentCategory");
+      }
+
+      if (subId) {
+        params.set("subCategory", subId);
+      } else {
+        params.delete("subCategory");
+      }
+
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
   useEffect(() => {
     if (initialProducts?.length > 0) {
       setProducts(initialProducts);
       setIsLoading(false);
     }
-  }, []);
-  // const handleContinue = (selectedAddress: string, deliveryId: string) => {
-  //   // Handle the continuation logic here
-  //   console.log({ isInitialLoading });
-  //   console.log("Selected Address:", selectedAddress);
-  //   console.log("Delivery ID:", deliveryId);
-  // };
+  }, [initialProducts]);
+
   // Handlers
   const handleFormChange = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
@@ -105,42 +132,70 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     }));
   };
 
-  // Handle parent category selection
+  // کش کردن درخواست‌های قبلی
+  const categoryCache = useRef<Record<string, CategoryType[]>>({});
+  const productCache = useRef<Record<string, ProductType[]>>({});
+
+  const handleCategoryChangeAndGetChildData = async (category: CategoryType) => {
+    setIsLoading(true);
+    try {
+      // چک کردن کش برای دسته‌بندی‌ها
+      if (categoryCache.current[category._id]) {
+        setSubCategories(categoryCache.current[category._id]);
+      } else {
+        const { data } = await authenticatedFetch(`/category/${category._id}`);
+        if (Array.isArray(data)) {
+          categoryCache.current[category._id] = data;
+          setSubCategories(data);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      setSubCategories([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCategoryChange = async (category: CategoryType) => {
     setSelectedParentCategory(category);
-    handleCategoryChangeAndGetChildData(category);
+    updateUrlParams(category._id);
+    await handleCategoryChangeAndGetChildData(category);
     await fetchProductsByCategory(category._id);
   };
 
   // Handle subcategory selection
   const handleSubCategorySelect = async (subCategory: CategoryType) => {
+    updateUrlParams(selectedParentCategory?._id, subCategory._id);
     await fetchProductsByCategory(subCategory._id);
   };
-  const handleCategoryChangeAndGetChildData = async (category: CategoryType) => {
-    setIsLoading(true);
-    try {
-      const { data } = await authenticatedFetch(`/category/${category._id}`);
-      if (Array.isArray(data)) {
-        setSubCategorys(data);
-      }
-    } catch (error) {
-      console.error("Error fetching subcategories:", error);
-      setSubCategorys([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
   useEffect(() => {
-    if (selectedParentCategory) {
+    if (selectedParentCategory && subCategorys.length === 0) {
       handleCategoryChangeAndGetChildData(selectedParentCategory);
     }
-  }, []);
+  }, [selectedParentCategory?._id]); // فقط به ID وابسته باشه
+
   useEffect(() => {
-    if (Array.isArray(cart) && cart.length === 0) {
-      setIsModalOpen(false);
-      setIsParentModalOpen(false);
-    }
-  }, [cart]); // وابستگی به cart
+    const init = async () => {
+      const parentId = searchParams.get("parentCategory");
+      const subId = searchParams.get("subCategory");
+
+      if (parentId && parentId !== selectedParentCategory?._id) {
+        const category = parentCategories.find((cat) => cat._id === parentId);
+        if (category) {
+          await handleCategoryChangeAndGetChildData(category);
+          setSelectedParentCategory(category);
+        }
+      }
+
+      if (subId) {
+        await fetchProductsByCategory(subId);
+      }
+    };
+
+    init();
+  }, [searchParams.toString()]); // فقط به تغییر URL واکنش نشون بده
 
   // و handleCartOperations رو ساده‌تر کنیم
   const handleCartOperations = {
@@ -171,16 +226,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
         cache: "no-store",
       });
 
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch profile data");
-      // }
-
       const data = await response.json();
       setCart(ensureCartArray(data));
       saveState("cart", ensureCartArray(data));
     } catch (error) {
       console.error("Error fetching cart:", error);
-      setCart([]); // Set empty array on error
+      setCart([]);
     } finally {
       setIsLoading(false);
     }
@@ -188,60 +239,20 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
   const { loadingItems, addToCart, removeFromCart, updateCartItemQuantity } =
     useCartOperations(setCart);
-  // Steps configuration
-  const steps = [
-    {
-      id: 1,
-      label: "سبدخرید",
-      content: (
-        <CartForm
-          fetchCart={fetchCart}
-          setCart={setCart}
-          cartData={cart}
-          isLoading={false}
-          loadingItems={loadingItems}
-          onUpdateQuantity={updateCartItemQuantity}
-          onRemoveItem={removeFromCart}
-          // onContinue={handleContinue}
-        />
-      ),
-      isComplete: () => cart.length !== 0,
-    },
-    {
-      id: 2,
-      label: "موقعیت",
-      content: (
-        <LocationForm formData={formData} isLoading={isLoading} onFormChange={handleFormChange} />
-      ),
-      isComplete: () => formData.selectedAddress !== null,
-    },
-    {
-      id: 3,
-      label: "زمان",
-      content: (
-        <DateTimeSelector
-          selectedTime={selectedTime}
-          setSelectedTime={setSelectedTime}
-          onSelect={handleDateTimeSelect}
-        />
-      ),
-      isComplete: () => formData.selectedDateTime !== null && selectedTime !== null,
-    },
 
-    {
-      id: 4,
-      label: "پرداخت",
-      content: <FactorForm formData={formData} onFormChange={handleFormChange} />,
-      isComplete: () => formData.paymentComplete,
-    },
-  ];
   const fetchProductsByCategory = async (categoryId: string) => {
     setIsLoading(true);
     try {
-      const { data } = await authenticatedFetch(`/product/cat/${categoryId}`);
-      if (Array.isArray(data)) {
-        const reversedData = [...data].reverse();
-        setProducts(reversedData);
+      // چک کردن کش برای محصولات
+      if (productCache.current[categoryId]) {
+        setProducts(productCache.current[categoryId]);
+      } else {
+        const { data } = await authenticatedFetch(`/product/cat/${categoryId}`);
+        if (Array.isArray(data)) {
+          const reversedData = [...data].reverse();
+          productCache.current[categoryId] = reversedData;
+          setProducts(reversedData);
+        }
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -250,15 +261,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       setIsLoading(false);
     }
   };
+
   // Effects
-  // برای اجرای درخواست اولیه هنگام تغییر modal
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        await Promise.all([
-          fetchCart(),
-          // fetchAddresses(),
-        ]);
+        await fetchCart();
       } catch (error) {
         console.error("Error in initial data fetch:", error);
       }
@@ -267,20 +275,19 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     fetchInitialData();
   }, [isModalOpen]);
 
-  // برای اجرای درخواست‌های دوره‌ای
+  useEffect(() => {
+    if (Array.isArray(cart) && cart.length === 0) {
+      setIsModalOpen(false);
+      setIsParentModalOpen(false);
+    }
+  }, [cart]);
+
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
     const startInterval = () => {
-      // فقط اگر قبلاً interval وجود نداشته باشد، یکی جدید ایجاد کن
       if (!interval && document.visibilityState === "visible" && navigator.onLine) {
-        interval = setInterval(async () => {
-          try {
-            await fetchCart();
-          } catch (error) {
-            console.error("Error fetching cart:", error);
-          }
-        }, 20000);
+        interval = setInterval(fetchCart, 20000);
       }
     };
 
@@ -307,15 +314,12 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       }
     };
 
-    // راه‌اندازی اولیه
     startInterval();
 
-    // اضافه کردن event listeners
     window.addEventListener("online", handleOnlineStatus);
     window.addEventListener("offline", handleOnlineStatus);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // cleanup
     return () => {
       stopInterval();
       window.removeEventListener("online", handleOnlineStatus);
@@ -323,11 +327,13 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
+
   useEffect(() => {
     if (isModalOpen) {
       fetchAddresses();
     }
   }, [isModalOpen]);
+
   const formatErrorMessage = (message: string | string[] | any): string => {
     if (Array.isArray(message)) {
       console.log({ message });
@@ -335,6 +341,7 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
     }
     return message?.toString() || "خطای ناشناخته رخ داده است";
   };
+
   const fetchAddresses = async () => {
     try {
       setIsLoading(true);
@@ -348,131 +355,65 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
         throw new Error(formatErrorMessage(message));
       }
 
-      // if (data?.statusCode && data.statusCode !== 200) {
-      //   setIsLoading(false);
-      //   throw new Error(formatErrorMessage(data.message));
-      // }
-
       if (status === "success") {
-        // showSuccess(message);
         setIsLoading(false);
       }
-      //  else {
-      //   throw new Error(formatErrorMessage(data?.message) || "خطا در ارسال اطلاعات");
-      // }
+
       setFormData((prev) => ({
         ...prev,
         addresses: data as Address[],
       }));
-
-      // handleFormChange({ addresses: data?.data });
     } catch (err) {
       showError(err instanceof Error ? err.message : "خطا در برقراری ارتباط با سرور");
     } finally {
       setIsLoading(false);
     }
   };
-  // Render helpers
-  // const renderProductControls = (product: ProductType) => {
-  //   const cartItem = Array.isArray(cart)
-  //     ? cart.find((item) => item.productId._id === product._id)
-  //     : null;
-  //   const isInCart = Boolean(cartItem);
-  //   const isLoading = loadingItems[product._id] || (cartItem?._id && loadingItems[cartItem._id]);
 
-  //   return (
-  //     <button
-  //       className={`relative right-[7.5rem] top-4 flex items-center justify-center border-[3px] border-black w-[40px] h-[40px] text-white px-1 py-1 rounded-full transition-all duration-[500ms] ${
-  //         isInCart ? "bg-primary-400 !w-[90px] !right-[4.1rem]" : "bg-white"
-  //       }`}
-  //       onClick={(e) => {
-  //         e.preventDefault();
-  //         if (!Array.isArray(cart)) return;
-  //         if (cartItem) {
-  //           handleCartOperations.updateQuantity(
-  //             cartItem._id,
-  //             cartItem.quantity - 1,
-  //             cartItem.quantity
-  //           );
-  //         } else {
-  //           addToCart(product._id);
-  //           setIsParentModalOpen(true);
-  //         }
-  //       }}
-  //     >
-  //       {isInCart ? (
-  //         <div className="text-black flex flex-row items-center justify-between gap-1">
-  //           <PlusIcon
-  //             className={`${isLoading ? "opacity-50" : ""} size-5 cursor-pointer`}
-  //             onClick={(e) => {
-  //               e.stopPropagation();
-  //               e.preventDefault();
-  //               if (cartItem && !loadingItems[cartItem._id]) {
-  //                 handleCartOperations.updateQuantity(
-  //                   cartItem._id,
-  //                   cartItem.quantity + 1,
-  //                   cartItem.quantity
-  //                 );
-  //               }
-  //             }}
-  //           />
-  //           <span className="font-bold text-lg text-nowrap w-6 line-clamp-1 flex justify-center items-center">
-  //             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : cartItem?.quantity || 0}
-  //           </span>
-  //           {cartItem?.quantity === 1 ? (
-  //             <TrashIcon
-  //               className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
-  //               onClick={async (e) => {
-  //                 e.stopPropagation();
-  //                 e.preventDefault();
-  //                 if (cartItem && !loadingItems[cartItem._id]) {
-  //                   if (cartItem.quantity === 1) {
-  //                     await handleCartOperations.remove(cartItem._id);
-  //                   } else {
-  //                     await handleCartOperations.updateQuantity(
-  //                       cartItem._id,
-  //                       cartItem.quantity - 1,
-  //                       cartItem.quantity
-  //                     );
-  //                   }
-  //                 }
-  //               }}
-  //               color="black"
-  //             />
-  //           ) : (
-  //             <Minus
-  //               className={`${isLoading ? "opacity-50" : ""} size-4 cursor-pointer`}
-  //               onClick={async (e) => {
-  //                 e.stopPropagation();
-  //                 e.preventDefault();
-  //                 if (cartItem && !loadingItems[cartItem._id]) {
-  //                   if (cartItem.quantity === 1) {
-  //                     await handleCartOperations.remove(cartItem._id);
-  //                   } else {
-  //                     await handleCartOperations.updateQuantity(
-  //                       cartItem._id,
-  //                       cartItem.quantity - 1,
-  //                       cartItem.quantity
-  //                     );
-  //                   }
-  //                 }
-  //               }}
-  //               color="black"
-  //             />
-  //           )}
-  //         </div>
-  //       ) : (
-  //         <>
-  //           {isLoading ? (
-  //             <Loader2 className="w-5 h-5 animate-spin text-black" />
-  //           ) : (
-  //             <PlusIcon className="text-black size-5" />
-  //           )}
-  //         </>
-  //       )}
-  //     </button>
-  //   );
-  // };
+  const steps = [
+    {
+      id: 1,
+      label: "سبدخرید",
+      content: (
+        <CartForm
+          fetchCart={fetchCart}
+          setCart={setCart}
+          cartData={cart}
+          isLoading={false}
+          loadingItems={loadingItems}
+          onUpdateQuantity={updateCartItemQuantity}
+          onRemoveItem={removeFromCart}
+        />
+      ),
+      isComplete: () => cart.length !== 0,
+    },
+    {
+      id: 2,
+      label: "موقعیت",
+      content: (
+        <LocationForm formData={formData} isLoading={isLoading} onFormChange={handleFormChange} />
+      ),
+      isComplete: () => formData.selectedAddress !== null,
+    },
+    {
+      id: 3,
+      label: "زمان",
+      content: (
+        <DateTimeSelector
+          selectedTime={selectedTime}
+          setSelectedTime={setSelectedTime}
+          onSelect={handleDateTimeSelect}
+        />
+      ),
+      isComplete: () => formData.selectedDateTime !== null && selectedTime !== null,
+    },
+    {
+      id: 4,
+      label: "پرداخت",
+      content: <FactorForm formData={formData} onFormChange={handleFormChange} />,
+      isComplete: () => formData.paymentComplete,
+    },
+  ];
 
   return (
     <>
@@ -551,7 +492,6 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
             </div>
           </div>
         </div>
-
         {/* Subcategories */}
         <CategoryGrid subCategories={subCategorys} onSelectSubCategory={handleSubCategorySelect} />
 
@@ -633,7 +573,7 @@ const CategoryGrid = ({
   return (
     <div className="w-full px-4">
       <h2 className="font-bold text-lg my-6 rtl:text-right">دسته بندی ها</h2>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         {subCategories.map((category, index) => (
           <div
             key={category._id || index}

@@ -87,9 +87,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
       if (key === "location") {
         return value.x !== 0 || value.y !== 0;
       }
-      if (key === "active" || key === "addressCode") {
-        return true; // These fields don't affect form validity
+      if (key === "active" || key === "addressCode" || key === "plaque" || key === "title") {
+        return true; // این فیلدها اجباری نیستند
       }
+
       return typeof value === "string" ? value.trim() !== "" : true;
     });
     setIsFormValid(isValid);
@@ -212,7 +213,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                 name="plaque"
                 value={formData.plaque}
                 onChange={handleChange}
-                required
+                // required
               />
             </div>
             <div className="mb-4">
@@ -222,7 +223,6 @@ const AddressModal: React.FC<AddressModalProps> = ({
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                required
               />
             </div>
 

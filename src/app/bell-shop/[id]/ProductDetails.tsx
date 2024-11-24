@@ -181,7 +181,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   };
 
   return (
-    <div className="p-4 mt-16 mb-7 flex flex-col justify-between items-center min-h-[85vh]">
+    <div className="p-4 mt-16 mb-7 flex flex-col justify-between items-center min-h-[80vh]">
       <div className="w-full mt-5 flex flex-row justify-between items-center">
         <div className="w-full flex flex-row gap-x-1 text-sm items-center justify-start">
           {Array.isArray(product.id_categories) &&
@@ -209,7 +209,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         <BackHandler fallbackUrl="/bell-shop" />
       </div>
       <div className="w-full flex flex-col items-center gap-5">
-        <div className="w-[21rem] h-[21rem] bg-gray-200 rounded-xl">
+        <div className="w-[13rem] h-[13rem] bg-gray-200 rounded-xl">
           <ProductSliderNew
             images={product.id_stores.map((x) => ({
               url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/${x.location}`,
