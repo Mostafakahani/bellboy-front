@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { PlusIcon, MinusIcon, Loader2Icon, TrashIcon } from "lucide-react";
 import { CartItem, ProductType } from "@/hooks/cartType";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import ProductDetails from "./ProductDetails";
 
 interface ProductGridProps {
@@ -127,7 +127,7 @@ const ProductCard: React.FC<
   // setOpenDetailsModal,
   handleSelectDetails,
 }) => {
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <div className="group relative border-s border-b last:border-b-0 flex flex-col h-full bg-white overflow-hidden transition-all duration-500 hover:shadow-2xl hover:z-30">
@@ -159,7 +159,8 @@ const ProductCard: React.FC<
 
         <div
           className="flex flex-col gap-4 cursor-pointer"
-          onClick={() => router.push("/bell-shop/" + product._id)}
+          onClick={() => handleSelectDetails(product._id)}
+          // onClick={() => router.push("/bell-shop/" + product._id)}
         >
           <h3 className="text-sm font-bold text-gray-800 transition-colors">{product.title}</h3>
           {/* <p className="text-[10px] text-gray-600 line-clamp-2">{product.description}</p> */}

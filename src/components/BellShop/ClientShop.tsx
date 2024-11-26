@@ -27,9 +27,14 @@ import ProductGrid from "../Products/ProductGrid";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Types
-interface ClientShopProps {
+// Updated ClientShop.tsx
+export interface ClientShopProps {
   initialCategories: CategoryType[];
   initialProducts: ProductType[];
+  // parentCategory: string | null;
+  // subCategory: string | null;
+  serverInitialParentCategory?: string | null;
+  serverInitialSubCategory?: string | null;
 }
 
 export interface FormData {
@@ -54,26 +59,40 @@ const FactorForm: React.FC<{ formData: any; onFormChange: (newData: any) => void
   return <FactorDetails type="shop" formData={formData} onFormChange={onFormChange} />;
 };
 
-export default function ClientShop({ initialCategories, initialProducts }: ClientShopProps) {
+export default function ClientShop({
+  initialCategories,
+  initialProducts,
+  // parentCategory,
+  // subCategory,
+  serverInitialParentCategory,
+  serverInitialSubCategory,
+}: ClientShopProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const authenticatedFetch = useAuthenticatedFetch();
+  const categoryCache = useRef<Record<string, CategoryType[]>>({});
+  const productCache = useRef<Record<string, ProductType[]>>({});
 
   // Get category IDs from URL
-  const currentParentId = searchParams.get("parentCategory");
+  // const currentParentId = searchParams.get("parentCategory");
   // const currentSubId = searchParams.get("subCategory");
   // State
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [parentCategories] = useState(initialCategories);
   const [selectedParentCategory, setSelectedParentCategory] = useState<CategoryType | null>(() => {
-    if (currentParentId) {
-      return initialCategories.find((cat) => cat._id === currentParentId) || initialCategories[0];
-    }
-    return initialCategories[0];
+    return (
+      initialCategories.find(
+        (cat) =>
+          cat._id ===
+          (searchParams.get("parentCategory") ||
+            serverInitialParentCategory ||
+            initialCategories[0]._id)
+      ) || initialCategories[0]
+    );
   });
   const [subCategorys, setSubCategories] = useState<CategoryType[]>([]);
+  const [products, setProducts] = useState<ProductType[]>(initialProducts);
 
-  const [products, setProducts] = useState<ProductType[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,31 +109,89 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
   // URL update helper
   const updateUrlParams = useCallback(
     (parentId?: string, subId?: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (parentId) {
-        params.set("parentCategory", parentId);
-      } else {
-        params.delete("parentCategory");
-      }
-
-      if (subId) {
-        params.set("subCategory", subId);
-      } else {
-        params.delete("subCategory");
-      }
-
-      router.push(`?${params.toString()}`, { scroll: false });
+      router.push(`/bell-shop${parentId ? `/${parentId}` : ""}${subId ? `/${subId}` : ""}`, {
+        scroll: false,
+      });
     },
-    [router, searchParams]
+    [router]
   );
-
   useEffect(() => {
     if (initialProducts?.length > 0) {
       setProducts(initialProducts);
       setIsLoading(false);
     }
   }, [initialProducts]);
+  const fetchCategoriesWithCache = async (parentCategoryId: string) => {
+    // Check cache first
+    if (categoryCache.current[parentCategoryId]) {
+      return categoryCache.current[parentCategoryId];
+    }
+
+    // If not in cache, fetch from server
+    try {
+      setIsLoading(true);
+      const { data } = await authenticatedFetch(`/category/${parentCategoryId}`);
+
+      if (Array.isArray(data)) {
+        // Cache the fetched data
+        categoryCache.current[parentCategoryId] = data;
+        return data;
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const fetchProductsWithCache = async (categoryId: string) => {
+    // Check cache first
+    if (productCache.current[categoryId]) {
+      return productCache.current[categoryId];
+    }
+
+    // If not in cache, fetch from server
+    try {
+      setIsLoading(true);
+      const { data } = await authenticatedFetch(`/product/cat/${categoryId}`);
+
+      if (Array.isArray(data)) {
+        // Reverse and cache the fetched data
+        const reversedData = [...data].reverse();
+        productCache.current[categoryId] = reversedData;
+        return reversedData;
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    const handleInitialLoad = async () => {
+      const parentId = searchParams.get("parentCategory") || serverInitialParentCategory;
+      const subId = searchParams.get("subCategory") || serverInitialSubCategory;
+
+      if (parentId && parentId !== selectedParentCategory?._id) {
+        const category = parentCategories.find((cat) => cat._id === parentId);
+        if (category) {
+          await handleCategoryChangeAndGetChildData(category);
+          setSelectedParentCategory(category);
+        }
+      }
+
+      if (subId) {
+        await fetchProductsByCategory(subId);
+      }
+    };
+
+    handleInitialLoad();
+  }, [searchParams.toString(), serverInitialParentCategory, serverInitialSubCategory]);
 
   // Handlers
   const handleFormChange = (newData: Partial<FormData>) => {
@@ -131,40 +208,72 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
       },
     }));
   };
-
-  // کش کردن درخواست‌های قبلی
-  const categoryCache = useRef<Record<string, CategoryType[]>>({});
-  const productCache = useRef<Record<string, ProductType[]>>({});
-
-  const handleCategoryChangeAndGetChildData = async (category: CategoryType) => {
-    setIsLoading(true);
-    try {
-      // چک کردن کش برای دسته‌بندی‌ها
-      if (categoryCache.current[category._id]) {
-        setSubCategories(categoryCache.current[category._id]);
-      } else {
-        const { data } = await authenticatedFetch(`/category/${category._id}`);
-        if (Array.isArray(data)) {
-          categoryCache.current[category._id] = data;
-          setSubCategories(data);
+  const categoryContainerRef = useRef<HTMLDivElement>(null);
+  const categoriesRefs = useRef<(HTMLDivElement | null)[]>([]);
+  useEffect(() => {
+    if (selectedParentCategory) {
+      const index = parentCategories.findIndex((cat) => cat._id === selectedParentCategory._id);
+      if (index !== -1 && categoriesRefs.current[index]) {
+        const selectedElement = categoriesRefs.current[index];
+        if (selectedElement) {
+          selectedElement.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center",
+          });
         }
       }
+    }
+  }, [selectedParentCategory]);
+  // کش کردن درخواست‌های قبلی
+
+  const handleCategoryChangeAndGetChildData = async (category: CategoryType) => {
+    try {
+      // First, check cache
+      const cachedSubCategories = categoryCache.current[category._id];
+
+      if (cachedSubCategories) {
+        setSubCategories(cachedSubCategories);
+      } else {
+        // If not in cache, fetch and cache
+        const fetchedSubCategories = await fetchCategoriesWithCache(category._id);
+        setSubCategories(fetchedSubCategories);
+      }
     } catch (error) {
-      console.error("Error fetching subcategories:", error);
+      console.error("Error in category change:", error);
       setSubCategories([]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleCategoryChange = async (category: CategoryType) => {
     setSelectedParentCategory(category);
     updateUrlParams(category._id);
-    await handleCategoryChangeAndGetChildData(category);
-    await fetchProductsByCategory(category._id);
+
+    // Parallel fetching with cache
+    await Promise.all([
+      handleCategoryChangeAndGetChildData(category),
+      fetchProductsByCategory(category._id),
+    ]);
   };
 
-  // Handle subcategory selection
+  // Updated product fetching to use cache
+  const fetchProductsByCategory = async (categoryId: string) => {
+    try {
+      // First, check cache
+      const cachedProducts = productCache.current[categoryId];
+
+      if (cachedProducts) {
+        setProducts(cachedProducts);
+      } else {
+        // If not in cache, fetch and cache
+        const fetchedProducts = await fetchProductsWithCache(categoryId);
+        setProducts(fetchedProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    }
+  };
   const handleSubCategorySelect = async (subCategory: CategoryType) => {
     updateUrlParams(selectedParentCategory?._id, subCategory._id);
     await fetchProductsByCategory(subCategory._id);
@@ -239,28 +348,6 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
 
   const { loadingItems, addToCart, removeFromCart, updateCartItemQuantity } =
     useCartOperations(setCart);
-
-  const fetchProductsByCategory = async (categoryId: string) => {
-    setIsLoading(true);
-    try {
-      // چک کردن کش برای محصولات
-      if (productCache.current[categoryId]) {
-        setProducts(productCache.current[categoryId]);
-      } else {
-        const { data } = await authenticatedFetch(`/product/cat/${categoryId}`);
-        if (Array.isArray(data)) {
-          const reversedData = [...data].reverse();
-          productCache.current[categoryId] = reversedData;
-          setProducts(reversedData);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Effects
   useEffect(() => {
@@ -464,12 +551,13 @@ export default function ClientShop({ initialCategories, initialProducts }: Clien
           </div>
         </ModalSmall>
         {/* Parent Categories */}
-        <div className="relative w-full mt-8">
+        <div ref={categoryContainerRef} className="relative w-full mt-8">
           <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4">
             <div className="flex gap-5 px-4 min-w-max mx-auto">
-              {parentCategories.map((category) => (
+              {parentCategories.map((category, index) => (
                 <div
                   key={category._id}
+                  ref={(el: any) => (categoriesRefs.current[index] = el)}
                   className={`flex flex-col gap-5 min-h-[110px] items-center justify-between w-[80px] cursor-pointer pt-3 border-[3px] rounded-t-[50px] rounded-b-[20px] transition-all ${
                     category._id === selectedParentCategory?._id
                       ? "bg-primary-400 border-black"

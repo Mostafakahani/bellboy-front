@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { Input } from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import { PhoneNumberDisplay } from "./PhoneNumberDisplay";
@@ -10,6 +9,7 @@ import { DatePickerDemo } from "../DatePicker";
 import { ApiResponse, useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { showError, showSuccess } from "@/lib/toastService";
 import SuccessDialog from "./SuccessDialog";
+import { Modal } from "../BellMazeh/Modal";
 
 interface ExtendedDialogProps extends DialogProps {
   profileData: ProfileData;
@@ -219,55 +219,38 @@ export const ProfileDialog: React.FC<ExtendedDialogProps> = ({ isOpen, onClose, 
 
   return (
     <>
-      <div
-        className={`fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50 transition-opacity duration-300 ease-in-out ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        <div
-          className={`bg-white w-full p-6 transform transition-all duration-300 ease-out ${
-            isOpen
-              ? "translate-y-0 scale-100 opacity-100 h-[93vh]"
-              : "translate-y-full scale-95 opacity-0 h-0"
-          }`}
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">مشخصات حساب من</h2>
-            <button onClick={onClose}>
-              <Image width={24} height={24} src="/images/icons/close.svg" alt="close" />
-            </button>
+      <Modal isOpen={isOpen} onClose={onClose} title="ویرایش حساب من">
+        <form onSubmit={handleSubmit} className="flex flex-col justify-between mt-12 px-4 pb-5">
+          <div className="flex flex-col gap-4">
+            <Input
+              name="firstName"
+              value={formData.firstName}
+              onChange={(e) => handleFormChange("firstName", e.target.value)}
+              type="text"
+              label="نام"
+            />
+            <Input
+              name="lastName"
+              value={formData.lastName}
+              onChange={(e) => handleFormChange("lastName", e.target.value)}
+              type="text"
+              label="نام خانوادگی"
+            />
+            <PhoneNumberDisplay phoneNumber={formData.phoneNumber} onEdit={handlePhoneEdit} />
+            <DatePickerDemo
+              label="تاریخ تولد"
+              value={formData.birthDate}
+              onChange={handleDateChange}
+              readOnly={false}
+            />
+            {/* {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>} */}
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[78vh] mt-12">
-            <div className="flex flex-col gap-4">
-              <Input
-                name="firstName"
-                value={formData.firstName}
-                onChange={(e) => handleFormChange("firstName", e.target.value)}
-                type="text"
-                label="نام"
-              />
-              <Input
-                name="lastName"
-                value={formData.lastName}
-                onChange={(e) => handleFormChange("lastName", e.target.value)}
-                type="text"
-                label="نام خانوادگی"
-              />
-              <PhoneNumberDisplay phoneNumber={formData.phoneNumber} onEdit={handlePhoneEdit} />
-              <DatePickerDemo
-                label="تاریخ تولد"
-                value={formData.birthDate}
-                onChange={handleDateChange}
-                readOnly={false}
-              />
-              {/* {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>} */}
-            </div>
-            <Button onXsIsText type="submit" disabled={loading}>
-              {loading ? "در حال ذخیره..." : "ذخیره تغییرات"}
-            </Button>
-          </form>
-        </div>
-      </div>
+          <Button onXsIsText type="submit" disabled={loading}>
+            {loading ? "در حال ذخیره..." : "ذخیره تغییرات"}
+          </Button>
+        </form>
+      </Modal>
+
       <PhoneNumberEditDialog
         handlePhoneEdit={handlePhoneEdit}
         isOpen={showPhoneEdit}
