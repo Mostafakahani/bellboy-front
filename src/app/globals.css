@@ -5,16 +5,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #19F7A6;
-  --secondary: #E6FFF6;
+  --primary: #19f7a6;
+  --secondary: #e6fff6;
 }
 /* Disable scroll bounce effect */
-html, body {
+html,
+body {
   scroll-behavior: smooth;
 
   overscroll-behavior: none !important;
 }
-
 
 body {
   color: var(--foreground);
@@ -56,9 +56,9 @@ body {
   border-bottom-right-radius: 5px;
 }
 
-.leaflet-control-attribution {
+/* .leaflet-control-attribution {
   display: none;
-}
+} */
 
 /* global.css */
 
@@ -79,7 +79,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #E6FFF6;
+  background-color: #e6fff6;
   /* رنگ دسته اسکرول بار */
   border-radius: 10px;
   /* گرد کردن گوشه‌های دسته */
@@ -97,6 +97,7 @@ html {
   opacity: 1; /* Firefox */
 }
 
-::-ms-input-placeholder { /* Edge 12 -18 */
+::-ms-input-placeholder {
+  /* Edge 12 -18 */
   color: rgb(173, 173, 173) !important;
 }

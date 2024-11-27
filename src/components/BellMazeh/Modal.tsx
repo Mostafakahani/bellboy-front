@@ -91,7 +91,7 @@ export const Modal: React.FC<ModalProps> = ({
               >
                 <div className="bg-white w-full h-full overflow-auto">
                   <div className="sticky w-full z-[40] top-0 bg-white flex justify-between items-center mt-4 sm:mt-6 px-4 pb-4 border-b">
-                    <Dialog.Title className="font-black text-lg sm:text-xl text-right">
+                    <Dialog.Title className="font-black text-lg sm:text-xl text-right py-3">
                       {title || "بل سرویس"}
                     </Dialog.Title>
                     <button

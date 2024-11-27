@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Circle, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Button from "../ui/Button/Button";
@@ -291,7 +291,7 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
             center={[defaultCenter.x, defaultCenter.y]}
             zoom={defaultZoom}
             className="!rounded-xl"
-            style={{ height: "100%", width: "100%", borderRadius: "32px" }}
+            style={{ height: "200px", width: "100%", borderRadius: "32px" }}
             maxBounds={iranBounds}
             ref={(map) => {
               if (map) {
@@ -300,18 +300,18 @@ const MapModal: React.FC<MapModalProps> = ({ onClose, onLocationSelect, initialL
             }}
           >
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <LocationMarker />
-            {predefinedAreas.map((area, index) => (
+            {/* {predefinedAreas.map((area, index) => (
               <Circle
                 key={index}
                 center={[area.center.x, area.center.y]}
                 radius={area.radius}
                 pathOptions={{ color: area.color, fillColor: area.color, fillOpacity: 0.2 }}
               />
-            ))}
+            ))} */}
           </MapContainer>
         </div>
         <div className="flex justify-between mt-4 p-4">

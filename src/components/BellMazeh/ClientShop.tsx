@@ -491,7 +491,10 @@ const BellMazehClient = ({ initialProducts }: ClientShopProps) => {
                     className="w-full"
                     variant="primary"
                     onXsIsText
-                    onClick={() => setIsModalCheckOutOpen(true)}
+                    onClick={() => {
+                      setIsModalCheckOutOpen(true);
+                      setIsParentModalOpen(false);
+                    }}
                   >
                     تکمیل سفارش
                   </Button>

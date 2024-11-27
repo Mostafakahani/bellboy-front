@@ -57,6 +57,12 @@ const ProfileAuth: React.FC = () => {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
+  const convertToEnglishDigits = (input: string): string => {
+    const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+    const englishDigits = "0123456789";
+
+    return input.replace(/[۰-۹]/g, (digit) => englishDigits[persianDigits.indexOf(digit)] || digit);
+  };
 
   const handlePhoneSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -219,13 +225,30 @@ const ProfileAuth: React.FC = () => {
   const handlePhoneChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const input = e.target.value.replace(/\D/g, "");
-    setPhone(input);
+    // تبدیل اعداد فارسی به انگلیسی
+    const convertToEnglishDigits = (input: string): string => {
+      const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+      const englishDigits = "0123456789";
 
-    if (input.length > 0 && !input.startsWith("09")) {
+      return input.replace(
+        /[۰-۹]/g,
+        (digit) => englishDigits[persianDigits.indexOf(digit)] || digit
+      );
+    };
+
+    // دریافت مقدار ورودی و فیلتر اعداد غیرمجاز
+    const rawInput = e.target.value;
+    const normalizedInput = convertToEnglishDigits(rawInput).replace(/\D/g, ""); // فقط اعداد
+
+    setPhone(normalizedInput);
+
+    // اعتبارسنجی ورودی
+    if (normalizedInput.length > 0 && !normalizedInput.startsWith("09")) {
       setErrorMessage("شماره وارد شده باید با 09 شروع شود");
-    } else if (input.length > 11) {
+    } else if (normalizedInput.length > 11) {
       setErrorMessage("شماره موبایل وارد شده باید 11 رقم باشد");
+    } else if (normalizedInput.length < 11 && normalizedInput.length > 0) {
+      setErrorMessage("شماره موبایل باید دقیقا 11 رقم باشد");
     } else {
       setErrorMessage("");
     }
@@ -237,18 +260,22 @@ const ProfileAuth: React.FC = () => {
     const { name, value } = e.target;
     setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleChange = (index: number, value: string) => {
-    if (value.length <= 1 && /^\d*$/.test(value)) {
+    // تبدیل و فیلتر مقدار ورودی
+    const normalizedValue = convertToEnglishDigits(value);
+
+    if (normalizedValue.length <= 1 && /^\d*$/.test(normalizedValue)) {
       const newOtp = [...otp];
-      newOtp[index] = value;
+      newOtp[index] = normalizedValue;
       setOtp(newOtp);
 
-      if (value !== "" && index < 3) {
+      // انتقال فوکوس به فیلد بعدی
+      if (normalizedValue !== "" && index < otp.length - 1) {
         inputRefs[index + 1].current?.focus();
       }
     }
   };
+
   const handleResendCode = async (e: React.MouseEvent) => {
     e.preventDefault();
     setErrorMessage("");

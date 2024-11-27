@@ -4,8 +4,10 @@ import { Address, AddressFormMode, Province } from "./types";
 import { Input } from "@/components/ui/Input/Input";
 import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button/Button";
+// import { useRouter } from "next/router";
 
 const IranMap = dynamic(() => import("@/components/Map/IranMap"), {
+  loading: () => <p>A map is loading</p>,
   ssr: false,
 });
 
@@ -43,6 +45,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
   onSave,
   onClose,
 }) => {
+  // const router = useRouter();
+  const currentUrl = window.location.pathname;
+
   const [formData, setFormData] = useState<ExtendedAddress>({
     title: "",
     province: "",
@@ -135,7 +140,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
     }));
     setShowMap(false);
   };
-
+  const isProfileAddress = (url: string): boolean => {
+    return url.startsWith("/profile/address");
+  };
   const cities = formData.province
     ? provinces.find((p) => p["province-fa"] === formData.province)?.cities || []
     : [];
@@ -143,9 +150,13 @@ const AddressModal: React.FC<AddressModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50">
-      <div className="fixed bottom-0 left-0 right-0 h-[95vh] bg-white p-6 w-full overflow-y-auto max-w-md">
-        <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center overflow-y-auto z-50">
+      <div className="fixed bottom-16 left-0 right-0 h-[90vh] bg-white p-6 w-full overflow-y-auto max-w-md">
+        <div
+          className={`flex justify-between items-center mb-4 ${
+            isProfileAddress(currentUrl) ? " " : "mt-24"
+          }`}
+        >
           <h2 className="text-xl font-semibold">
             {mode === AddressFormMode.EDIT ? "ویرایش موقعیت" : "افزودن موقعیت جدید"}
           </h2>

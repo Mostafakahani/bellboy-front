@@ -542,7 +542,10 @@ export default function ClientShop({
                   className="w-full"
                   variant="primary"
                   onXsIsText
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setTimeout(() => setIsParentModalOpen(false), 300);
+                  }}
                 >
                   تکمیل سفارش
                 </Button>

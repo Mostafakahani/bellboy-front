@@ -223,7 +223,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onOpenDrawer }) => {
             <li key={item.href} className="flex-1">
               <button
                 onClick={() => handleItemClick(item)}
-                className="w-full flex flex-col items-center justify-center h-full"
+                className="w-full flex flex-col items-center justify-center h-full focus-within:outline-none"
               >
                 {isActive(item.href) ? (
                   <div
